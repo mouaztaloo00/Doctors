@@ -10,7 +10,7 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
   const { t, i18n } = useTranslation();
-  const anchor = i18n.language === 'ar' ? 'right' : 'left'; // تغيير حسب اللغة
+  const anchor = i18n.language === 'ar' ? 'right' : 'left';
 
   return (
     <Drawer
@@ -66,7 +66,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
         left: '50%', 
         transform: 'translateX(-50%)', 
         display: 'flex', 
-        gap: 2 // إضافة مسافة بين الأزرار
+        gap: 2 
       }}
     >
       <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">

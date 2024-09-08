@@ -8,7 +8,7 @@ export const getTheme = (mode, direction) => createTheme({
       main: mode === 'dark' ? '#90caf9' : '#1976d2',
     },
     secondary: {
-      main: mode === 'dark' ? '#f48fb1' : '#dc004e',
+      main: mode === 'dark' ? '#ffffff' : '#dc004e',
     },
     background: {
       default: mode === 'dark' ? '#303030' : '#fafafa',
@@ -17,5 +17,32 @@ export const getTheme = (mode, direction) => createTheme({
   },
   typography: {
     fontFamily: 'Roboto, Arial',
+  },
+  components: {
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          color: mode === 'dark' ? '#ffffff' : '#000000', 
+          '& a': {
+            color: mode === 'dark' ? '#ffffff' : '#000000',
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          },
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: mode === 'dark' ? '#ffffff' : '#000000',
+          textDecoration: 'none',
+          '&:hover': {
+            textDecoration: 'underline',
+          },
+        },
+      },
+    },
   },
 });
