@@ -59,16 +59,23 @@ const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
         </ListItem>
       </List>
       <Divider />
-      <Box
-        position="relative" color="primary" sx={{ maxWidth: '1200px', margin: 'auto', borderRadius: 2 }}
-        >
-      <IconButton onClick={toggleDarkMode} sx={{ position: 'absolute', bottom: 80, left: '50%', transform: 'translateX(-50%)' }}>
+      <Box 
+      sx={{ 
+        position: 'absolute', 
+        bottom: 20, 
+        left: '50%', 
+        transform: 'translateX(-50%)', 
+        display: 'flex', 
+        gap: 2 // إضافة مسافة بين الأزرار
+      }}
+    >
+      <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
         {darkMode ? <Brightness7 /> : <Brightness4 />}
       </IconButton>
-      <IconButton onClick={setLanguage} sx={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)' }}>
+      <IconButton onClick={setLanguage} aria-label="change language">
         <Language />
       </IconButton>
-      </Box>
+    </Box>
     </Drawer>
   );
 };
