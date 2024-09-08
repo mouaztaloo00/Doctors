@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcomeMessage": "Welcome to the dashboard!"
+  },
+  "add": {
+    "title": "Add Item"
+  },
+  "show": {
+    "title": "Show Items"
+  },
+  "feedback": {
+    "title": "Feedback"
+  },
+  "sidebar": {
+    "title": "Sidebar",
+    "dashboard": "Dashboard",
+    "add": "Add",
+    "show": "Show",
+    "feedback": "Feedback"
+  },
+  "navbar": {
+    "title": "My App",
+    "dashboard": "Dashboard",
+    "add": "Add",
+    "show": "Show",
+    "feedback": "Feedback",
+    "Doctors": "Doctors",
+    "labs": "labs",
+    "location": "location",
+    "tests": "tests",
+    "testcategory": "testcategory",
+    "paymentMethod": "paymentMethod",
+    "Admins": "Admins",
+    "nurses": "nurses"
+  }
+}

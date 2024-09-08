@@ -1,0 +1,38 @@
+{
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcomeMessage": "مرحبًا بك في لوحة التحكم!"
+  },
+  "add": {
+    "title": "إضافة عنصر"
+  },
+  "show": {
+    "title": "عرض العناصر"
+  },
+  "feedback": {
+    "title": "التعليقات"
+  },
+    "sidebar": {
+      "title": "الشريط الجانبي",
+      "dashboard": "لوحة التحكم",
+      "add": "إضافة",
+      "show": "عرض",
+      "feedback": "التعليقات"
+    }, 
+      "navbar": {
+      "title": "تطبيقي",
+      "dashboard": "لوحة التحكم",
+      "add": "إضافة",
+      "show": "عرض",
+      "feedback": "تعليقات",
+      "Doctors": "أطباء",
+      "labs": "المخابر",
+      "location": "موقع",
+      "tests": "اختبارات",
+      "testcategory": "أصناف الاختبارات",
+      "paymentMethod": "طريقة الدفع",
+      "Admins": "المسؤولون",
+      "nurses":"ممرضين"
+    }
+  }
+  
