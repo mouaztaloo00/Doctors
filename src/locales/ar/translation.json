@@ -1,13 +1,30 @@
 {
   "dashboard": {
     "title": "لوحة التحكم",
-    "welcomeMessage": "مرحبًا بك في لوحة التحكم!"
+    "welcomeMessage": "مرحبًا بك في لوحة التحكم!",
+    "TotalSales":"إجمالي المبيعات",
+    "TotalOrders":"إجمالي الطلبات",
+    "TotalCustomers":"إجمالي العملاء",
+    "ProductsInStocks":"المنتجات في الأسهم"
   },
   "add": {
     "title": "إضافة عنصر"
   },
   "show": {
-    "title": "عرض العناصر"
+    "title1": "عرض الأطباء",
+    "title2": "عرض المخابر",
+    "title3": "عرض الموقع",
+    "title4": " عرض الاختبارات",
+    "title5": " عرض أصناف الاختبارات",
+    "title6": " عرض طريقة الدفع",
+    "title7": " عرض الممرضين" ,
+    "Doctors": "أطباء",
+    "labs": "المخابر",
+    "location": "موقع",
+    "tests": "اختبارات",
+    "testcategory": "أصناف الاختبارات",
+    "paymentMethod": "طريقة الدفع",
+    "nurses": "ممرضين"
   },
   "feedback": {
     "title": "التعليقات"
@@ -33,6 +50,19 @@
       "paymentMethod": "طريقة الدفع",
       "Admins": "المسؤولون",
       "nurses":"ممرضين"
+    },
+    "search":{
+      "placeholder":"بحث"
+    },
+    "PaymentMethod":{
+      "MTN":"ام تي ان",
+      "Syriatel":"سيرياتل"
+    },
+    "table": {
+      "governorate": "المحافظة",
+      "district": "المنطقة",
+      "city": "المدينة",
+      "area": "الحي"
     }
   }
   

@@ -1,13 +1,30 @@
 {
   "dashboard": {
     "title": "Dashboard",
-    "welcomeMessage": "Welcome to the dashboard!"
+    "welcomeMessage": "Welcome to the dashboard!",
+    "TotalSales":"Total Sales",
+    "TotalOrders":"Total Orders",
+    "TotalCustomers":"Total Customers",
+    "ProductsInStocks":"Products In Stocks"
   },
   "add": {
     "title": "Add Item"
   },
   "show": {
-    "title": "Show Items"
+    "title1": "Show Doctors",
+    "title2": "Show Labs",
+    "title3": "Show Location",
+    "title4": "Show Tests",
+    "title5": "Show Test Category",
+    "title6": "Show PaymentMethod",
+    "title7": "Show Nurses",
+    "Doctors": "Doctors",
+    "labs": "labs",
+    "location": "location",
+    "tests": "tests",
+    "testcategory": "testcategory",
+    "paymentMethod": "paymentMethod",
+    "nurses": "nurses"
   },
   "feedback": {
     "title": "Feedback"
@@ -33,5 +50,18 @@
     "paymentMethod": "paymentMethod",
     "Admins": "Admins",
     "nurses": "nurses"
+  },
+  "search":{
+    "placeholder":"search"
+  },
+  "PaymentMethod":{
+    "MTN":"MTN",
+    "Syriatel":"Syriatel"
+  },
+  "table": {
+    "governorate": "Governorate",
+    "district": "District",
+    "city": "City",
+    "area": "Area"
   }
 }

@@ -10,13 +10,13 @@ const FeedBackMiniNavbar = () => {
     <AppBar position="static" color="primary" sx={{ maxWidth: '1200px', margin: 'auto', borderRadius: 2 }}>
       <Toolbar sx={{ justifyContent: 'space-around' }}>
         <Container sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button component={Link} to="#" color="inherit" sx={{ mx: 2 }}>
+        <Button component={Link} to="/feedback/feedback_doctors" color="inherit" sx={{ mx: 2 }}>
             {t('navbar.Doctors')}
           </Button>
-          <Button component={Link} to="#" color="inherit" sx={{ mx: 2 }}>
+          <Button component={Link} to="/feedback/feedback_labs" color="inherit" sx={{ mx: 2 }}>
             {t('navbar.labs')}
           </Button>
-          <Button component={Link} to="#" color="inherit" sx={{ mx: 2 }}>
+          <Button component={Link} to="/feedback/feedback_nurses" color="inherit" sx={{ mx: 2 }}>
             {t('navbar.nurses')}
           </Button>
         </Container>

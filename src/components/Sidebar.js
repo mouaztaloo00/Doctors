@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider ,Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box } from '@mui/material';
 import { Brightness4, Brightness7, Language } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
@@ -8,14 +8,14 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 
-const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
+const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
   const { t, i18n } = useTranslation();
-  const anchor = i18n.language === 'ar' ? 'right' : 'left';
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
   return (
     <Drawer
       variant="persistent"
-      anchor={anchor}
+      anchor={direction === 'rtl' ? 'right' : 'left'}
       open={open}
       sx={{
         width: 240,
@@ -25,33 +25,36 @@ const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
           boxSizing: 'border-box',
           bgcolor: darkMode ? '#333' : '#fff',
           color: darkMode ? '#fff' : '#000',
+          display: 'flex',
+          justifyItems:'center',
+          flexDirection: 'column',
         },
       }}
     >
-      <List>
+      <List sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <ListItem>
           <ListItemText primary={t('sidebar.title')} />
         </ListItem>
         <Divider />
-        <ListItem button component={Link} to="/dashboard">
+        <ListItem button component={Link} to="/">
           <ListItemIcon>
             <HomeIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
           <ListItemText primary={t('sidebar.dashboard')} />
         </ListItem>
-        <ListItem button component={Link} to="/add">
+        <ListItem button component={Link} to="/add/add_doctors">
           <ListItemIcon>
             <AddCircleIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
           <ListItemText primary={t('sidebar.add')} />
         </ListItem>
-        <ListItem button component={Link} to="/show">
+        <ListItem button component={Link} to="/show/show_doctors">
           <ListItemIcon>
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
           <ListItemText primary={t('sidebar.show')} />
         </ListItem>
-        <ListItem button component={Link} to="/feedback">
+        <ListItem button component={Link} to="/feedback/feedback_doctors">
           <ListItemIcon>
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
@@ -60,22 +63,24 @@ const Sidebar = ({ open, toggleDarkMode, darkMode,setLanguage }) => {
       </List>
       <Divider />
       <Box 
-      sx={{ 
-        position: 'absolute', 
-        bottom: 20, 
-        left: '50%', 
-        transform: 'translateX(-50%)', 
-        display: 'flex', 
-        gap: 2 
-      }}
-    >
-      <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
-        {darkMode ? <Brightness7 /> : <Brightness4 />}
-      </IconButton>
-      <IconButton onClick={setLanguage} aria-label="change language">
-        <Language />
-      </IconButton>
-    </Box>
+        sx={{ 
+          position: 'absolute', 
+          bottom: 20, 
+          left: '50%', 
+          transform: 'translateX(-50%)', 
+          display: 'flex', 
+          gap: 2, 
+          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          textAlign: direction === 'rtl' ? 'right' : 'left', 
+        }}
+      >
+        <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
+          {darkMode ? <Brightness7 /> : <Brightness4 />}
+        </IconButton>
+        <IconButton onClick={setLanguage} aria-label="change language">
+          <Language />
+        </IconButton>
+      </Box>
     </Drawer>
   );
 };
