@@ -55,9 +55,9 @@ const ShowNurses = () => {
       <Box
         sx={{
           mb: 4,
-          px: '56px', // padding-left and padding-right
-          mx: 'auto', // center horizontally
-          maxWidth: 'calc(100% - 112px)', // account for padding-left and padding-right
+          px: '56px',
+          mx: 'auto',
+          maxWidth: 'calc(100% - 112px)',
           margin: '40px',
         }}
       >
@@ -69,7 +69,7 @@ const ShowNurses = () => {
           onChange={handleSearchChange}
           sx={{
             '& .MuiInputBase-input': {
-              py: 1.5, // reduce vertical padding
+              py: 1.5, 
             },
           }}
           InputProps={{

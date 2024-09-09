@@ -69,7 +69,7 @@ const ShowDoctors = () => {
           onChange={handleSearchChange}
           sx={{
             '& .MuiInputBase-input': {
-              py: 1.5, // reduce vertical padding
+              py: 1.5, 
             },
           }}
           InputProps={{

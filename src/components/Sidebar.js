@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography } from '@mui/material';
 import { Brightness4, Brightness7, Language } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
@@ -26,39 +26,45 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
           bgcolor: darkMode ? '#333' : '#fff',
           color: darkMode ? '#fff' : '#000',
           display: 'flex',
-          justifyItems:'center',
+          justifyItems: 'center',
           flexDirection: 'column',
         },
       }}
     >
-      <List sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <List sx={{ flex: 1, display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
         <ListItem>
-          <ListItemText primary={t('sidebar.title')} />
+          <ListItemText 
+            primary={
+              <Typography variant="h6" sx={{ width: '100%', textAlign: 'center' }}>
+                {t('sidebar.title')}
+              </Typography>
+            } 
+          />
         </ListItem>
         <Divider />
         <ListItem button component={Link} to="/">
-          <ListItemIcon>
+          <ListItemIcon sx={{ minWidth: 35 }}> 
             <HomeIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.dashboard')} />
+          <ListItemText primary={t('sidebar.dashboard')} sx={{ textAlign: 'center' }} />
         </ListItem>
         <ListItem button component={Link} to="/add/add_doctors">
-          <ListItemIcon>
+          <ListItemIcon sx={{ minWidth: 35 }}> 
             <AddCircleIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.add')} />
+          <ListItemText primary={t('sidebar.add')} sx={{ textAlign: 'center' }} />
         </ListItem>
         <ListItem button component={Link} to="/show/show_doctors">
-          <ListItemIcon>
+          <ListItemIcon sx={{ minWidth: 35 }}> 
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.show')} />
+          <ListItemText primary={t('sidebar.show')} sx={{ textAlign: 'center' }} />
         </ListItem>
         <ListItem button component={Link} to="/feedback/feedback_doctors">
-          <ListItemIcon>
+          <ListItemIcon sx={{ minWidth: 35 }}> 
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.feedback')} />
+          <ListItemText primary={t('sidebar.feedback')} sx={{ textAlign: 'center' }} />
         </ListItem>
       </List>
       <Divider />

@@ -22,25 +22,25 @@ const ShowPaymentMethod = () => {
       p: 3, 
       display: 'flex', 
       flexDirection: 'column', 
-      direction: isRtl ? 'rtl' : 'ltr', // Apply text direction based on language
+      direction: isRtl ? 'rtl' : 'ltr', 
     }}>
       <Typography variant="h4" gutterBottom sx={{p: 3}}>
         {t('show.title6')}
       </Typography>
       <ShowMiniNavbar />
 
-      <Box sx={{ mt: 4 }}> {/* Add margin-top to create space above the cards */}
+      <Box sx={{ mt: 4 }}> 
         <Stack
           direction="row"
-          spacing={4} // Increase spacing between cards
+          spacing={4} 
           flexWrap="wrap"
-          justifyContent="center" // Center the cards horizontally
+          justifyContent="center" 
           sx={{
-            // Adjust direction of layout based on text direction
+            
             flexDirection: isRtl ? 'row-reverse' : 'row',
           }}
         >
-          {/* Card for Syriatel */}
+        
           <Card
             sx={{
               width: 300,
@@ -81,7 +81,7 @@ const ShowPaymentMethod = () => {
             </IconButton>
           </Card>
 
-          {/* Card for MTN */}
+          
           <Card
             sx={{
               width: 300,

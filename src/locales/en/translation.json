@@ -8,26 +8,39 @@
     "ProductsInStocks":"Products In Stocks"
   },
   "add": {
-    "title": "Add Item"
+    "title1": "Add Doctors",
+    "title2": "Add Labs",
+    "title3": "Add Location",
+    "title4": "Add Tests",
+    "title5": "Add Test_Category",
+    "title6": "Add Payment_Method",
+    "title7": "Add Nurses",
+    "name":"name",
+    "phone_number":"phone_number",
+    "password":"password",
+    "confirmpassword":"confirm password",
+    "consultation_fee":"consultation_fee",
+    "specialization":"specialization",
+    "submit":"submit",
+    "username":"username",
+    "lab_name":"lab name",
+    "contact_number":"contact number",
+    "logo":"logo",
+    "activate":"activate"
   },
   "show": {
     "title1": "Show Doctors",
     "title2": "Show Labs",
     "title3": "Show Location",
     "title4": "Show Tests",
-    "title5": "Show Test Category",
-    "title6": "Show PaymentMethod",
-    "title7": "Show Nurses",
-    "Doctors": "Doctors",
-    "labs": "labs",
-    "location": "location",
-    "tests": "tests",
-    "testcategory": "testcategory",
-    "paymentMethod": "paymentMethod",
-    "nurses": "nurses"
+    "title5": "Show Test_Category",
+    "title6": "Show Payment_Method",
+    "title7": "Show Nurses"
   },
-  "feedback": {
-    "title": "Feedback"
+  "Feedback": {
+    "title1": "Feedback Doctors",
+    "title2": "Feedback Labs",
+    "title3": "Feedback Nurses"
   },
   "sidebar": {
     "title": "Sidebar",
