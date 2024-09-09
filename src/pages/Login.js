@@ -20,7 +20,7 @@ import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import axios from "axios";
 
 const Login = () => {
-  const url = `${process.env.REACT_APP_API_BASE_URL}/users/login`;
+  const url = `${process.env.REACT_APP_API_BASE_URL}/login`;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -127,7 +127,7 @@ const Login = () => {
           <Grid container>
             <Grid item>
               <Button
-                onClick={() => navigate("/sign-up")}
+                onClick={() => navigate("#")}
                 variant="text"
                 color="primary"
               >

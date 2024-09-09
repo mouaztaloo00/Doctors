@@ -10,7 +10,7 @@ i18n
       en: { translation: enTranslations },
       ar: { translation: arTranslations },
     },
-    lng: 'en', // اللغة الافتراضية
+    lng: 'en', 
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
