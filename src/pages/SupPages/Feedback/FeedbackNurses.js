@@ -18,18 +18,15 @@ import {
   DialogTitle,
   Button
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
 
 const FeedbackNurses = () => {
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Adding a random rating between 1 and 10
   const generateRandomRating = () => Math.floor(Math.random() * 10) + 1;
 
   const nurses = [

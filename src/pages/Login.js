@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -14,19 +14,64 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
 import HttpsRoundedIcon from "@mui/icons-material/HttpsRounded";
-import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded"; 
+import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import axios from "axios";
+import { requestFCMToken, onMessageListener } from "../utils/firebaseUtils"; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const url = `${process.env.REACT_APP_API_BASE_URL}/login`;
-  const [phoneNumber, setPhoneNumber] = useState(""); 
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [fcmToken, setFcmToken] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFcmToken = async () => {
+      try {
+        const token = await requestFCMToken();
+        if (token) {
+          setFcmToken(token);
+          console.log("FCM Token:", token);
+        } else {
+          console.log("No FCM token available.");
+        }
+      } catch (error) {
+        console.error("Failed to get FCM token", error);
+      }
+    };
+
+    fetchFcmToken();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onMessageListener()
+      .then(payload => {
+        toast(
+          <div>
+            <strong>Message:</strong> {payload.notification.title}
+            <br />
+            <strong>Body:</strong> {payload.notification.body}
+          </div>,
+          { position: "top-center" }
+        );
+        console.log("Received foreground message:", payload);
+      })
+      .catch(err => console.error("Error receiving message: ", err));
+  
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); 
+      }
+    };
+  }, []);
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -35,7 +80,7 @@ const Login = () => {
     setLoading(true);
     setOpenSnackbar(false);
 
-    if (!phoneNumber || !password) { 
+    if (!phoneNumber || !password) {
       setError("Phone Number and Password are required");
       setOpenSnackbar(true);
       setLoading(false);
@@ -43,13 +88,13 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(url, { phoneNumber, password }); 
+      const response = await axios.post(url, { phoneNumber, password, fcmToken });
 
       if (response.data.message === "Login Successful") {
-        localStorage.setItem('authToken', response.data.token || ''); 
+        localStorage.setItem('authToken', response.data.token || '');
         setSuccess("Login successful!");
         setOpenSnackbar(true);
-        setTimeout(() => navigate("/home"), 2000); 
+        setTimeout(() => navigate("/home"), 2000);
       } else {
         setError(response.data.message || "Invalid Phone Number or Password");
         setOpenSnackbar(true);
@@ -65,7 +110,7 @@ const Login = () => {
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
-    setError(""); 
+    setError("");
     setSuccess("");
   };
 
@@ -88,16 +133,16 @@ const Login = () => {
         </Typography>
         <form onSubmit={handleSubmit} style={{ width: "100%", marginTop: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-            <PhoneRoundedIcon sx={{ color: 'action.active', fontSize: 40, m: 1, my: 2 }} /> 
+            <PhoneRoundedIcon sx={{ color: 'action.active', fontSize: 40, m: 1, my: 2 }} />
             <TextField
               margin="normal"
               autoComplete="off"
               required
               fullWidth
-              label="Phone Number" 
-              type="tel" 
+              label="Phone Number"
+              type="tel"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)} 
+              onChange={(e) => setPhoneNumber(e.target.value)}
               autoFocus
             />
           </Box>
@@ -142,6 +187,7 @@ const Login = () => {
           <CircularProgress sx={{ mt: 2 }} />
         )}
       </Box>
+      <ToastContainer />
     </Container>
   );
 };
