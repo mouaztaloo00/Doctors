@@ -20,6 +20,7 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "recharts": "^2.12.7",
     "rtl-css-js": "^1.16.1",
     "stylis": "^4.3.4",
     "stylis-plugin-rtl": "^2.1.1",

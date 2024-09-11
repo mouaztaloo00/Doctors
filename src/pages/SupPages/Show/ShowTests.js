@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, CardContent } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 
-
 const testData = [
   { testname: 'Test 1', category: 'Category 1', description: 'Description for test 1' },
   { testname: 'Test 2', category: 'Category 2', description: 'Description for test 2' },
@@ -16,46 +15,50 @@ const testData = [
 ];
 
 const ShowTests = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
-    <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom sx={{p: 3}}>{t('show.title4')}</Typography>
-      <ShowMiniNavbar/>
+    <Box sx={{ direction: i18n.dir(), p: 3 }}>
+      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>{t('show.title4')}</Typography>
+      <ShowMiniNavbar />
       <Box
         sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 2, 
-          mt: 5, 
+          display: 'grid',
+          maxWidth: '1000px',
+          gridTemplateColumns: { xs: '1fr', sm: '1fr', md: 'repeat(2, 1fr)' },
+          gap: 3,
+          mt: 5,
+          mx: 'auto', 
+          justifyContent: 'center', 
         }}
       >
         {testData.map((test, index) => (
-          <Box
+          <Card
             key={index}
             sx={{
-              flex: '1 1 calc(50% - 20px)', 
-              maxWidth: 'calc(50% - 20px)',
+              boxShadow: 3,
+              transition: 'transform 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.03)',
+              },
+              borderRadius: 2,
+              overflow: 'hidden',
             }}
           >
-            <Card sx={{ 
-              boxShadow: 2,
-              transition: 'transform 0.3s ease-in-out', 
-              '&:hover': {
-                transform: 'scale(1.05)',
-              } 
-            }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="h6">{test.testname}</Typography>
-                  <Typography variant="subtitle1" color="textSecondary">{test.category}</Typography>
-                </Box>
-                <Typography variant="body2">{test.description}</Typography>
-              </CardContent>
-            </Card>
-          </Box>
+            <CardContent>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                  {test.testname}
+                </Typography>
+                <Typography variant="subtitle2" color="textSecondary">
+                  {test.category}
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.primary">
+                {test.description}
+              </Typography>
+            </CardContent>
+          </Card>
         ))}
       </Box>
     </Box>

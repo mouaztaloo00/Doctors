@@ -7,24 +7,24 @@ import {
   CardActionArea,
   CardContent,
   Avatar,
-  Stack,
+  Grid,
   TextField,
   InputAdornment,
   IconButton,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
   Button
 } from '@mui/material';
-import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import SearchIcon from '@mui/icons-material/Search';
+import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 
 const ShowDoctors = () => {
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [open, setOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const doctors = [
     { id: 1, name: 'Dr. John Doe', specialty: 'Cardiologist', image: 'https://via.placeholder.com/150', bio: 'Experienced in cardiology with 15 years of experience in treating heart-related conditions.' },
@@ -48,31 +48,22 @@ const ShowDoctors = () => {
 
   const handleClick = (doctor) => {
     setSelectedDoctor(doctor);
-    setOpen(true);
+    setOpenDialog(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     setSelectedDoctor(null);
   };
 
-
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
-      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{p: 3}}>
+      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
         {t('show.title1')}
       </Typography>
       <ShowMiniNavbar />
 
-      <Box
-        sx={{
-          mb: 4,
-          px: '56px',
-          mx: 'auto', 
-          maxWidth: 'calc(100% - 112px)', 
-          margin: '40px',
-        }}
-      >
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
         <TextField
           variant="outlined"
           fullWidth
@@ -80,8 +71,9 @@ const ShowDoctors = () => {
           value={searchTerm}
           onChange={handleSearchChange}
           sx={{
+            borderRadius: 1,
             '& .MuiInputBase-input': {
-              py: 1.5, 
+              py: 1.5,
             },
           }}
           InputProps={{
@@ -96,45 +88,29 @@ const ShowDoctors = () => {
         />
       </Box>
 
-      <Stack
-        direction="row"
-        spacing={2}
-        flexWrap="wrap"
-        justifyContent="center"
-      >
+      <Grid container spacing={3} justifyContent="center">
         {filteredDoctors.map((doctor) => (
-          <Box
-            key={doctor.id}
-            sx={{
-              width: { xs: '100%', sm: '48%', md: '30%' },
-              mb: 4,
-              p: 2,
-              display: 'flex',
-              marginLeft:'16px !important',
-              justifyContent: 'center'
-            }}
-          >
-            <Card 
+          <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={3}>
+            <Card
               sx={{
-                width: '100%',
-                maxWidth: 345,
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: 'transform 0.3s',
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'transform 0.3s, box-shadow 0.3s',
                 '&:hover': {
                   transform: 'scale(1.05)',
-                  boxShadow: 6,
+                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                 },
+                overflow: 'hidden',
               }}
             >
               <CardActionArea onClick={() => handleClick(doctor)}>
-                <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
                     src={doctor.image}
                     alt={doctor.name}
-                    sx={{ width: 80, height: 80, marginRight: 2 }}
+                    sx={{ width: 100, height: 100, mb: 2 }}
                   />
-                  <CardContent sx={{ flex: 1 }}>
+                  <CardContent sx={{ textAlign: 'center' }}>
                     <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                       {doctor.name}
                     </Typography>
@@ -145,38 +121,41 @@ const ShowDoctors = () => {
                 </Box>
               </CardActionArea>
             </Card>
-          </Box>
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
 
       {selectedDoctor && (
-        <Dialog 
-          open={open} 
-          onClose={handleClose} 
-          maxWidth="sm" 
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
           fullWidth
           sx={{ direction: i18n.dir() }}
         >
-          <DialogTitle sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left'  , p:2}}>
+          <DialogTitle sx={{ textAlign: 'center' }}>
             {selectedDoctor.name}
           </DialogTitle>
-          <DialogContent sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+          <DialogContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
               <Avatar
                 src={selectedDoctor.image}
                 alt={selectedDoctor.name}
-                sx={{ width: 100, height: 100, marginRight: 2 }}
+                sx={{ width: 100, height: 100, mb: 2 }}
               />
-              <Box>
-                <Typography variant="h6" sx={{p:1}}>{selectedDoctor.specialty}</Typography>
-                <Typography variant="body2" sx={{p:1}} color="text.secondary">
-                  {selectedDoctor.bio}
-                </Typography>
-              </Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {selectedDoctor.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedDoctor.specialty}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                {selectedDoctor.bio}
+              </Typography>
             </Box>
           </DialogContent>
-          <DialogActions sx={{ justifyContent: i18n.dir() === 'lrt' ? 'flex-start' : 'flex-end' }}>
-            <Button onClick={handleClose} color="primary">
+          <DialogActions>
+            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
               {t('show.close')}
             </Button>
           </DialogActions>

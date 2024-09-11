@@ -7,7 +7,7 @@ import {
   CardActionArea,
   CardContent,
   Avatar,
-  Stack,
+  Grid,
   TextField,
   InputAdornment,
   IconButton,
@@ -17,11 +17,10 @@ import {
   DialogActions,
   Button
 } from '@mui/material';
-import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import SearchIcon from '@mui/icons-material/Search';
+import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 
 const ShowLabs = () => {
-  
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
@@ -59,31 +58,19 @@ const ShowLabs = () => {
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
-      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{p: 3}}>
+      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
         {t('show.title2')}
       </Typography>
       <ShowMiniNavbar />
 
-      <Box
-        sx={{
-          mb: 4,
-          px: '56px', 
-          mx: 'auto', 
-          maxWidth: 'calc(100% - 112px)',
-          margin: '40px',
-        }}
-      >
+      <Box  sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
         <TextField
           variant="outlined"
           fullWidth
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
-          sx={{
-            '& .MuiInputBase-input': {
-              py: 1.5, 
-            },
-          }}
+          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -96,45 +83,29 @@ const ShowLabs = () => {
         />
       </Box>
 
-      <Stack
-        direction="row"
-        spacing={2}
-        flexWrap="wrap"
-        justifyContent="center"
-      >
+      <Grid container spacing={3} justifyContent="center">
         {filteredLabs.map((lab) => (
-          <Box
-            key={lab.id}
-            sx={{
-              width: { xs: '100%', sm: '48%', md: '30%' },
-              mb: 4,
-              p: 2,
-              display: 'flex',
-              marginLeft:'16px !important',
-              justifyContent: 'center'
-            }}
-          >
-            <Card 
+          <Grid item key={lab.id} xs={12} sm={6} md={4} lg={3}>
+            <Card
               sx={{
-                width: '100%',
-                maxWidth: 345,
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: 'transform 0.3s',
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'transform 0.3s, box-shadow 0.3s',
                 '&:hover': {
                   transform: 'scale(1.05)',
-                  boxShadow: 6,
+                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                 },
+                overflow: 'hidden',
               }}
             >
               <CardActionArea onClick={() => handleClick(lab)}>
-                <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
                     src={lab.image}
                     alt={lab.name}
-                    sx={{ width: 80, height: 80, marginRight: 2 }}
+                    sx={{ width: 100, height: 100, mb: 2 }}
                   />
-                  <CardContent sx={{ flex: 1 }}>
+                  <CardContent sx={{ textAlign: 'center' }}>
                     <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                       {lab.name}
                     </Typography>
@@ -145,38 +116,38 @@ const ShowLabs = () => {
                 </Box>
               </CardActionArea>
             </Card>
-          </Box>
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
 
       {selectedLab && (
-        <Dialog 
-          open={open} 
-          onClose={handleClose} 
-          maxWidth="sm" 
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          maxWidth="sm"
           fullWidth
           sx={{ direction: i18n.dir() }}
         >
-          <DialogTitle sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left', p: 2 }}>
+          <DialogTitle sx={{ textAlign: 'center', p: 2 }}>
             {selectedLab.name}
           </DialogTitle>
-          <DialogContent sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+          <DialogContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
               <Avatar
                 src={selectedLab.image}
                 alt={selectedLab.name}
-                sx={{ width: 100, height: 100, marginRight: 2 }}
+                sx={{ width: 100, height: 100, mb: 2 }}
               />
-              <Box>
-                <Typography variant="h6" sx={{ p: 1 }}>{selectedLab.type}</Typography>
-                <Typography variant="body2" sx={{ p: 1 }} color="text.secondary">
-                  {selectedLab.description}
-                </Typography>
-              </Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {selectedLab.type}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedLab.description}
+              </Typography>
             </Box>
           </DialogContent>
-          <DialogActions sx={{ justifyContent: i18n.dir() === 'lrt' ? 'flex-start' : 'flex-end' }}>
-            <Button onClick={handleClose} color="primary">
+          <DialogActions>
+            <Button onClick={handleClose} sx={{ color: 'red' }}>
               {t('show.close')}
             </Button>
           </DialogActions>

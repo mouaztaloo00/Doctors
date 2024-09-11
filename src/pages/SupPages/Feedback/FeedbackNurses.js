@@ -7,7 +7,7 @@ import {
   CardActionArea,
   CardContent,
   Avatar,
-  Stack,
+  Grid,
   TextField,
   InputAdornment,
   IconButton,
@@ -27,7 +27,7 @@ const FeedbackNurses = () => {
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const generateRandomRating = () => Math.floor(Math.random() * 10) + 1;
+  const generateRandomRating = () => Math.floor(Math.random() * 5) + 1;
 
   const nurses = [
     { id: 1, name: 'Nurse Alice Johnson', specialty: 'Pediatric Nurse', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
@@ -66,15 +66,7 @@ const FeedbackNurses = () => {
       </Typography>
       <FeedBackMiniNavbar />
 
-      <Box
-        sx={{
-          mb: 4,
-          px: '56px',
-          mx: 'auto',
-          maxWidth: 'calc(100% - 112px)',
-          margin: '40px',
-        }}
-      >
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
         <TextField
           variant="outlined"
           fullWidth
@@ -82,6 +74,7 @@ const FeedbackNurses = () => {
           value={searchTerm}
           onChange={handleSearchChange}
           sx={{
+            borderRadius: 1,
             '& .MuiInputBase-input': {
               py: 1.5,
             },
@@ -98,45 +91,29 @@ const FeedbackNurses = () => {
         />
       </Box>
 
-      <Stack
-        direction="row"
-        spacing={2}
-        flexWrap="wrap"
-        justifyContent="center"
-      >
+      <Grid container spacing={3} justifyContent="center">
         {filteredNurses.map((nurse) => (
-          <Box
-            key={nurse.id}
-            sx={{
-              width: { xs: '100%', sm: '48%', md: '30%' },
-              mb: 4,
-              p: 2,
-              display: 'flex',
-              marginLeft: '16px !important',
-              justifyContent: 'center'
-            }}
-          >
-            <Card 
+          <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
+            <Card
               sx={{
-                width: '100%',
-                maxWidth: 345,
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: 'transform 0.3s',
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'transform 0.3s, box-shadow 0.3s',
                 '&:hover': {
                   transform: 'scale(1.05)',
-                  boxShadow: 6,
+                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                 },
+                overflow: 'hidden',
               }}
             >
               <CardActionArea onClick={() => handleClick(nurse)}>
-                <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
                     src={nurse.image}
                     alt={nurse.name}
-                    sx={{ width: 80, height: 80, marginRight: 2 }}
+                    sx={{ width: 100, height: 100, mb: 2 }}
                   />
-                  <CardContent sx={{ flex: 1 }}>
+                  <CardContent sx={{ textAlign: 'center' }}>
                     <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                       {nurse.name}
                     </Typography>
@@ -159,49 +136,49 @@ const FeedbackNurses = () => {
                 </Box>
               </CardActionArea>
             </Card>
-          </Box>
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
 
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
         maxWidth="sm"
         fullWidth
-        sx={{ direction: i18n.dir() }} 
+        sx={{ direction: i18n.dir() }}
       >
-        <DialogTitle>{selectedNurse?.name}</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center' }}>
+          {selectedNurse?.name}
+        </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
             <Avatar
               src={selectedNurse?.image}
               alt={selectedNurse?.name}
-              sx={{ width: 100, height: 100, marginRight: 2 }}
+              sx={{ width: 100, height: 100, mb: 2 }}
             />
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', p: 1 }}>
-                {selectedNurse?.name}
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              {selectedNurse?.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {selectedNurse?.specialty}
+            </Typography>
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="body2" color="text.primary">
+                Rating:
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ p: 0.5 }}>
-                {selectedNurse?.specialty}
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="body2" color="text.primary" sx={{ p: 0.5 }}>
-                  Rating:
-                </Typography>
-                <Rating
-                  name={`rating-${selectedNurse?.id}`}
-                  value={selectedNurse?.rating}
-                  readOnly
-                  precision={0.1}
-                  sx={{ mt: 0.5 }}
-                />
-              </Box>
+              <Rating
+                name={`rating-${selectedNurse?.id}`}
+                value={selectedNurse?.rating}
+                readOnly
+                precision={0.1}
+                sx={{ mt: 0.5 }}
+              />
             </Box>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
             {t('show.close')}
           </Button>
         </DialogActions>
