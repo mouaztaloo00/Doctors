@@ -35,7 +35,8 @@
     "title4": "Show Tests",
     "title5": "Show Test_Category",
     "title6": "Show Payment_Method",
-    "title7": "Show Nurses"
+    "title7": "Show Nurses",
+    "close":"close"
   },
   "Feedback": {
     "title1": "Feedback Doctors",

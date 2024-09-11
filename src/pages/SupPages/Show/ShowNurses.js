@@ -10,27 +10,33 @@ import {
   Stack,
   TextField,
   InputAdornment,
-  IconButton
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
-import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 
 const ShowNurses = () => {
-  const navigate = useNavigate();
+
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
+  const [open, setOpen] = useState(false);
+  const [selectedNurse, setSelectedNurse] = useState(null);
 
   const nurses = [
-    { id: 1, name: 'Nurse Alice Johnson', specialty: 'Pediatric Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 2, name: 'Nurse Bob Brown', specialty: 'Emergency Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 3, name: 'Nurse Clara Davis', specialty: 'Surgical Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 4, name: 'Nurse Daniel Lee', specialty: 'Oncology Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 5, name: 'Nurse Eva Martinez', specialty: 'Geriatric Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 6, name: 'Nurse Frank Wilson', specialty: 'Cardiac Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 7, name: 'Nurse Grace Kim', specialty: 'Neonatal Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 8, name: 'Nurse Henry Scott', specialty: 'Orthopedic Nurse', image: 'https://via.placeholder.com/150' },
-    { id: 9, name: 'Nurse Iris Clark', specialty: 'Critical Care Nurse', image: 'https://via.placeholder.com/150' },
+    { id: 1, name: 'Nurse Alice Johnson', specialty: 'Pediatric Nurse', image: 'https://via.placeholder.com/150', description: 'Expert in child care and pediatric nursing.' },
+    { id: 2, name: 'Nurse Bob Brown', specialty: 'Emergency Nurse', image: 'https://via.placeholder.com/150', description: 'Handles critical cases in the emergency room with expertise.' },
+    { id: 3, name: 'Nurse Clara Davis', specialty: 'Surgical Nurse', image: 'https://via.placeholder.com/150', description: 'Assists in surgical procedures and post-operative care.' },
+    { id: 4, name: 'Nurse Daniel Lee', specialty: 'Oncology Nurse', image: 'https://via.placeholder.com/150', description: 'Specializes in cancer care and chemotherapy administration.' },
+    { id: 5, name: 'Nurse Eva Martinez', specialty: 'Geriatric Nurse', image: 'https://via.placeholder.com/150', description: 'Focuses on elderly care and chronic condition management.' },
+    { id: 6, name: 'Nurse Frank Wilson', specialty: 'Cardiac Nurse', image: 'https://via.placeholder.com/150', description: 'Provides care for patients with heart conditions.' },
+    { id: 7, name: 'Nurse Grace Kim', specialty: 'Neonatal Nurse', image: 'https://via.placeholder.com/150', description: 'Expert in neonatal intensive care and newborn health.' },
+    { id: 8, name: 'Nurse Henry Scott', specialty: 'Orthopedic Nurse', image: 'https://via.placeholder.com/150', description: 'Specializes in bone and joint care.' },
+    { id: 9, name: 'Nurse Iris Clark', specialty: 'Critical Care Nurse', image: 'https://via.placeholder.com/150', description: 'Expert in managing patients in intensive care units.' },
   ];
 
   const filteredNurses = nurses.filter((nurse) =>
@@ -41,8 +47,14 @@ const ShowNurses = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleClick = (id) => {
-    navigate(`#`);
+  const handleClick = (nurse) => {
+    setSelectedNurse(nurse);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedNurse(null);
   };
 
   return (
@@ -115,7 +127,7 @@ const ShowNurses = () => {
                 },
               }}
             >
-              <CardActionArea onClick={() => handleClick(nurse.id)}>
+              <CardActionArea onClick={() => handleClick(nurse)}>
                 <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
                   <Avatar
                     src={nurse.image}
@@ -136,6 +148,40 @@ const ShowNurses = () => {
           </Box>
         ))}
       </Stack>
+
+      {selectedNurse && (
+        <Dialog 
+          open={open} 
+          onClose={handleClose} 
+          maxWidth="sm" 
+          fullWidth
+          sx={{ direction: i18n.dir() }}
+        >
+          <DialogTitle sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left', p: 2 }}>
+            {selectedNurse.name}
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: i18n.dir() === 'rtl' ? 'right' : 'left' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+              <Avatar
+                src={selectedNurse.image}
+                alt={selectedNurse.name}
+                sx={{ width: 100, height: 100, marginRight: 2 }}
+              />
+              <Box>
+                <Typography variant="h6" sx={{ p: 1 }}>{selectedNurse.specialty}</Typography>
+                <Typography variant="body2" sx={{ p: 1 }} color="text.secondary">
+                  {selectedNurse.description}
+                </Typography>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: i18n.dir() === 'lrt' ? 'flex-start' : 'flex-end' }}>
+            <Button onClick={handleClose} color="primary">
+              {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };

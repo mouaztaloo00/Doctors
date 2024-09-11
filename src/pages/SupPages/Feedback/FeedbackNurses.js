@@ -11,7 +11,12 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Rating
+  Rating,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,6 +26,8 @@ const FeedbackNurses = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedNurse, setSelectedNurse] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   // Adding a random rating between 1 and 10
   const generateRandomRating = () => Math.floor(Math.random() * 10) + 1;
@@ -45,8 +52,14 @@ const FeedbackNurses = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleClick = (id) => {
-    navigate(`#`);
+  const handleClick = (nurse) => {
+    setSelectedNurse(nurse);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedNurse(null);
   };
 
   return (
@@ -119,7 +132,7 @@ const FeedbackNurses = () => {
                 },
               }}
             >
-              <CardActionArea onClick={() => handleClick(nurse.id)}>
+              <CardActionArea onClick={() => handleClick(nurse)}>
                 <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
                   <Avatar
                     src={nurse.image}
@@ -152,6 +165,50 @@ const FeedbackNurses = () => {
           </Box>
         ))}
       </Stack>
+
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+        sx={{ direction: i18n.dir() }} 
+      >
+        <DialogTitle>{selectedNurse?.name}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Avatar
+              src={selectedNurse?.image}
+              alt={selectedNurse?.name}
+              sx={{ width: 100, height: 100, marginRight: 2 }}
+            />
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', p: 1 }}>
+                {selectedNurse?.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ p: 0.5 }}>
+                {selectedNurse?.specialty}
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body2" color="text.primary" sx={{ p: 0.5 }}>
+                  Rating:
+                </Typography>
+                <Rating
+                  name={`rating-${selectedNurse?.id}`}
+                  value={selectedNurse?.rating}
+                  readOnly
+                  precision={0.1}
+                  sx={{ mt: 0.5 }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            {t('show.close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -25,6 +25,8 @@ import AddPaymentMethod from './pages/SupPages/Add/AddPaymentMethod';
 import FeedbackDoctors from './pages/SupPages/Feedback/FeedbackDoctors';
 import FeedbackLabs from './pages/SupPages/Feedback/FeedbackLabs';
 import FeedbackNurses from './pages/SupPages/Feedback/FeedbackNurses';
+import Login from './pages/Login';
+
 const App = () => {
   const { i18n } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
@@ -55,6 +57,7 @@ const App = () => {
             <main style={{ marginLeft: themeDirection === 'ltr' && sidebarOpen ? 240 : 0, marginRight: themeDirection === 'rtl' && sidebarOpen ? 240 : 0 }}>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
                 {/*///////////////Add////////////////////*/}
                 <Route path="/add/add_doctors" element={<AddDoctors />} />
                 <Route path="/add/add_labs" element={<AddLabs />} />
