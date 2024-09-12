@@ -5,7 +5,7 @@ export const getTheme = (mode, direction) => createTheme({
   palette: {
     mode: mode,
     primary: {
-      main: mode === 'dark' ? '#90caf9' : '#1976d2',
+      main: mode === 'dark' ? '#0b090a' : '#7b2cbf',
     },
     secondary: {
       main: mode === 'dark' ? '#ffffff' : '#dc004e',

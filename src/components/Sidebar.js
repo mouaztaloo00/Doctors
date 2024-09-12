@@ -23,7 +23,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
         '& .MuiDrawer-paper': {
           width: 240,
           boxSizing: 'border-box',
-          bgcolor: darkMode ? '#333' : '#fff',
+          background: darkMode ? '#333' : '#ffff',
           color: darkMode ? '#fff' : '#000',
           display: 'flex',
           justifyItems: 'center',

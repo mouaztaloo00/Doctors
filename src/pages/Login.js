@@ -94,7 +94,7 @@ const Login = () => {
         localStorage.setItem('authToken', response.data.token || '');
         setSuccess("Login successful!");
         setOpenSnackbar(true);
-        setTimeout(() => navigate("/home"), 2000);
+        setTimeout(() => navigate("/"), 2000);
       } else {
         setError(response.data.message || "Invalid Phone Number or Password");
         setOpenSnackbar(true);

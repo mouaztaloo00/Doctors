@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import './App.css';
 import { getTheme } from './theme';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -44,8 +45,8 @@ const App = () => {
   return (
     <ThemeProvider theme={getTheme(darkMode ? 'dark' : 'light', themeDirection)}>
       <CssBaseline />
-      <div dir={themeDirection}>
-        <Router>
+      <div className='App' dir={themeDirection}>
+        <Router >
           <>
             <Sidebar
               open={sidebarOpen}
@@ -54,8 +55,8 @@ const App = () => {
               toggleSidebar={setSidebarOpen}
               setLanguage={handleLanguageChange}
             />
-            <main style={{ marginLeft: themeDirection === 'ltr' && sidebarOpen ? 240 : 0, marginRight: themeDirection === 'rtl' && sidebarOpen ? 240 : 0 }}>
-              <Routes>
+            <main  style={{ marginLeft: themeDirection === 'ltr' && sidebarOpen ? 240 : 0, marginRight: themeDirection === 'rtl' && sidebarOpen ? 240 : 0 }}>
+              <Routes className = "cairo-customClass">
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/login" element={<Login />} />
                 {/*///////////////Add////////////////////*/}
@@ -77,7 +78,6 @@ const App = () => {
                 <Route path="/feedback/feedback_doctors" element={<FeedbackDoctors />} />
                 <Route path="/feedback/feedback_labs" element={<FeedbackLabs />} />
                 <Route path="/feedback/feedback_nurses" element={<FeedbackNurses />} />
-               
               </Routes>
             </main>
           </>

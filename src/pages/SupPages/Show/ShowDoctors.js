@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -12,31 +12,43 @@ import {
   InputAdornment,
   IconButton,
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  Button
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
+import axios from 'axios';
 
 const ShowDoctors = () => {
+  const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
+  const doctorsUrl = `${apiBaseUrl}/api/doctors`;
+
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const doctors = [
-    { id: 1, name: 'Dr. John Doe', specialty: 'Cardiologist', image: 'https://via.placeholder.com/150', bio: 'Experienced in cardiology with 15 years of experience in treating heart-related conditions.' },
-    { id: 2, name: 'Dr. Jane Smith', specialty: 'Neurologist', image: 'https://via.placeholder.com/150', bio: 'Specialized in neurology, focusing on the treatment of brain and nervous system disorders.' },
-    { id: 3, name: 'Dr. Emily White', specialty: 'Dermatologist', image: 'https://via.placeholder.com/150', bio: 'Expert in skin conditions with a passion for dermatological research.' },
-    { id: 4, name: 'Dr. Michael Brown', specialty: 'Pediatrician', image: 'https://via.placeholder.com/150', bio: 'Dedicated to providing comprehensive care for children of all ages.' },
-    { id: 5, name: 'Dr. Lisa Green', specialty: 'Orthopedic Surgeon', image: 'https://via.placeholder.com/150', bio: 'Specializes in surgical procedures related to bones and joints, with a focus on patient rehabilitation.' },
-    { id: 6, name: 'Dr. James Black', specialty: 'Gastroenterologist', image: 'https://via.placeholder.com/150', bio: 'Specializes in digestive system disorders, with extensive experience in endoscopic procedures.' },
-    { id: 7, name: 'Dr. Susan Blue', specialty: 'Oncologist', image: 'https://via.placeholder.com/150', bio: 'Focuses on cancer treatment and research, providing compassionate care to patients.' },
-    { id: 8, name: 'Dr. Robert Red', specialty: 'Ophthalmologist', image: 'https://via.placeholder.com/150', bio: 'Expert in eye care and vision-related treatments, with years of experience in surgery.' },
-    { id: 9, name: 'Dr. Patricia Yellow', specialty: 'Endocrinologist', image: 'https://via.placeholder.com/150', bio: 'Specializes in hormone-related disorders, with a deep understanding of metabolic conditions.' },
-  ];
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get(doctorsUrl);
+        setDoctors(response.data);
+      } catch (error) {
+        setError('Failed to fetch doctors.');
+        console.error('Error fetching doctors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, [doctorsUrl]);
 
   const filteredDoctors = doctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -56,6 +68,22 @@ const ShowDoctors = () => {
     setSelectedDoctor(null);
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, direction: i18n.dir(), display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3, direction: i18n.dir() }}>
+        <Typography variant="h6" color="error">{t('show.error', { error })}</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
@@ -70,12 +98,7 @@ const ShowDoctors = () => {
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
-          sx={{
-            borderRadius: 1,
-            '& .MuiInputBase-input': {
-              py: 1.5,
-            },
-          }}
+          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -90,7 +113,7 @@ const ShowDoctors = () => {
 
       <Grid container spacing={3} justifyContent="center">
         {filteredDoctors.map((doctor) => (
-          <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={3}>
+          <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={4}>
             <Card
               sx={{
                 borderRadius: '16px',
@@ -106,7 +129,7 @@ const ShowDoctors = () => {
               <CardActionArea onClick={() => handleClick(doctor)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
-                    src={doctor.image}
+                    src={`${apiBaseUrl}/${doctor.profilePicture}`}
                     alt={doctor.name}
                     sx={{ width: 100, height: 100, mb: 2 }}
                   />
@@ -115,7 +138,7 @@ const ShowDoctors = () => {
                       {doctor.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {doctor.specialty}
+                      {doctor.specialization}
                     </Typography>
                   </CardContent>
                 </Box>
@@ -137,9 +160,9 @@ const ShowDoctors = () => {
             {selectedDoctor.name}
           </DialogTitle>
           <DialogContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
               <Avatar
-                src={selectedDoctor.image}
+                src={`${apiBaseUrl}/${selectedDoctor.profilePicture}`}
                 alt={selectedDoctor.name}
                 sx={{ width: 100, height: 100, mb: 2 }}
               />
@@ -147,10 +170,7 @@ const ShowDoctors = () => {
                 {selectedDoctor.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {selectedDoctor.specialty}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                {selectedDoctor.bio}
+                {selectedDoctor.specialization}
               </Typography>
             </Box>
           </DialogContent>
