@@ -1,45 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Typography,
-  Card,
-  CardActionArea,
-  CardContent,
-  Avatar,
-  Grid,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Rating,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
+import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
 
 const FeedbackLabs = () => {
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
+  const labsUrl = `${apiBaseUrl}/api/feedbacks/labs`;
+
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLab, setSelectedLab] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [labs, setLabs] = useState([]);
+  const [selectedLabReviews, setSelectedLabReviews] = useState([]);
 
-  const generateRandomRating = () => Math.floor(Math.random() * 5) + 1;
+  useEffect(() => {
+    const fetchLabs = async () => {
+      try {
+        const response = await axios.get(labsUrl);
+        setLabs(response.data);
+      } catch (error) {
+        console.error('Error fetching labs:', error);
+      }
+    };
 
-  const labs = [
-    { id: 1, name: 'Lab Alpha', type: 'Diagnostic Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 2, name: 'Lab Beta', type: 'Pathology Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 3, name: 'Lab Gamma', type: 'Radiology Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 4, name: 'Lab Delta', type: 'Clinical Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 5, name: 'Lab Epsilon', type: 'Research Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 6, name: 'Lab Zeta', type: 'Biochemical Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 7, name: 'Lab Eta', type: 'Genetics Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 8, name: 'Lab Theta', type: 'Immunology Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 9, name: 'Lab Iota', type: 'Environmental Lab', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-  ];
+    fetchLabs();
+  }, [labsUrl]);
+
+  const fetchLabReviews = async (labId) => {
+    try {
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}`);
+      setSelectedLabReviews(response.data);
+    } catch (error) {
+      console.error('Error fetching lab reviews:', error);
+    }
+  };
 
   const filteredLabs = labs.filter((lab) =>
     lab.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,11 +49,13 @@ const FeedbackLabs = () => {
   const handleClick = (lab) => {
     setSelectedLab(lab);
     setOpenDialog(true);
+    fetchLabReviews(lab.id);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedLab(null);
+    setSelectedLabReviews([]);
   };
 
   return (
@@ -64,6 +63,7 @@ const FeedbackLabs = () => {
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
         {t('Feedback.title2')}
       </Typography>
+
       <FeedBackMiniNavbar />
 
       <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
@@ -109,7 +109,7 @@ const FeedbackLabs = () => {
               <CardActionArea onClick={() => handleClick(lab)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
-                    src={lab.image}
+                    src={`${apiBaseUrl}/${lab.picture}`}
                     alt={lab.name}
                     sx={{ width: 100, height: 100, mb: 2 }}
                   />
@@ -118,12 +118,12 @@ const FeedbackLabs = () => {
                       {lab.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {lab.type}
+                      {lab.total} Feedbacks
                     </Typography>
                     <Box sx={{ mt: 1 }}>
                       <Rating
                         name={`rating-${lab.id}`}
-                        value={lab.rating}
+                        value={lab.average_rating}
                         readOnly
                         precision={0.1}
                         sx={{ mt: 0.5 }}
@@ -137,46 +137,79 @@ const FeedbackLabs = () => {
         ))}
       </Grid>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-        sx={{ direction: i18n.dir() }}
-      >
-        <DialogTitle sx={{ textAlign: 'center' }}>
-          {selectedLab?.name}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
-            <Avatar
-              src={selectedLab?.image}
-              alt={selectedLab?.name}
-              sx={{ width: 100, height: 100, mb: 2 }}
-            />
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {selectedLab?.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {selectedLab?.type}
-            </Typography>
-            <Box sx={{ mt: 1 }}>
-              <Rating
-                name={`rating-${selectedLab?.id}`}
-                value={selectedLab?.rating}
-                readOnly
-                precision={0.1}
-                sx={{ mt: 0.5 }}
+      {selectedLab && (
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
+          fullWidth
+          sx={{ direction: i18n.dir() }}
+        >
+          <DialogTitle sx={{ textAlign: 'center' }}>
+            {selectedLab?.name}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+              <Avatar
+                src={`${apiBaseUrl}/${selectedLab?.picture}`}
+                alt={selectedLab?.name}
+                sx={{ width: 100, height: 100, mb: 2 }}
               />
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {selectedLab?.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedLab?.total} Feedbacks
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <Rating
+                  name={`rating-${selectedLab?.id}`}
+                  value={selectedLab?.average_rating}
+                  readOnly
+                  precision={0.1}
+                  sx={{ mt: 0.5 }}
+                />
+              </Box>
             </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
-            {t('show.close')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <List>
+              {selectedLabReviews.map((review) => (
+                <ListItem key={review.id} alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={review.user_name}
+                    secondary={
+                      <>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.primary"
+                        >
+                          {review.comment}
+                        </Typography>
+                        <Box sx={{ mt: 1 }}>
+                          <Rating
+                            name={`rating-review-${review.id}`}
+                            value={parseFloat(review.rate)}
+                            readOnly
+                            precision={0.1}
+                          />
+                        </Box>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
+              {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };

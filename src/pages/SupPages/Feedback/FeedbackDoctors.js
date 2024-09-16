@@ -1,45 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Typography,
-  Card,
-  CardActionArea,
-  CardContent,
-  Avatar,
-  Grid,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Rating,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
+import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
 
 const FeedbackDoctors = () => {
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
+  const doctorsUrl = `${apiBaseUrl}/api/feedbacks/doctors`;
+
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [doctors, setDoctors] = useState([]); 
+  const [selectedDoctorReviews, setSelectedDoctorReviews] = useState([]); 
 
-  const generateRandomRating = () => Math.floor(Math.random() * 5) + 1;
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get(doctorsUrl); 
+        setDoctors(response.data); 
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+      }
+    };
 
-  const doctors = [
-    { id: 1, name: 'Dr. Ahmed Ali', specialty: 'Cardiologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 2, name: 'Dr. Mona Hassan', specialty: 'Dermatologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 3, name: 'Dr. Youssef Karim', specialty: 'Neurologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 4, name: 'Dr. Huda Mahmoud', specialty: 'Pediatrician', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 5, name: 'Dr. Omar Nasr', specialty: 'Orthopedic Surgeon', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 6, name: 'Dr. Layla Amr', specialty: 'Oncologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 7, name: 'Dr. Tariq Zaki', specialty: 'Psychiatrist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 8, name: 'Dr. Sara Younis', specialty: 'Gynecologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-    { id: 9, name: 'Dr. Amr Fathy', specialty: 'Urologist', image: 'https://via.placeholder.com/150', rating: generateRandomRating() },
-  ];
+    fetchDoctors();
+  }, [doctorsUrl]);
+
+  const fetchDoctorReviews = async (doctorId) => {
+    try {
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/doctors/id/${doctorId}`);
+      setSelectedDoctorReviews(response.data); 
+    } catch (error) {
+      console.error('Error fetching doctor reviews:', error);
+    }
+  };
 
   const filteredDoctors = doctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,11 +49,13 @@ const FeedbackDoctors = () => {
   const handleClick = (doctor) => {
     setSelectedDoctor(doctor);
     setOpenDialog(true);
+    fetchDoctorReviews(doctor.id); 
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedDoctor(null);
+    setSelectedDoctorReviews([]); 
   };
 
   return (
@@ -64,8 +63,9 @@ const FeedbackDoctors = () => {
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
         {t('Feedback.title1')}
       </Typography>
+
       <FeedBackMiniNavbar />
-      
+
       <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
         <TextField
           variant="outlined"
@@ -109,7 +109,7 @@ const FeedbackDoctors = () => {
               <CardActionArea onClick={() => handleClick(doctor)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
                   <Avatar
-                    src={doctor.image}
+                    src={`${apiBaseUrl}/${doctor.picture}`} 
                     alt={doctor.name}
                     sx={{ width: 100, height: 100, mb: 2 }}
                   />
@@ -118,12 +118,12 @@ const FeedbackDoctors = () => {
                       {doctor.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {doctor.specialty}
+                      {doctor.specialty || `${doctor.total} Feedbacks`} 
                     </Typography>
                     <Box sx={{ mt: 1 }}>
                       <Rating
                         name={`rating-${doctor.id}`}
-                        value={doctor.rating}
+                        value={doctor.average_rating}
                         readOnly
                         precision={0.1}
                         sx={{ mt: 0.5 }}
@@ -137,46 +137,79 @@ const FeedbackDoctors = () => {
         ))}
       </Grid>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-        sx={{ direction: i18n.dir() }}
-      >
-        <DialogTitle sx={{ textAlign: 'center' }}>
-          {selectedDoctor?.name}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
-            <Avatar
-              src={selectedDoctor?.image}
-              alt={selectedDoctor?.name}
-              sx={{ width: 100, height: 100, mb: 2 }}
-            />
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {selectedDoctor?.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {selectedDoctor?.specialty}
-            </Typography>
-            <Box sx={{ mt: 1 }}>
-              <Rating
-                name={`rating-${selectedDoctor?.id}`}
-                value={selectedDoctor?.rating}
-                readOnly
-                precision={0.1}
-                sx={{ mt: 0.5 }}
+      {selectedDoctor && (
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
+          fullWidth
+          sx={{ direction: i18n.dir() }}
+        >
+          <DialogTitle sx={{ textAlign: 'center' }}>
+            {selectedDoctor?.name}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+              <Avatar
+                src={`${apiBaseUrl}/${selectedDoctor?.picture}`}
+                alt={selectedDoctor?.name}
+                sx={{ width: 100, height: 100, mb: 2 }}
               />
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {selectedDoctor?.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedDoctor?.total} Feedbacks
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <Rating
+                  name={`rating-${selectedDoctor?.id}`}
+                  value={selectedDoctor?.average_rating}
+                  readOnly
+                  precision={0.1}
+                  sx={{ mt: 0.5 }}
+                />
+              </Box>
             </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
-            {t('show.close')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <List>
+              {selectedDoctorReviews.map((review) => (
+                <ListItem key={review.id} alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={review.user_name}
+                    secondary={
+                      <>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.primary"
+                        >
+                          {review.comment}
+                        </Typography>
+                        <Box sx={{ mt: 1 }}>
+                          <Rating
+                            name={`rating-review-${review.id}`}
+                            value={parseFloat(review.rate)}
+                            readOnly
+                            precision={0.1}
+                          />
+                        </Box>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
+              {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };
