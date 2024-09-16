@@ -14,7 +14,17 @@
     "title4": " اضافة الاختبارات",
     "title5": " اضافة أصناف الاختبارات",
     "title6": " اضافة طريقة الدفع",
-    "submit": "إرسال"
+    "submit": "إرسال",
+    "governorate_ar": "المحافظة",
+    "district_ar": "المنطقة",
+    "city_ar": "المدينة",
+    "area_ar": "الحي",
+    "governorate_en": "Governorate",
+    "district_en": "District",
+    "city_en": "City",
+    "area_en": "Area",
+    "latitude_y":"latitude_y",
+    "longitude_x":"longitude_x"
 
   },
   "show": {
@@ -60,12 +70,6 @@
     "PaymentMethod":{
       "MTN":"ام تي ان",
       "Syriatel":"سيرياتل"
-    },
-    "table": {
-      "governorate": "المحافظة",
-      "district": "المنطقة",
-      "city": "المدينة",
-      "area": "الحي"
     }
   }
   

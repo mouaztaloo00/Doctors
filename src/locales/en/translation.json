@@ -26,7 +26,17 @@
     "lab_name":"lab name",
     "contact_number":"contact number",
     "logo":"logo",
-    "activate":"activate"
+    "activate":"activate",
+    "governorate_en": "Governorate",
+    "district_en": "District",
+    "city_en": "City",
+    "area_en": "Area",
+    "governorate_ar": "المحافظة",
+    "district_ar": "المنطقة",
+    "city_ar": "المدينة",
+    "area_ar": "الحي",
+    "latitude_y":"latitude_y",
+    "longitude_x":"longitude_x"
   },
   "show": {
     "title1": "Show Doctors",
@@ -71,11 +81,5 @@
   "PaymentMethod":{
     "MTN":"MTN",
     "Syriatel":"Syriatel"
-  },
-  "table": {
-    "governorate": "Governorate",
-    "district": "District",
-    "city": "City",
-    "area": "Area"
   }
 }
