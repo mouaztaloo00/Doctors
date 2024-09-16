@@ -18,7 +18,7 @@
     "name":"name",
     "phone_number":"phone_number",
     "password":"password",
-    "confirmpassword":"confirm password",
+    "password_confirmation":"confirm password",
     "consultation_fee":"consultation_fee",
     "specialization":"specialization",
     "submit":"submit",
