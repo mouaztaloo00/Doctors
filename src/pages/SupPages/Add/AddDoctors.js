@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography, TextField, Button, Snackbar, Alert, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
@@ -20,21 +20,39 @@ const validationSchema = Yup.object({
 const AddDoctors = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
   const doctorsUrl = `${apiBaseUrl}/api/register/doctor`;
+  const specializationsUrl = `${apiBaseUrl}/api/doctors/specializations`;
+  
   const { t } = useTranslation();
+  const [specializations, setSpecializations] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); 
+
+  useEffect(() => {
+    const fetchSpecializations = async () => {
+      try {
+        const response = await axios.get(specializationsUrl);
+        setSpecializations(response.data);
+      } catch (error) {
+        console.error('Error fetching specializations:', error);
+      }
+    };
+
+    fetchSpecializations();
+  }, []);
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+
     try {
       const response = await axios.post(doctorsUrl, values);
+      
       console.log('Successful response:', response);
 
-      if (response.status === 201) {
+      if (response.status === 201) {  
         const successMessage = response.data.message || t('add.success');
         setSnackbarMessage(successMessage);
         setSnackbarSeverity('success');
@@ -96,9 +114,9 @@ const AddDoctors = () => {
         }}
       >
         <Box
-          className="Form"
+          className='Form'
           sx={{
-            maxWidth: '600px',
+            maxWidth: '600px', 
             width: '100%',
             bgcolor: 'background.paper',
             p: 3,
@@ -156,9 +174,9 @@ const AddDoctors = () => {
                 <FormControl fullWidth sx={{ mb: 2 }} error={touched.specialization && Boolean(errors.specialization)}>
                   <InputLabel>{t('add.specialization')}</InputLabel>
                   <Field as={Select} name="specialization" label={t('add.specialization')}>
-                    <MenuItem value="general">{t('specializations.general')}</MenuItem>
-                    <MenuItem value="cardiology">{t('specializations.cardiology')}</MenuItem>
-                    <MenuItem value="neurology">{t('specializations.neurology')}</MenuItem>
+                    {specializations.map(spec => (
+                      <MenuItem key={spec.id} value={spec.id}>{spec.name}</MenuItem>
+                    ))}
                   </Field>
                 </FormControl>
                 <Field
@@ -176,7 +194,7 @@ const AddDoctors = () => {
                   as={TextField}
                   name="password_confirmation"
                   type="password"
-                  label={t('add.confirmpassword')}
+                  label={t('add.password_confirmation')}
                   variant="outlined"
                   fullWidth
                   sx={{ mb: 2 }}
@@ -193,9 +211,9 @@ const AddDoctors = () => {
       </Box>
 
       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarSeverity}
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity} 
           sx={{ width: '100%', bgcolor: snackbarSeverity === 'success' ? 'success.main' : 'error.main' }}
         >
           {snackbarMessage}
