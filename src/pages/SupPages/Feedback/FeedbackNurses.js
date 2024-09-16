@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Pagination } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
 
 const FeedbackNurses = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
-  const nursesUrl = `${apiBaseUrl}/api/feedbacks/nurses`;
-  const reviewsUrl = `${apiBaseUrl}/api/feedbacks/nurses/id`;
+  const nursesUrl = `${apiBaseUrl}/api/feedbacks/nurses/8`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,26 +15,33 @@ const FeedbackNurses = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [nurses, setNurses] = useState([]);
   const [selectedNurseReviews, setSelectedNurseReviews] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchNurses = async () => {
+    const fetchNurses = async (page = 1) => {
+      setLoading(true);
       try {
-        const response = await axios.get(nursesUrl);
-        setNurses(response.data);
+        const response = await axios.get(`${nursesUrl}?page=${page}`);
+        setNurses(response.data.data || []);
+        setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
-        console.error('Error fetching nurses:', error);
+        console.error('Error fetching nurses:', error.response ? error.response.data : error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchNurses();
-  }, [nursesUrl]);
+    fetchNurses(currentPage);
+  }, [currentPage]);
 
   const fetchNurseReviews = async (nurseId) => {
     try {
-      const response = await axios.get(`${reviewsUrl}/${nurseId}`);
-      setSelectedNurseReviews(response.data);
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/nurses/id/${nurseId}/10`);
+      setSelectedNurseReviews(response.data.data);
     } catch (error) {
-      console.error('Error fetching nurse reviews:', error);
+      console.error('Error fetching nurse reviews:', error.response ? error.response.data : error.message);
     }
   };
 
@@ -57,6 +63,10 @@ const FeedbackNurses = () => {
     setOpenDialog(false);
     setSelectedNurse(null);
     setSelectedNurseReviews([]);
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
@@ -92,54 +102,68 @@ const FeedbackNurses = () => {
         />
       </Box>
 
-      <Grid container spacing={3} justifyContent="center">
-        {filteredNurses.map((nurse) => (
-          <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                },
-                overflow: 'hidden',
-              }}
-            >
-              <CardActionArea onClick={() => handleClick(nurse)}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                  <Avatar
-                    src={nurse.picture ? `${apiBaseUrl}/${nurse.picture}` : undefined}
-                    alt={nurse.name}
-                    sx={{ width: 100, height: 100, mb: 2 }}
-                  />
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                      {nurse.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {nurse.total} Feedbacks
-                    </Typography>
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.primary">
-                        Rating:
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={3} justifyContent="center">
+          {filteredNurses.map((nurse) => (
+            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
+              <Card
+                sx={{
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                  },
+                  overflow: 'hidden',
+                }}
+              >
+                <CardActionArea onClick={() => handleClick(nurse)}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                    <Avatar
+                      src={`${apiBaseUrl}/${nurse.picture}`}
+                      alt={nurse.name}
+                      sx={{ width: 100, height: 100, mb: 2 }}
+                    />
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        {nurse.name}
                       </Typography>
-                      <Rating
-                        name={`rating-${nurse.id}`}
-                        value={nurse.average_rating}
-                        readOnly
-                        precision={0.1}
-                        sx={{ mt: 0.5 }}
-                      />
-                    </Box>
-                  </CardContent>
-                </Box>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                      <Typography variant="body2" color="text.secondary">
+                        {nurse.total} Feedbacks
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Rating
+                          name={`rating-${nurse.id}`}
+                          value={nurse.average_rating}
+                          readOnly
+                          precision={0.1}
+                          sx={{ mt: 0.5 }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+          siblingCount={1}
+          boundaryCount={1}
+        />
+      </Box>
 
       {selectedNurse && (
         <Dialog
@@ -150,28 +174,25 @@ const FeedbackNurses = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedNurse.name}
+            {selectedNurse?.name}
           </DialogTitle>
           <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
               <Avatar
-                src={selectedNurse.picture ? `${apiBaseUrl}/${selectedNurse.picture}` : undefined}
-                alt={selectedNurse.name}
+                src={`${apiBaseUrl}/${selectedNurse?.picture}`}
+                alt={selectedNurse?.name}
                 sx={{ width: 100, height: 100, mb: 2 }}
               />
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {selectedNurse.name}
+                {selectedNurse?.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {selectedNurse.total} Feedbacks
+                {selectedNurse?.total} Feedbacks
               </Typography>
               <Box sx={{ mt: 1 }}>
-                <Typography variant="body2" color="text.primary">
-                  Rating:
-                </Typography>
                 <Rating
-                  name={`rating-${selectedNurse.id}`}
-                  value={selectedNurse.average_rating}
+                  name={`rating-${selectedNurse?.id}`}
+                  value={selectedNurse?.average_rating}
                   readOnly
                   precision={0.1}
                   sx={{ mt: 0.5 }}
@@ -182,7 +203,7 @@ const FeedbackNurses = () => {
               {selectedNurseReviews.map((review) => (
                 <ListItem key={review.id} alignItems="flex-start">
                   <ListItemAvatar>
-                    <Avatar src={review.user_picture ? `${apiBaseUrl}/${review.user_picture}` : undefined} alt={review.user_name} />
+                    <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
                   </ListItemAvatar>
                   <ListItemText
                     primary={review.user_name}

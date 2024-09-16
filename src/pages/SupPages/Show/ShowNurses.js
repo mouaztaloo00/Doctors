@@ -16,7 +16,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress // تم إضافة CircularProgress
+  CircularProgress,
+  Pagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
@@ -24,29 +25,33 @@ import axios from 'axios';
 
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const nursesUrl = `${apiBaseUrl}/api/nurses`;
+  const nursesUrl = `${apiBaseUrl}/api/nurses/8`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurses, setNurses] = useState([]);
-  const [loading, setLoading] = useState(true); // حالة التحميل
+  const [loading, setLoading] = useState(true); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    const fetchNurses = async () => {
+    const fetchNurses = async (page = 1) => {
+      setLoading(true);
       try {
-        const response = await axios.get(nursesUrl);
-        setNurses(response.data);
+        const response = await axios.get(`${nursesUrl}?page=${page}`);
+        setNurses(response.data.data || []);
+        setTotalPages(response.data.meta ? response.data.meta.last_page : 1);
       } catch (error) {
         console.error('Error fetching nurses:', error);
       } finally {
-        setLoading(false); // تعيين حالة التحميل إلى false بعد اكتمال التحميل
+        setLoading(false);
       }
     };
 
-    fetchNurses();
-  }, [nursesUrl]);
+    fetchNurses(currentPage);
+  }, [currentPage, nursesUrl]);
 
   const filteredNurses = nurses.filter((nurse) =>
     nurse.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -64,6 +69,10 @@ const ShowNurses = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedNurse(null);
+  };
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page); 
   };
 
   return (
@@ -94,7 +103,7 @@ const ShowNurses = () => {
       </Box>
 
       <Grid container spacing={3} justifyContent="center">
-        {loading ? ( // عرض أيقونة التحميل إذا كانت البيانات قيد التحميل
+        {loading ? ( 
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress />
           </Box>
@@ -132,6 +141,17 @@ const ShowNurses = () => {
           ))
         )}
       </Grid>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+          siblingCount={1}
+          boundaryCount={2}
+        />
+      </Box>
 
       {selectedNurse && (
         <Dialog

@@ -16,7 +16,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress
+  CircularProgress,
+  Pagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
@@ -24,30 +25,33 @@ import axios from 'axios';
 
 const ShowLabs = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const labsUrl = `${apiBaseUrl}/api/labs`;
+  const labsUrl = `${apiBaseUrl}/api/labs/9`; 
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [labs, setLabs] = useState([]); 
-  const [loading, setLoading] = useState(true); 
+  const [labs, setLabs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selectedLab, setSelectedLab] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    const fetchLabs = async () => {
-      setLoading(true); 
+    const fetchLabs = async (page = 1) => {
+      setLoading(true);
       try {
-        const response = await axios.get(`${labsUrl}`);
-        setLabs(response.data);
+        const response = await axios.get(`${labsUrl}?page=${page}`);
+        setLabs(response.data.data || []);
+        setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
         console.error('Failed to fetch labs:', error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
     
-    fetchLabs();
-  }, []);
+    fetchLabs(currentPage);
+  }, [currentPage]);
 
   const filteredLabs = labs.filter((lab) =>
     lab.labName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,6 +69,10 @@ const ShowLabs = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedLab(null);
+  };
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -135,6 +143,15 @@ const ShowLabs = () => {
           ))}
         </Grid>
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
 
       {selectedLab && (
         <Dialog

@@ -1,38 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Pagination } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
 
 const FeedbackLabs = () => {
-  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
-  const labsUrl = `${apiBaseUrl}/api/feedbacks/labs`;
-
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+  const initialLabsUrl = `${apiBaseUrl}/api/feedbacks/labs/8`;
+  
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLab, setSelectedLab] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [labs, setLabs] = useState([]);
   const [selectedLabReviews, setSelectedLabReviews] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchLabs = async () => {
+    const fetchLabs = async (page = 1) => {
+      setLoading(true);
       try {
-        const response = await axios.get(labsUrl);
-        setLabs(response.data);
+        const response = await axios.get(`${initialLabsUrl}?page=${page}`);
+        setLabs(response.data.data || []);
+        setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
         console.error('Error fetching labs:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchLabs();
-  }, [labsUrl]);
+    fetchLabs(currentPage);
+  }, [currentPage]);
 
   const fetchLabReviews = async (labId) => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}`);
-      setSelectedLabReviews(response.data);
+      // Use correct API endpoint with labId
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/10`);
+      setSelectedLabReviews(response.data.data || []); // Access reviews data
     } catch (error) {
       console.error('Error fetching lab reviews:', error);
     }
@@ -49,13 +57,17 @@ const FeedbackLabs = () => {
   const handleClick = (lab) => {
     setSelectedLab(lab);
     setOpenDialog(true);
-    fetchLabReviews(lab.id);
+    fetchLabReviews(lab.id); // Fetch reviews when opening dialog
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedLab(null);
     setSelectedLabReviews([]);
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
@@ -91,51 +103,68 @@ const FeedbackLabs = () => {
         />
       </Box>
 
-      <Grid container spacing={3} justifyContent="center">
-        {filteredLabs.map((lab) => (
-          <Grid item key={lab.id} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                },
-                overflow: 'hidden',
-              }}
-            >
-              <CardActionArea onClick={() => handleClick(lab)}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                  <Avatar
-                    src={`${apiBaseUrl}/${lab.picture}`}
-                    alt={lab.name}
-                    sx={{ width: 100, height: 100, mb: 2 }}
-                  />
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                      {lab.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {lab.total} Feedbacks
-                    </Typography>
-                    <Box sx={{ mt: 1 }}>
-                      <Rating
-                        name={`rating-${lab.id}`}
-                        value={lab.average_rating}
-                        readOnly
-                        precision={0.1}
-                        sx={{ mt: 0.5 }}
-                      />
-                    </Box>
-                  </CardContent>
-                </Box>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={3} justifyContent="center">
+          {filteredLabs.map((lab) => (
+            <Grid item key={lab.id} xs={12} sm={6} md={4} lg={3}>
+              <Card
+                sx={{
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                  },
+                  overflow: 'hidden',
+                }}
+              >
+                <CardActionArea onClick={() => handleClick(lab)}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                    <Avatar
+                      src={`${apiBaseUrl}/${lab.picture}`}
+                      alt={lab.name}
+                      sx={{ width: 100, height: 100, mb: 2 }}
+                    />
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        {lab.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {lab.total} Feedbacks
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Rating
+                          name={`rating-${lab.id}`}
+                          value={lab.average_rating}
+                          readOnly
+                          precision={0.1}
+                          sx={{ mt: 0.5 }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+          siblingCount={1}
+          boundaryCount={1}
+        />
+      </Box>
 
       {selectedLab && (
         <Dialog
@@ -167,7 +196,6 @@ const FeedbackLabs = () => {
                   value={selectedLab?.average_rating}
                   readOnly
                   precision={0.1}
-                  sx={{ mt: 0.5 }}
                 />
               </Box>
             </Box>

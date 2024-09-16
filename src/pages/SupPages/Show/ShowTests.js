@@ -1,32 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Card, CardContent, CircularProgress } from '@mui/material'; // تم إضافة CircularProgress
+import { Box, Typography, Card, CardContent, CircularProgress, Pagination } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 
 const ShowTests = () => {
+  const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const [testData, setTestData] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { t, i18n } = useTranslation();
-  const url = `${process.env.REACT_APP_API_BASE_URL}/api/tests`;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (page = 1) => {
+      setLoading(true);
       try {
-        const response = await fetch(url);
+        const response = await fetch(`${apiBaseUrl}/api/tests/10?page=${page}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setTestData(data);
+        setTestData(data.data || []);
+        setTotalPages(data.meta ? data.meta.last_page : 1); 
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [url]);
+    fetchData(currentPage);
+  }, [currentPage, apiBaseUrl]);
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page); 
+  };
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
@@ -84,6 +92,17 @@ const ShowTests = () => {
             {t('noData')}
           </Typography>
         )}
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+          siblingCount={1}
+          boundaryCount={2}
+        />
       </Box>
     </Box>
   );

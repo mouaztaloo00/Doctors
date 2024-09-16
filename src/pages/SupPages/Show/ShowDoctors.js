@@ -16,7 +16,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress
+  CircularProgress,
+  Pagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
@@ -24,7 +25,7 @@ import axios from 'axios';
 
 const ShowDoctors = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const doctorsUrl = `${apiBaseUrl}/api/doctors`;
+  const doctorsUrl = `${apiBaseUrl}/api/doctors/9`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,12 +34,16 @@ const ShowDoctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get(doctorsUrl);
-        setDoctors(response.data);
+        setLoading(true);
+        const response = await axios.get(`${doctorsUrl}?page=${currentPage}`);
+        setDoctors(response.data.data);
+        setTotalPages(response.data.meta.last_page);
       } catch (error) {
         setError('Failed to fetch doctors.');
         console.error('Error fetching doctors:', error);
@@ -48,7 +53,7 @@ const ShowDoctors = () => {
     };
 
     fetchDoctors();
-  }, [doctorsUrl]);
+  }, [doctorsUrl, currentPage]);
 
   const filteredDoctors = doctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -66,6 +71,10 @@ const ShowDoctors = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedDoctor(null);
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   if (loading) {
@@ -147,6 +156,16 @@ const ShowDoctors = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* Pagination */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
 
       {selectedDoctor && (
         <Dialog
