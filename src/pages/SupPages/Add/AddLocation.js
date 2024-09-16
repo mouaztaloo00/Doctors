@@ -6,7 +6,6 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
 
-// Validation schema with Yup
 const validationSchema = Yup.object({
   governorate_en: Yup.string().required('Governorate in English is required'),
   district_en: Yup.string().required('District in English is required'),
@@ -31,33 +30,26 @@ const AddLocation = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isSubmitting) {
-      console.log('Submission is already in progress');
-      return; // Prevent multiple submissions
+      return;
     }
 
     setIsSubmitting(true);
-    console.log('Submitting:', values); // Debug: Log submission values
 
     try {
       const response = await axios.post(locationUrl, values);
-      console.log('Response:', response); // Debug: Log response
 
-      // Check if the response status is 201 and if there is a success message
       if (response.status === 201 && response.data.message) {
         setSnackbarMessage(response.data.message || t('add.success'));
         setSnackbarSeverity('success');
         resetForm();
       } else {
-        // Handle cases where the response is not as expected
         throw new Error(t('add.incomplete_data'));
       }
     } catch (error) {
-      console.log('Error:', error); // Debug: Log error
 
       let errorMessage = t('add.error');
 
       if (error.response) {
-        console.log('Error response:', error.response); // Debug: Log error response
 
         if (error.response.data) {
           if (typeof error.response.data === 'string') {
@@ -76,7 +68,7 @@ const AddLocation = () => {
       setSnackbarSeverity('error');
     } finally {
       setOpenSnackbar(true);
-      setIsSubmitting(false); // Reset isSubmitting after completion
+      setIsSubmitting(false); 
     }
   };
 

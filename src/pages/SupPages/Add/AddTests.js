@@ -4,6 +4,8 @@ import { Box, Typography, TextField, Button, FormControl, InputLabel, Select, Me
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
 
 const AddTests = () => {
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+  const locationUrl = `${apiBaseUrl}/api/register/test`;
   const { t } = useTranslation();
 
   return (
