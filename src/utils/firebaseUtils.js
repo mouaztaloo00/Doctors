@@ -2,17 +2,16 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDlizlbKDqvjO9lQzEJLzgmq3HgttNDH9g",
-  authDomain: "test-45d8e.firebaseapp.com",
-  databaseURL: "https://test-45d8e-default-rtdb.firebaseio.com",
-  projectId: "test-45d8e",
-  storageBucket: "test-45d8e.appspot.com",
-  messagingSenderId: "4402388584",
-  appId: "1:4402388584:web:b2ef6719566dcaaab965dd",
-  measurementId: "G-KPFPYV9K73"
+  apiKey: "AIzaSyBTmPOmYvwhKdANZSvpITbhgEiqgKZtab8",
+  authDomain: "appsandmore-training-6c847.firebaseapp.com",
+  projectId: "appsandmore-training-6c847",
+  storageBucket: "appsandmore-training-6c847.appspot.com",
+  messagingSenderId: "56909297717",
+  appId: "1:56909297717:web:1bc78a38c0f30a0f2e197c",
+  measurementId: "G-KYLK26W2ZY"
 };
 
-const vapidKey = "BMTinvPbtoNaZvsdHgEaKcvRQgTiPb93cER9MxUMKRsQfeaIZgBHTmNGvcPhUdZRMJUIMNmi0YVtFh-pOugZPlI";
+const vapidKey = "BPSaMt94J9JyYBN7nby_r0sEkZoPPodtQDh0629OFjJnqXPeVfKSuAl0MuE4MwuR54ecXEvHGWBUcabXHPsiEHE";
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
@@ -21,7 +20,12 @@ export const requestFCMToken = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      return getToken(messaging, { vapidKey });
+      const token = await getToken(messaging, { vapidKey });
+      if (token) {
+        return token;
+      } else {
+        throw new Error("Failed to get FCM token");
+      }
     } else {
       throw new Error("Notification permission not granted");
     }

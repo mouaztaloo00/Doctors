@@ -17,12 +17,12 @@ import HttpsRoundedIcon from "@mui/icons-material/HttpsRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import axios from "axios";
-import { requestFCMToken, onMessageListener } from "../utils/firebaseUtils"; 
+import { requestFCMToken, onMessageListener } from "../utils/firebaseUtils";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
-  const url = `${process.env.REACT_APP_API_BASE_URL}/login`;
+  const url = `${process.env.REACT_APP_API_BASE_URL}/api/login`;
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -51,27 +51,25 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
+    const handleMessage = (payload) => {
+      toast(
+        <div>
+          <strong>Message:</strong> {payload.notification.title}
+          <br />
+          <strong>Body:</strong> {payload.notification.body}
+        </div>,
+        { position: "top-center" }
+      );
+      console.log("Received foreground message:", payload);
+    };
+
     const unsubscribe = onMessageListener()
-      .then(payload => {
-        toast(
-          <div>
-            <strong>Message:</strong> {payload.notification.title}
-            <br />
-            <strong>Body:</strong> {payload.notification.body}
-          </div>,
-          { position: "top-center" }
-        );
-        console.log("Received foreground message:", payload);
-      })
+      .then(handleMessage)
       .catch(err => console.error("Error receiving message: ", err));
-  
+
     return () => {
-      if (unsubscribe) {
-        unsubscribe(); 
-      }
     };
   }, []);
-  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -88,7 +86,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(url, { phoneNumber, password, fcmToken });
+      const response = await axios.post(url, { phone_number: phoneNumber, password, fcm_token: fcmToken });
 
       if (response.data.message === "Login Successful") {
         localStorage.setItem('authToken', response.data.token || '');
@@ -149,7 +147,7 @@ const Login = () => {
           <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
             <HttpsRoundedIcon sx={{ color: 'action.active', mr: 1, fontSize: 40, m: 1, my: 2 }} />
             <TextField
-              margin="normal"
+              margin="normal" 
               autoComplete="off"
               required
               fullWidth
@@ -178,7 +176,7 @@ const Login = () => {
           <Alert
             onClose={handleCloseSnackbar}
             severity={success ? "success" : error ? "error" : "info"}
-            sx={{ width: '100%' , borderRadius :'20px'}}
+            sx={{ width: '100%', borderRadius: '20px' }}
           >
             {success || error}
           </Alert>
