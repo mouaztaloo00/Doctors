@@ -6,7 +6,6 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
 
-// Validation schema with Yup
 const validationSchema = Yup.object({
   method_name: Yup.string().required('Method name is required'),
   logo: Yup.mixed().required('Logo is required')
@@ -22,23 +21,19 @@ const AddPaymentMethod = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Use ref to control file input
   const fileInputRef = useRef(null);
 
   const handleSubmit = async (values, { resetForm, setFieldValue }) => {
-    // Prevent multiple submissions
     if (isSubmitting) return;
 
     setIsSubmitting(true);
 
-    // Prepare form data
     const formData = new FormData();
     formData.append('method_name', values.method_name);
     formData.append('status', values.isActive ? 1 : 0);
     formData.append('logo', values.logo);
 
     try {
-      // Make the API request
       const response = await axios.post(paymentMethodUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -52,11 +47,10 @@ const AddPaymentMethod = () => {
         setSnackbarMessage(successMessage);
         setSnackbarSeverity('success');
         
-        // Clear form fields including logo
-        resetForm(); // Clears all fields
-        setFieldValue('logo', null); // Specifically clear the logo field
+        resetForm();
+        setFieldValue('logo', null); 
         if (fileInputRef.current) {
-          fileInputRef.current.value = ''; // Reset file input manually
+          fileInputRef.current.value = ''; 
         }
       }
     } catch (error) {
@@ -129,15 +123,15 @@ const AddPaymentMethod = () => {
                     error={touched.method_name && Boolean(errors.method_name)}
                     helperText={touched.method_name && errors.method_name}
                   />
-                </Box>
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                </Box><br/>
+                <Box sx={{ mb: 2, display:'block' , alignItems: 'center' }}>
                   <FormLabel sx={{ mr: 2 }}>{t('add.logo')}</FormLabel>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setFieldValue('logo', e.currentTarget.files[0])}
-                    ref={fileInputRef} // Set ref for file input
-                    style={{ display: 'block' }}
+                    ref={fileInputRef} 
+                    style={{ display: 'block', marginTop:'5px'}}
                   />
                   {touched.logo && errors.logo && (
                     <div style={{ color: 'red' }}>{errors.logo}</div>

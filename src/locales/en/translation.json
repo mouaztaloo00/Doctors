@@ -36,7 +36,9 @@
     "city_ar": "المدينة",
     "area_ar": "الحي",
     "latitude_y":"latitude_y",
-    "longitude_x":"longitude_x"
+    "longitude_x":"longitude_x",
+    "category":"Category",
+    "description":"description"
   },
   "show": {
     "title1": "Show Doctors",

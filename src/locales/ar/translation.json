@@ -24,7 +24,21 @@
     "city_en": "City",
     "area_en": "Area",
     "latitude_y":"latitude_y",
-    "longitude_x":"longitude_x"
+    "longitude_x":"longitude_x",
+    "name":"الاسم",
+    "phone_number":"رقم الهاتف",
+    "password":"كلمة المرور ",
+    "password_confirmation":"تأكيد كلمة المرور",
+    "consultation_fee":"تكلفة الاستشارة",
+    "specialization":"التخصص",
+    "username":"اسم المستخدم",
+    "lab_name":"اسم المخبر",
+    "contact_number":"رقم التواصل ",
+    "logo":"الأيقونة",
+    "activate":"فعال",
+    "category":"الصنف",
+    "description":"الوصف"
+  
 
   },
   "show": {
