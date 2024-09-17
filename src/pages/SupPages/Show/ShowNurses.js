@@ -17,7 +17,7 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-  Pagination
+  Pagination,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
@@ -25,14 +25,14 @@ import axios from 'axios';
 
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const nursesUrl = `${apiBaseUrl}/api/nurses?size=8`; // تم تعديل الرابط
+  const nursesUrl = `${apiBaseUrl}/api/nurses?size=8`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurses, setNurses] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -40,9 +40,9 @@ const ShowNurses = () => {
     const fetchNurses = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${nursesUrl}&page=${page}`); // تحديث الرابط ليتضمن الصفحة الحالية
+        const response = await axios.get(`${nursesUrl}&page=${page}`);
         setNurses(response.data.data || []);
-        setTotalPages(response.data.meta ? response.data.meta.last_page : 1); // التعامل مع عدد الصفحات
+        setTotalPages(response.data.meta ? response.data.meta.last_page : 1);
       } catch (error) {
         console.error('Error fetching nurses:', error);
       } finally {
@@ -53,7 +53,15 @@ const ShowNurses = () => {
     fetchNurses(currentPage);
   }, [currentPage, nursesUrl]);
 
-  // فلترة الممرضين بناءً على البحث
+  const fetchNurseDetails = async (id) => {
+    try {
+      const response = await axios.get(`${apiBaseUrl}/api/nurses/id/${id}`);
+      setSelectedNurse(response.data);
+    } catch (error) {
+      console.error('Error fetching nurse details:', error);
+    }
+  };
+
   const filteredNurses = nurses.filter((nurse) =>
     nurse.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -63,7 +71,7 @@ const ShowNurses = () => {
   };
 
   const handleClick = (nurse) => {
-    setSelectedNurse(nurse);
+    fetchNurseDetails(nurse.id);
     setOpen(true);
   };
 
@@ -73,13 +81,13 @@ const ShowNurses = () => {
   };
 
   const handlePageChange = (event, page) => {
-    setCurrentPage(page); 
+    setCurrentPage(page);
   };
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
-        {t('show.title7')} 
+        {t('show.title7')}
       </Typography>
       <ShowMiniNavbar />
 
@@ -104,7 +112,7 @@ const ShowNurses = () => {
       </Box>
 
       <Grid container spacing={3} justifyContent="center">
-        {loading ? ( 
+        {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress />
           </Box>
@@ -158,28 +166,68 @@ const ShowNurses = () => {
         <Dialog
           open={open}
           onClose={handleClose}
-          maxWidth="sm"
+          maxWidth="md"
           fullWidth
           sx={{ direction: i18n.dir() }}
         >
-          <DialogTitle sx={{ textAlign: 'center', p: 2 }}>
-            {selectedNurse.name}
-          </DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-              <Avatar
-                src={`${apiBaseUrl}/${selectedNurse.profilePicture}`}
-                alt={selectedNurse.name}
-                sx={{ width: 100, height: 100, mb: 2 }}
-              />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {selectedNurse.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t('show.noDescription')} 
-              </Typography>
-            </Box>
-          </DialogContent>
+          
+          
+          <DialogTitle sx={{ 
+  textAlign: 'center', 
+  p: 3, 
+  bgcolor: 'linear-gradient(45deg, #6abf69 30%, #3b8b41 90%)', 
+  color: 'white', 
+  borderBottom: '1px solid #ddd', 
+  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+}}>
+  {selectedNurse.name}
+</DialogTitle>
+<DialogContent>
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    mb: 3, 
+    textAlign: 'center'
+  }}>
+    <Avatar
+      src={`${apiBaseUrl}/${selectedNurse.profilePicture}`}
+      alt={selectedNurse.name}
+      sx={{ 
+        width: 130, 
+        height: 130, 
+        mb: 2, 
+        border: '4px solid #ffffff', 
+        boxShadow: '0 6px 12px rgba(0,0,0,0.3)', 
+        borderRadius: '50%' 
+      }}
+    />
+    <Typography variant="h4" sx={{ fontWeight: '700', mb: 1, color: '#333' }}>
+      {selectedNurse.name}
+    </Typography>
+    <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
+      <strong>Email:</strong> {selectedNurse.email}
+    </Typography>
+    <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
+      <strong>Phone:</strong> {selectedNurse.phoneNumber}
+    </Typography>
+    <Typography variant="body1" color="text.primary" sx={{ mb: 2 }}>
+      <strong>Birth Date:</strong> {new Date(selectedNurse.birthDate).toLocaleDateString()}
+    </Typography>
+    <Typography variant="body1" color="text.primary" sx={{ 
+      textAlign: 'center', 
+      backgroundColor: '#f5f5f5', 
+      borderRadius: '8px', 
+      padding: '8px', 
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+    }}>
+      <strong>Address:</strong> <br />
+      {`${selectedNurse.address.street}, ${selectedNurse.address.buildingNumber}, ${selectedNurse.address.apartmentNumber}, ${selectedNurse.address.location.city}, ${selectedNurse.address.location.district}, ${selectedNurse.address.location.governorate}`}
+    </Typography>
+  </Box>
+</DialogContent>
+
+
           <DialogActions>
             <Button onClick={handleClose} sx={{ color: 'red' }}>
               {t('show.close')}

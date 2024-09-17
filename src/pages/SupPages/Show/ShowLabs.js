@@ -17,7 +17,14 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-  Pagination
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
@@ -40,7 +47,7 @@ const ShowLabs = () => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${labsUrl}&page=${page}`); // تحديث الرابط
+        const response = await axios.get(`${labsUrl}&page=${page}`);
         setLabs(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -61,9 +68,17 @@ const ShowLabs = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleClick = (lab) => {
-    setSelectedLab(lab);
-    setOpen(true);
+  const handleClick = async (lab) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${apiBaseUrl}/api/labs/id/${lab.id}`);
+      setSelectedLab(response.data);
+      setOpen(true);
+    } catch (error) {
+      console.error('Failed to fetch lab details:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -152,31 +167,111 @@ const ShowLabs = () => {
       </Box>
 
       {selectedLab && (
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          maxWidth="sm"
-          fullWidth
-          sx={{ direction: i18n.dir() }}
+      <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      sx={{
+        direction: i18n.dir(),
+        borderRadius: 3,
+        boxShadow: 24,
+      }}
+    >
+      <DialogTitle
+        sx={{
+          textAlign: 'center',
+          p: 3,
+          bgcolor: 'primary.main',
+          color: 'white',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          borderTopLeftRadius: 3,
+          borderTopRightRadius: 3,
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+        }}
+      >
+        {selectedLab.labName}
+      </DialogTitle>
+      <DialogContent>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mb: 3,
+            p: 2,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 2,
+          }}
         >
-          <DialogTitle sx={{ textAlign: 'center', p: 2 }}>
-            {selectedLab.labName}
-          </DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
-              <Avatar
-                src={`${apiBaseUrl}/${selectedLab.labPicture}`} 
-                alt={selectedLab.labName}
-                sx={{ width: 100, height: 100, mb: 2 }}
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} sx={{ color: 'red' }}>
-              {t('show.close')}
-            </Button>
-          </DialogActions>
-        </Dialog>
+          <Avatar
+            src={`${apiBaseUrl}/${selectedLab.picture}`}
+            alt={selectedLab.labName}
+            sx={{
+              width: 120,
+              height: 120,
+              mb: 2,
+              border: '4px solid',
+              borderColor: 'primary.light',
+              boxShadow: '0px 4px 8px rgba(0,0,0,0.2)',
+            }}
+          />
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{ fontWeight: 'bold', mb: 1 }}
+          >
+            {selectedLab.managerName}
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 1, textAlign: 'center' }}>
+            {selectedLab.labContactNumber}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1, textAlign: 'center' }}>
+            {`${selectedLab.address.street}, ${selectedLab.address.buildingNumber}, ${selectedLab.address.apartmentNumber}`}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2, textAlign: 'center' }}>
+            {`${selectedLab.address.location.governorate}, ${selectedLab.address.location.district}, ${selectedLab.address.location.city}, ${selectedLab.address.location.area}`}
+          </Typography>
+    
+          <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>Day</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>Start</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>End</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.keys(selectedLab.operatingHours).map((day) => (
+                  <TableRow key={day}>
+                    <TableCell>{day}</TableCell>
+                    <TableCell>{selectedLab.operatingHours[day].start || 'Closed'}</TableCell>
+                    <TableCell>{selectedLab.operatingHours[day].end || 'Closed'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </DialogContent>
+      <DialogActions
+        sx={{
+          p: 2,
+          bgcolor: 'background.default',
+          borderBottomLeftRadius: 3,
+          borderBottomRightRadius: 3,
+        }}
+      >
+        <Button onClick={handleClose} sx={{ color: 'red' }}>
+          {t('show.close')}
+        </Button>
+      </DialogActions>
+    </Dialog>
+    
       )}
     </Box>
   );

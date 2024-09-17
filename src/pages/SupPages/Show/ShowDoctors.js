@@ -17,9 +17,18 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-  Pagination
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import MailIcon from '@mui/icons-material/Mail';
+import PhoneIcon from '@mui/icons-material/Phone';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
@@ -55,6 +64,16 @@ const ShowDoctors = () => {
     fetchDoctors();
   }, [currentPage]);
 
+  const fetchDoctorDetails = async (id) => {
+    try {
+      const response = await axios.get(`${doctorsUrl}/id/${id}`);
+      setSelectedDoctor(response.data);
+      setOpenDialog(true);
+    } catch (error) {
+      console.error('Error fetching doctor details:', error);
+    }
+  };
+
   const filteredDoctors = doctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -64,8 +83,7 @@ const ShowDoctors = () => {
   };
 
   const handleClick = (doctor) => {
-    setSelectedDoctor(doctor);
-    setOpenDialog(true);
+    fetchDoctorDetails(doctor.id);
   };
 
   const handleCloseDialog = () => {
@@ -170,26 +188,169 @@ const ShowDoctors = () => {
         <Dialog
           open={openDialog}
           onClose={handleCloseDialog}
-          maxWidth="sm"
+          maxWidth="md"
           fullWidth
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
             {selectedDoctor.name}
           </DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+          <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              {/* Doctor Profile */}
               <Avatar
                 src={`${apiBaseUrl}/${selectedDoctor.profilePicture}`}
                 alt={selectedDoctor.name}
-                sx={{ width: 100, height: 100, mb: 2 }}
+                sx={{
+                  width: 120,
+                  height: 120,
+                  mb: 2,
+                  border: '5px solid #00695c',
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#004d40' }}>
                 {selectedDoctor.name}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
                 {selectedDoctor.specialization}
               </Typography>
+              {/* Contact Info */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<MailIcon sx={{ marginRight: '8px' ,marginLeft:'8px' }}/>} 
+                  href={`mailto:${selectedDoctor.email}`}
+                  sx={{ mr: 2, bgcolor: '#004d40', '&:hover': { bgcolor: '#00332c' } }}
+                >
+                  {t('show.email')}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<PhoneIcon sx={{ marginRight: '8px',marginLeft:'8px' }} />} 
+                  href={`tel:${selectedDoctor.phoneNumber}`}
+                  sx={{ bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
+                >
+                  {t('show.phone')}
+                </Button>
+              </Box>
+              {/* Bio and Consultation Fee */}
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  mb: 3,
+                  maxWidth: '600px',
+                  width: '100%', 
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {t('show.bio')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+                  {selectedDoctor.bio}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {t('show.consultationFee')}: {selectedDoctor.consultationFee} S.P
+                </Typography>
+              </Paper>
+              {/* Clinic Information */}
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  mb: 3,
+                  maxWidth: '600px', 
+                  width: '100%', 
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {t('show.clinicInfo')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+                  {t('show.clinicName')}: {selectedDoctor.clinic.name}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                  {t('show.clinicNumber')}: {selectedDoctor.clinic.number}
+                </Typography>
+              </Paper>
+
+              {/* Operating Hours Table */}
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  mb: 3,
+                  maxWidth: '600px', 
+                  width: '100%',
+                }}
+              >
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t('show.day')}</TableCell>
+                        <TableCell>{t('show.startTime')}</TableCell>
+                        <TableCell>{t('show.endTime')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
+                        <TableRow key={day}>
+                          <TableCell>{day}</TableCell>
+                          <TableCell>{hours.start || 'Closed'}</TableCell>
+                          <TableCell>{hours.end || 'Closed'}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+
+              {/* Contact Information */}
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  maxWidth: '600px', 
+                  width: '100%', 
+                  mb: 3,
+                }}
+              >
+                <Typography variant="body1" color="text.secondary">
+                  {t('show.phone')}: {selectedDoctor.phoneNumber}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {t('show.email')}: {selectedDoctor.email}
+                </Typography>
+              </Paper>
+
+              {/* Address Information */}
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  maxWidth: '600px', 
+                  width: '100%', 
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {t('show.address')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+                  {selectedDoctor.address.street}, {selectedDoctor.address.buildingNumber} {selectedDoctor.address.apartmentNumber}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {selectedDoctor.address.location.governorate}, {selectedDoctor.address.location.district}, {selectedDoctor.address.location.city}, {selectedDoctor.address.location.area}
+                </Typography>
+              </Paper>
             </Box>
           </DialogContent>
           <DialogActions>
