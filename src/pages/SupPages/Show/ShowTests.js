@@ -15,13 +15,13 @@ const ShowTests = () => {
     const fetchData = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await fetch(`${apiBaseUrl}/api/tests/10?page=${page}`);
+        const response = await fetch(`${apiBaseUrl}/api/tests?size=10&page=${page}`); // تعديل الرابط ليتناسب مع الحجم المطلوب
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
         setTestData(data.data || []);
-        setTotalPages(data.meta ? data.meta.last_page : 1); 
+        setTotalPages(data.meta ? data.meta.last_page : 1); // التعامل مع البيانات المستلمة
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -39,7 +39,7 @@ const ShowTests = () => {
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
-        {t('show.title4')}
+        {t('show.title4')} 
       </Typography>
       <ShowMiniNavbar />
 
@@ -75,10 +75,10 @@ const ShowTests = () => {
               <CardContent>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                    {test.name}
+                    {test.name} 
                   </Typography>
                   <Typography variant="subtitle2" color="textSecondary">
-                    {test.category}
+                    {test.category} 
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.primary">
@@ -89,7 +89,7 @@ const ShowTests = () => {
           ))
         ) : (
           <Typography variant="body1" color="text.primary">
-            {t('noData')}
+            {t('noData')} 
           </Typography>
         )}
       </Box>

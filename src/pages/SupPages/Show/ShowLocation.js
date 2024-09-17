@@ -35,7 +35,7 @@ const ShowLocation = () => {
   };
 
   useEffect(() => {
-    fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/10?page=1`);
+    fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
   }, []);
 
   const handlePageChange = (url) => {
@@ -130,7 +130,7 @@ const ShowLocation = () => {
         flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' 
       }}>
         <IconButton
-          onClick={() => handlePageChange(pagination.firstPage ? `${process.env.REACT_APP_API_BASE_URL}/api/locations/10?page=${pagination.firstPage}` : '')}
+          onClick={() => handlePageChange(pagination.firstPage ? `${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=${pagination.firstPage}` : '')}
           disabled={!pagination.firstPage}
           sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }} 
         >

@@ -7,7 +7,7 @@ import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
 
 const FeedbackNurses = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL; 
-  const nursesUrl = `${apiBaseUrl}/api/feedbacks/nurses/8`;
+  const nursesUrl = `${apiBaseUrl}/api/feedbacks/nurses/?size=8`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,11 +19,14 @@ const FeedbackNurses = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const reviewsPageSize = 2; 
+  const [reviewsPage, setReviewsPage] = useState(1); 
+
   useEffect(() => {
     const fetchNurses = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${nursesUrl}?page=${page}`);
+        const response = await axios.get(`${nursesUrl}&?page=${page}`);
         setNurses(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -38,8 +41,8 @@ const FeedbackNurses = () => {
 
   const fetchNurseReviews = async (nurseId) => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/nurses/id/${nurseId}/10`);
-      setSelectedNurseReviews(response.data.data);
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/nurses/id/${nurseId}/?size=100`); 
+      setSelectedNurseReviews(response.data.data || []);
     } catch (error) {
       console.error('Error fetching nurse reviews:', error.response ? error.response.data : error.message);
     }
@@ -68,6 +71,17 @@ const FeedbackNurses = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+
+  const handleReviewsPageChange = (event, value) => {
+    setReviewsPage(value);
+  };
+
+  const reviewsTotalPages = Math.ceil(selectedNurseReviews.length / reviewsPageSize);
+
+  const reviewsToDisplay = selectedNurseReviews.slice(
+    (reviewsPage - 1) * reviewsPageSize,
+    reviewsPage * reviewsPageSize
+  );
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
@@ -164,80 +178,91 @@ const FeedbackNurses = () => {
           boundaryCount={1}
         />
       </Box>
-
       {selectedNurse && (
-        <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          maxWidth="sm"
-          fullWidth
-          sx={{ direction: i18n.dir() }}
-        >
-          <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedNurse?.name}
-          </DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
-              <Avatar
-                src={`${apiBaseUrl}/${selectedNurse?.picture}`}
-                alt={selectedNurse?.name}
-                sx={{ width: 100, height: 100, mb: 2 }}
-              />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {selectedNurse?.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {selectedNurse?.total} Feedbacks
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                <Rating
-                  name={`rating-${selectedNurse?.id}`}
-                  value={selectedNurse?.average_rating}
-                  readOnly
-                  precision={0.1}
-                  sx={{ mt: 0.5 }}
-                />
-              </Box>
-            </Box>
-            <List>
-              {selectedNurseReviews.map((review) => (
-                <ListItem key={review.id} alignItems="flex-start">
-                  <ListItemAvatar>
-                    <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={review.user_name}
-                    secondary={
-                      <>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        >
-                          {review.comment}
-                        </Typography>
-                        <Box sx={{ mt: 1 }}>
-                          <Rating
-                            name={`rating-review-${review.id}`}
-                            value={parseFloat(review.rate)}
-                            readOnly
-                            precision={0.1}
-                          />
-                        </Box>
-                      </>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
-              {t('show.close')}
-            </Button>
-          </DialogActions>
-        </Dialog>
+  <Dialog
+    open={openDialog}
+    onClose={handleCloseDialog}
+    maxWidth="sm"
+    fullWidth
+    sx={{ direction: i18n.dir() }}
+  >
+    <DialogTitle sx={{ textAlign: 'center' }}>
+      {selectedNurse?.name}
+    </DialogTitle>
+    <DialogContent sx={{ direction: i18n.dir() }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+        <Avatar
+          src={`${apiBaseUrl}/${selectedNurse?.picture}`}
+          alt={selectedNurse?.name}
+          sx={{ width: 100, height: 100, mb: 2 }}
+        />
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          {selectedNurse?.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {selectedNurse?.total} Feedbacks
+        </Typography>
+        <Box sx={{ mt: 1 }}>
+          <Rating
+            name={`rating-${selectedNurse?.id}`}
+            value={selectedNurse?.average_rating}
+            readOnly
+            precision={0.1}
+          />
+        </Box>
+      </Box>
+      <List>
+        {reviewsToDisplay.map((review) => (
+          <ListItem key={review.id} alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
+            </ListItemAvatar>
+            <ListItemText
+              primary={review.user_name}
+              secondary={
+                <>
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                    {review.comment}
+                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    <Rating
+                      name={`rating-review-${review.id}`}
+                      value={parseFloat(review.rate)}
+                      readOnly
+                      precision={0.1}
+                    />
+                  </Box>
+                </>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+      {reviewsTotalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Pagination
+            count={reviewsTotalPages}
+            page={reviewsPage}
+            onChange={handleReviewsPageChange}
+            color="primary"
+            siblingCount={1}
+            boundaryCount={1}
+          />
+        </Box>
       )}
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
+        {t('show.close')}
+      </Button>
+    </DialogActions>
+  </Dialog>
+)}
+
     </Box>
   );
 };

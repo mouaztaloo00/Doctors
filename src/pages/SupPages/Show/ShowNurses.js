@@ -25,7 +25,7 @@ import axios from 'axios';
 
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const nursesUrl = `${apiBaseUrl}/api/nurses/8`;
+  const nursesUrl = `${apiBaseUrl}/api/nurses?size=8`; // تم تعديل الرابط
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,9 +40,9 @@ const ShowNurses = () => {
     const fetchNurses = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${nursesUrl}?page=${page}`);
+        const response = await axios.get(`${nursesUrl}&page=${page}`); // تحديث الرابط ليتضمن الصفحة الحالية
         setNurses(response.data.data || []);
-        setTotalPages(response.data.meta ? response.data.meta.last_page : 1);
+        setTotalPages(response.data.meta ? response.data.meta.last_page : 1); // التعامل مع عدد الصفحات
       } catch (error) {
         console.error('Error fetching nurses:', error);
       } finally {
@@ -53,6 +53,7 @@ const ShowNurses = () => {
     fetchNurses(currentPage);
   }, [currentPage, nursesUrl]);
 
+  // فلترة الممرضين بناءً على البحث
   const filteredNurses = nurses.filter((nurse) =>
     nurse.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -78,7 +79,7 @@ const ShowNurses = () => {
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
-        {t('show.title7')}
+        {t('show.title7')} 
       </Typography>
       <ShowMiniNavbar />
 
@@ -175,7 +176,7 @@ const ShowNurses = () => {
                 {selectedNurse.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {t('show.noDescription')}
+                {t('show.noDescription')} 
               </Typography>
             </Box>
           </DialogContent>

@@ -25,7 +25,7 @@ import axios from 'axios';
 
 const ShowDoctors = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const doctorsUrl = `${apiBaseUrl}/api/doctors/9`;
+  const doctorsUrl = `${apiBaseUrl}/api/doctors`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +41,7 @@ const ShowDoctors = () => {
     const fetchDoctors = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${doctorsUrl}?page=${currentPage}`);
+        const response = await axios.get(`${doctorsUrl}?size=9&page=${currentPage}`);
         setDoctors(response.data.data);
         setTotalPages(response.data.meta.last_page);
       } catch (error) {
@@ -53,7 +53,7 @@ const ShowDoctors = () => {
     };
 
     fetchDoctors();
-  }, [doctorsUrl, currentPage]);
+  }, [currentPage]);
 
   const filteredDoctors = doctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -157,7 +157,6 @@ const ShowDoctors = () => {
         ))}
       </Grid>
 
-      {/* Pagination */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Pagination
           count={totalPages}

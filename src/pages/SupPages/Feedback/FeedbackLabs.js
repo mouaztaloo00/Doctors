@@ -7,8 +7,8 @@ import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
 
 const FeedbackLabs = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-  const initialLabsUrl = `${apiBaseUrl}/api/feedbacks/labs/8`;
-  
+  const initialLabsUrl = `${apiBaseUrl}/api/feedbacks/labs/?size=8`;
+
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLab, setSelectedLab] = useState(null);
@@ -19,11 +19,14 @@ const FeedbackLabs = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const reviewsPageSize = 2; 
+  const [reviewsPage, setReviewsPage] = useState(1); 
+
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${initialLabsUrl}?page=${page}`);
+        const response = await axios.get(`${initialLabsUrl}&?page=${page}`);
         setLabs(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -38,9 +41,8 @@ const FeedbackLabs = () => {
 
   const fetchLabReviews = async (labId) => {
     try {
-      // Use correct API endpoint with labId
-      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/10`);
-      setSelectedLabReviews(response.data.data || []); // Access reviews data
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/?size=100`); 
+      setSelectedLabReviews(response.data.data || []);
     } catch (error) {
       console.error('Error fetching lab reviews:', error);
     }
@@ -57,7 +59,7 @@ const FeedbackLabs = () => {
   const handleClick = (lab) => {
     setSelectedLab(lab);
     setOpenDialog(true);
-    fetchLabReviews(lab.id); // Fetch reviews when opening dialog
+    fetchLabReviews(lab.id);
   };
 
   const handleCloseDialog = () => {
@@ -69,6 +71,18 @@ const FeedbackLabs = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+
+  const handleReviewsPageChange = (event, value) => {
+    setReviewsPage(value);
+  };
+
+  // Pagination logic for reviews
+  const reviewsTotalPages = Math.ceil(selectedLabReviews.length / reviewsPageSize);
+
+  const reviewsToDisplay = selectedLabReviews.slice(
+    (reviewsPage - 1) * reviewsPageSize,
+    reviewsPage * reviewsPageSize
+  );
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
@@ -177,7 +191,7 @@ const FeedbackLabs = () => {
           <DialogTitle sx={{ textAlign: 'center' }}>
             {selectedLab?.name}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ direction: i18n.dir() }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
               <Avatar
                 src={`${apiBaseUrl}/${selectedLab?.picture}`}
@@ -200,7 +214,7 @@ const FeedbackLabs = () => {
               </Box>
             </Box>
             <List>
-              {selectedLabReviews.map((review) => (
+              {reviewsToDisplay.map((review) => (
                 <ListItem key={review.id} alignItems="flex-start">
                   <ListItemAvatar>
                     <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
@@ -230,6 +244,18 @@ const FeedbackLabs = () => {
                 </ListItem>
               ))}
             </List>
+            {reviewsTotalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                  count={reviewsTotalPages}
+                  page={reviewsPage}
+                  onChange={handleReviewsPageChange}
+                  color="primary"
+                  siblingCount={1}
+                  boundaryCount={1}
+                />
+              </Box>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>

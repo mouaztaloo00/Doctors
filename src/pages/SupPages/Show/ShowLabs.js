@@ -25,7 +25,7 @@ import axios from 'axios';
 
 const ShowLabs = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const labsUrl = `${apiBaseUrl}/api/labs/9`; 
+  const labsUrl = `${apiBaseUrl}/api/labs?size=9`;
 
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,7 +40,7 @@ const ShowLabs = () => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${labsUrl}?page=${page}`);
+        const response = await axios.get(`${labsUrl}&page=${page}`); // تحديث الرابط
         setLabs(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -133,8 +133,6 @@ const ShowLabs = () => {
                       <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                         {lab.labName}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                      </Typography>
                     </CardContent>
                   </Box>
                 </CardActionArea>
@@ -171,10 +169,6 @@ const ShowLabs = () => {
                 alt={selectedLab.labName}
                 sx={{ width: 100, height: 100, mb: 2 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-              </Typography>
             </Box>
           </DialogContent>
           <DialogActions>

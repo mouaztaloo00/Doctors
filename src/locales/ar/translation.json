@@ -84,6 +84,12 @@
     "PaymentMethod":{
       "MTN":"ام تي ان",
       "Syriatel":"سيرياتل"
+    },
+    "table":{
+      "governorate":"محافظة",
+      "district":"منطقة",
+      "city":"ناحية",
+      "area":"مدينة"
     }
   }
   

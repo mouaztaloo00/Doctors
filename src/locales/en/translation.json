@@ -83,5 +83,11 @@
   "PaymentMethod":{
     "MTN":"MTN",
     "Syriatel":"Syriatel"
+  },
+  "table":{
+    "governorate":"governorate",
+    "district":"district",
+    "city":"city",
+    "area":"area"
   }
 }
