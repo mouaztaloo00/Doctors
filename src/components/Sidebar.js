@@ -1,16 +1,23 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography } from '@mui/material';
-import { Brightness4, Brightness7, Language } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Brightness4, Brightness7, Language, ExitToApp } from '@mui/icons-material';
+import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import LogoutIcon from '@mui/icons-material/Logout';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
   const { t, i18n } = useTranslation();
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <Drawer
@@ -66,8 +73,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
           </ListItemIcon>
           <ListItemText primary={t('sidebar.feedback')} sx={{ textAlign: 'center' }} />
         </ListItem>
-      </List>
-      <Divider />
+      </List>   
       <Box 
         sx={{ 
           position: 'absolute', 
@@ -85,6 +91,9 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
         </IconButton>
         <IconButton onClick={setLanguage} aria-label="change language">
           <Language />
+        </IconButton>
+        <IconButton onClick={handleLogout} aria-label="log out">
+          <LogoutIcon />
         </IconButton>
       </Box>
     </Drawer>

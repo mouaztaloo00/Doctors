@@ -163,11 +163,23 @@ const AddPaymentMethod = () => {
         </Box>
       </Box>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+      <Snackbar 
+      open={openSnackbar} 
+      autoHideDuration={6000}
+       onClose={handleCloseSnackbar}
+       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+
+       sx={{
+        position: 'fixed',
+        top: '80%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+      }}
+       >
         <Alert 
           onClose={handleCloseSnackbar} 
           severity={snackbarSeverity} 
-          sx={{ width: '100%', bgcolor: snackbarSeverity === 'success' ? 'success.main' : 'error.main' }}
+          sx={{ width: '100%'}}
         >
           {snackbarMessage}
         </Alert>
