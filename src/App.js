@@ -25,11 +25,9 @@ import FeedbackDoctors from './pages/SupPages/Feedback/FeedbackDoctors';
 import FeedbackLabs from './pages/SupPages/Feedback/FeedbackLabs';
 import FeedbackNurses from './pages/SupPages/Feedback/FeedbackNurses';
 import Login from './pages/Login';
-import { useAuth } from './components/context/AuthContext';
 
 const App = () => {
   const { i18n } = useTranslation();
-  const { isAuthenticated } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [themeDirection, setThemeDirection] = useState('ltr');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -47,7 +45,6 @@ const App = () => {
       <CssBaseline/>
       <div className='App' dir={themeDirection}>
         <Router>
-          {isAuthenticated ? (
             <>
               <Sidebar
                 open={sidebarOpen}
@@ -59,6 +56,7 @@ const App = () => {
               <main style={{ marginLeft: themeDirection === 'ltr' && sidebarOpen ? 240 : 0, marginRight: themeDirection === 'rtl' && sidebarOpen ? 240 : 0 }}>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/login" element={<Login />} />
                   <Route path="/add/add_doctors" element={<AddDoctors />} />
                   <Route path="/add/add_labs" element={<AddLabs />} />
                   <Route path="/add/add_location" element={<AddLocation />} />
@@ -78,11 +76,6 @@ const App = () => {
                 </Routes>
               </main>
             </>
-          ) : (
-            <Routes>
-              <Route path="*" element={<Login />} />
-            </Routes>
-          )}
         </Router>
       </div>
     </ThemeProvider>
