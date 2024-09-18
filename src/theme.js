@@ -16,7 +16,7 @@ export const getTheme = (mode, direction) => createTheme({
     },
   },
   typography: {
-    fontFamily: 'Roboto, Arial',
+    fontFamily: 'Cairo, Arial',
   },
   components: {
     MuiListItem: {
