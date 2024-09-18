@@ -1,8 +1,6 @@
-// src/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBTmPOmYvwhKdANZSvpITbhgEiqgKZtab8",
     authDomain: "appsandmore-training-6c847.firebaseapp.com",
@@ -13,10 +11,8 @@ const firebaseConfig = {
     measurementId: "G-KYLK26W2ZY"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Get a reference to the Firebase Messaging service
 const messaging = getMessaging(app);
 
 export { messaging, getToken };

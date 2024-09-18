@@ -215,7 +215,6 @@ const ShowDoctors = () => {
               <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
                 {selectedDoctor.specialization}
               </Typography>
-              {/* Contact Info */}
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
                 <Button
                   variant="contained"
@@ -236,7 +235,6 @@ const ShowDoctors = () => {
                   {t('show.phone')}
                 </Button>
               </Box>
-              {/* Bio and Consultation Fee */}
               <Paper
                 sx={{
                   p: 3,
@@ -257,7 +255,6 @@ const ShowDoctors = () => {
                   {t('show.consultationFee')}: {selectedDoctor.consultationFee} S.P
                 </Typography>
               </Paper>
-              {/* Clinic Information */}
               <Paper
                 sx={{
                   p: 3,
@@ -279,7 +276,6 @@ const ShowDoctors = () => {
                 </Typography>
               </Paper>
 
-              {/* Operating Hours Table */}
               <Paper
                 sx={{
                   p: 3,
@@ -312,7 +308,6 @@ const ShowDoctors = () => {
                 </TableContainer>
               </Paper>
 
-              {/* Contact Information */}
               <Paper
                 sx={{
                   p: 3,
@@ -331,7 +326,6 @@ const ShowDoctors = () => {
                 </Typography>
               </Paper>
 
-              {/* Address Information */}
               <Paper
                 sx={{
                   p: 3,

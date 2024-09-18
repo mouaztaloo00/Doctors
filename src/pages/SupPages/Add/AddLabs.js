@@ -6,7 +6,6 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
 
-// Validation schema with Yup
 const validationSchema = Yup.object({
   user_name: Yup.string().required('User name is required'),
   phone_number: Yup.string().required('Phone number is required'),
@@ -28,19 +27,16 @@ const AddLabs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const handleSubmit = async (values, { resetForm }) => {
-    // Prevent multiple submissions
     if (isSubmitting) return;
 
-    // Block default form submission behavior
     setIsSubmitting(true);
 
     try {
-      // Make the API request
       const response = await axios.post(labsUrl, values);
       
       console.log('Successful response:', response);
 
-      if (response.status === 201) {  // Check for status 201 (Created)
+      if (response.status === 201) {  
         const successMessage = response.data.message || t('add.success');
         setSnackbarMessage(successMessage);
         setSnackbarSeverity('success');

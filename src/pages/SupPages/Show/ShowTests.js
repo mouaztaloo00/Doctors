@@ -15,13 +15,13 @@ const ShowTests = () => {
     const fetchData = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await fetch(`${apiBaseUrl}/api/tests?size=10&page=${page}`); // تعديل الرابط ليتناسب مع الحجم المطلوب
+        const response = await fetch(`${apiBaseUrl}/api/tests?size=10&page=${page}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
         setTestData(data.data || []);
-        setTotalPages(data.meta ? data.meta.last_page : 1); // التعامل مع البيانات المستلمة
+        setTotalPages(data.meta ? data.meta.last_page : 1);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {

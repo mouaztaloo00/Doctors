@@ -13,10 +13,10 @@ const ShowMiniNavbar = () => {
           display: 'flex',
           overflowX: 'auto',
           padding: 1,
-          alignItems: 'center', // Center items vertically
-          scrollbarWidth: 'thin', // For Firefox
+          alignItems: 'center', 
+          scrollbarWidth: 'thin', 
           '&::-webkit-scrollbar': {
-            height: 8, // For WebKit browsers
+            height: 8, 
           },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: '#888',

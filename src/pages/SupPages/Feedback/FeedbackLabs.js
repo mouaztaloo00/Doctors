@@ -76,7 +76,6 @@ const FeedbackLabs = () => {
     setReviewsPage(value);
   };
 
-  // Pagination logic for reviews
   const reviewsTotalPages = Math.ceil(selectedLabReviews.length / reviewsPageSize);
 
   const reviewsToDisplay = selectedLabReviews.slice(
