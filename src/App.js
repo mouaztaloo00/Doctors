@@ -1,6 +1,5 @@
-// App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route , useLocation  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import './App.css';
 import { getTheme } from './theme';
@@ -33,7 +32,7 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
   const isLoginPage = location.pathname === '/login';
 
   return (
-    <>
+    <div className={`app-container ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
       {!isLoginPage && (
         <Sidebar
           open={sidebarOpen}
@@ -41,14 +40,10 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
           darkMode={darkMode}
           toggleSidebar={setSidebarOpen}
           setLanguage={handleLanguageChange}
+          className="sidebar"
         />
       )}
-      <main
-        style={{
-          marginLeft: !isLoginPage && sidebarOpen ? 240: 0,
-          marginRight: !isLoginPage && sidebarOpen ? 10 : 0,
-        }}
-      >
+      <main className={`main-content ${!isLoginPage && sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
@@ -70,7 +65,7 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
           <Route path="/feedback/feedback_nurses" element={<ProtectedRoute element={<FeedbackNurses />} />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 };
 

@@ -18,3 +18,18 @@ body {
 body.ar {
   font-family: 'Cairo', sans-serif;
 }
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px; 
+  transition: margin 0.3s ease; 
+}
+
+.main-content {
+  flex: 1; 
+  padding: 20px; 
+  transition: margin 0.3s ease;
+}

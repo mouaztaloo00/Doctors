@@ -8,15 +8,36 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FeedbackIcon from '@mui/icons-material/Feedback';
+import axios from 'axios'; // Import axios
 
 const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
+
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+
+      // جلب التوكن من localStorage
+      const token = `Bearer ${localStorage.getItem('token')}`;
+
+      // إعداد التوكن في جميع طلبات axios
+      axios.defaults.headers.common['Authorization'] = token;
+
   const { t, i18n } = useTranslation();
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Send a request to the API to log out
+      await axios.post(`${apiBaseUrl}/api/logout`);
+      
+      // Remove token from localStorage
+      localStorage.removeItem('token');
+      
+      // Redirect to login page
+      navigate('/login');
+    } catch (error) {
+      // Handle errors if needed
+      console.error('Logout failed:', error);
+    }
   };
 
   return (

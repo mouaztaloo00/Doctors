@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Typography, Grid, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Pagination } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Card,
+  CardActionArea,
+  Avatar,
+  CardContent,
+  Rating,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  CircularProgress,
+  Pagination
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar';
@@ -18,22 +41,21 @@ const FeedbackDoctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  
-    // جلب التوكن من localStorage
-    const token = `Bearer ${localStorage.getItem('token')}`;
 
-    // إعداد التوكن في جميع طلبات axios
-    axios.defaults.headers.common['Authorization'] = token;
+  // جلب التوكن من localStorage
+  const token = `Bearer ${localStorage.getItem('token')}`;
+
+  // إعداد التوكن في جميع طلبات axios
+  axios.defaults.headers.common['Authorization'] = token;
 
   const pageSize = 8;
-
   const reviewsPageSize = 2;
 
   useEffect(() => {
     const fetchDoctors = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${initialDoctorsUrl}&?page=${page}`);
+        const response = await axios.get(`${initialDoctorsUrl}&page=${page}`);
         setDoctors(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -49,7 +71,7 @@ const FeedbackDoctors = () => {
   const fetchDoctorReviews = async (doctorId) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/feedbacks/doctors/id/${doctorId}/?size=8`);
-      setSelectedDoctorReviews(response.data.data);
+      setSelectedDoctorReviews(response.data.data || []);
     } catch (error) {
       console.error('Error fetching doctor reviews:', error);
     }
@@ -146,6 +168,10 @@ const FeedbackDoctors = () => {
                     boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                   },
                   overflow: 'hidden',
+                  height: '300px',
+                  display: 'flex',
+                  alignItems: 'center', 
+                  justifyContent: 'center',  
                 }}
               >
                 <CardActionArea onClick={() => handleClick(doctor)}>
@@ -162,13 +188,12 @@ const FeedbackDoctors = () => {
                       <Typography variant="body2" color="text.secondary">
                         {doctor.total} Feedbacks
                       </Typography>
-                      <Box sx={{ mt: 1 }}>
+                      <Box sx={{ mt: 1, direction: 'ltr' }}>
                         <Rating
                           name={`rating-${doctor.id}`}
                           value={doctor.average_rating}
                           readOnly
                           precision={0.1}
-                          sx={{ mt: 0.5 }}
                         />
                       </Box>
                     </CardContent>
@@ -182,7 +207,7 @@ const FeedbackDoctors = () => {
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Pagination
-          count={filteredTotalPages}
+          count={totalPages}
           page={currentPage}
           onChange={handlePageChange}
           color="primary"
@@ -202,7 +227,7 @@ const FeedbackDoctors = () => {
           <DialogTitle sx={{ textAlign: 'center' }}>
             {selectedDoctor?.name}
           </DialogTitle>
-          <DialogContent sx={{ direction: i18n.dir() }}> 
+          <DialogContent sx={{ direction: i18n.dir() }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
               <Avatar
                 src={`${apiBaseUrl}/${selectedDoctor?.picture}`}
@@ -215,7 +240,7 @@ const FeedbackDoctors = () => {
               <Typography variant="body2" color="text.secondary">
                 {selectedDoctor?.total} Feedbacks
               </Typography>
-              <Box sx={{ mt: 1 }}>
+              <Box sx={{ mt: 1, direction: 'ltr' }}>
                 <Rating
                   name={`rating-${selectedDoctor?.id}`}
                   value={selectedDoctor?.average_rating}
@@ -224,7 +249,7 @@ const FeedbackDoctors = () => {
                 />
               </Box>
             </Box>
-            <List sx={{ direction: i18n.dir() }}> 
+            <List sx={{ direction: i18n.dir() }}>
               {reviewsToDisplay.map((review) => (
                 <ListItem key={review.id} alignItems="flex-start">
                   <ListItemAvatar>
@@ -241,7 +266,7 @@ const FeedbackDoctors = () => {
                         >
                           {review.comment}
                         </Typography>
-                        <Box sx={{ mt: 1 }}>
+                        <Box sx={{ mt: 1, direction: 'ltr' }}>
                           <Rating
                             name={`rating-review-${review.id}`}
                             value={parseFloat(review.rate)}

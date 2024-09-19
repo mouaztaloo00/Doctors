@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Pagination } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Card,
+  CardActionArea,
+  Avatar,
+  CardContent,
+  Rating,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  CircularProgress,
+  Pagination
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
@@ -22,11 +45,11 @@ const FeedbackNurses = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-    // جلب التوكن من localStorage
-    const token = `Bearer ${localStorage.getItem('token')}`;
+  // جلب التوكن من localStorage
+  const token = `Bearer ${localStorage.getItem('token')}`;
 
-    // إعداد التوكن في جميع طلبات axios
-    axios.defaults.headers.common['Authorization'] = token;
+  // إعداد التوكن في جميع طلبات axios
+  axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {
     const fetchNurses = async (page = 1) => {
@@ -140,6 +163,10 @@ const FeedbackNurses = () => {
                     boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                   },
                   overflow: 'hidden',
+                  height: '300px',
+                  display: 'flex',
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
                 }}
               >
                 <CardActionArea onClick={() => handleClick(nurse)}>
@@ -162,7 +189,7 @@ const FeedbackNurses = () => {
                           value={nurse.average_rating}
                           readOnly
                           precision={0.1}
-                          sx={{ mt: 0.5 }}
+                          sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
                         />
                       </Box>
                     </CardContent>
@@ -184,91 +211,93 @@ const FeedbackNurses = () => {
           boundaryCount={1}
         />
       </Box>
-      {selectedNurse && (
-  <Dialog
-    open={openDialog}
-    onClose={handleCloseDialog}
-    maxWidth="sm"
-    fullWidth
-    sx={{ direction: i18n.dir() }}
-  >
-    <DialogTitle sx={{ textAlign: 'center' }}>
-      {selectedNurse?.name}
-    </DialogTitle>
-    <DialogContent sx={{ direction: i18n.dir() }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
-        <Avatar
-          src={`${apiBaseUrl}/${selectedNurse?.picture}`}
-          alt={selectedNurse?.name}
-          sx={{ width: 100, height: 100, mb: 2 }}
-        />
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          {selectedNurse?.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {selectedNurse?.total} Feedbacks
-        </Typography>
-        <Box sx={{ mt: 1 }}>
-          <Rating
-            name={`rating-${selectedNurse?.id}`}
-            value={selectedNurse?.average_rating}
-            readOnly
-            precision={0.1}
-          />
-        </Box>
-      </Box>
-      <List>
-        {reviewsToDisplay.map((review) => (
-          <ListItem key={review.id} alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
-            </ListItemAvatar>
-            <ListItemText
-              primary={review.user_name}
-              secondary={
-                <>
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    {review.comment}
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <Rating
-                      name={`rating-review-${review.id}`}
-                      value={parseFloat(review.rate)}
-                      readOnly
-                      precision={0.1}
-                    />
-                  </Box>
-                </>
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
-      {reviewsTotalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Pagination
-            count={reviewsTotalPages}
-            page={reviewsPage}
-            onChange={handleReviewsPageChange}
-            color="primary"
-            siblingCount={1}
-            boundaryCount={1}
-          />
-        </Box>
-      )}
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
-        {t('show.close')}
-      </Button>
-    </DialogActions>
-  </Dialog>
-)}
 
+      {selectedNurse && (
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
+          fullWidth
+          sx={{ direction: i18n.dir() }}
+        >
+          <DialogTitle sx={{ textAlign: 'center' }}>
+            {selectedNurse?.name}
+          </DialogTitle>
+          <DialogContent sx={{ direction: i18n.dir() }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+              <Avatar
+                src={`${apiBaseUrl}/${selectedNurse?.picture}`}
+                alt={selectedNurse?.name}
+                sx={{ width: 100, height: 100, mb: 2 }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {selectedNurse?.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedNurse?.total} Feedbacks
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <Rating
+                  name={`rating-${selectedNurse?.id}`}
+                  value={selectedNurse?.average_rating}
+                  readOnly
+                  precision={0.1}
+                  sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
+                />
+              </Box>
+            </Box>
+            <List>
+              {reviewsToDisplay.map((review) => (
+                <ListItem key={review.id} alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar src={`${apiBaseUrl}/${review.user_picture}`} alt={review.user_name} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={review.user_name}
+                    secondary={
+                      <>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.primary"
+                        >
+                          {review.comment}
+                        </Typography>
+                        <Box sx={{ mt: 1 }}>
+                          <Rating
+                            name={`rating-review-${review.id}`}
+                            value={parseFloat(review.rate)}
+                            readOnly
+                            precision={0.1}
+                            sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
+                          />
+                        </Box>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+            {reviewsTotalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                  count={reviewsTotalPages}
+                  page={reviewsPage}
+                  onChange={handleReviewsPageChange}
+                  color="primary"
+                  siblingCount={1}
+                  boundaryCount={1}
+                />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
+              {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };

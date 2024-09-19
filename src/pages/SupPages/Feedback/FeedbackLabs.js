@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Grid, Typography, TextField, InputAdornment, IconButton, Card, CardActionArea, Avatar, CardContent, Rating, Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Pagination } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Card,
+  CardActionArea,
+  Avatar,
+  CardContent,
+  Rating,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  CircularProgress,
+  Pagination
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import FeedBackMiniNavbar from '../../../components/minBar/FeedBackMiniNavbar'; 
@@ -22,11 +45,11 @@ const FeedbackLabs = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-    // جلب التوكن من localStorage
-    const token = `Bearer ${localStorage.getItem('token')}`;
+  // جلب التوكن من localStorage
+  const token = `Bearer ${localStorage.getItem('token')}`;
 
-    // إعداد التوكن في جميع طلبات axios
-    axios.defaults.headers.common['Authorization'] = token;
+  // إعداد التوكن في جميع طلبات axios
+  axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
@@ -47,7 +70,7 @@ const FeedbackLabs = () => {
 
   const fetchLabReviews = async (labId) => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/?size=100`); 
+      const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/?size=100`);
       setSelectedLabReviews(response.data.data || []);
     } catch (error) {
       console.error('Error fetching lab reviews:', error);
@@ -140,6 +163,10 @@ const FeedbackLabs = () => {
                     boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                   },
                   overflow: 'hidden',
+                  height: '300px',
+                  display: 'flex',
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
                 }}
               >
                 <CardActionArea onClick={() => handleClick(lab)}>
@@ -162,7 +189,7 @@ const FeedbackLabs = () => {
                           value={lab.average_rating}
                           readOnly
                           precision={0.1}
-                          sx={{ mt: 0.5 }}
+                          sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
                         />
                       </Box>
                     </CardContent>
@@ -215,6 +242,7 @@ const FeedbackLabs = () => {
                   value={selectedLab?.average_rating}
                   readOnly
                   precision={0.1}
+                  sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
                 />
               </Box>
             </Box>
@@ -235,12 +263,13 @@ const FeedbackLabs = () => {
                         >
                           {review.comment}
                         </Typography>
-                        <Box sx={{ mt: 1 }}>
+                        <Box sx={{ mt: 1, direction: 'ltr' }}>
                           <Rating
                             name={`rating-review-${review.id}`}
                             value={parseFloat(review.rate)}
                             readOnly
                             precision={0.1}
+                            sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
                           />
                         </Box>
                       </>
