@@ -46,6 +46,12 @@ const ShowDoctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+    // جلب التوكن من localStorage
+    const token = `Bearer ${localStorage.getItem('token')}`;
+
+    // إعداد التوكن في جميع طلبات axios
+    axios.defaults.headers.common['Authorization'] = token;
+
   useEffect(() => {
     const fetchDoctors = async () => {
       try {

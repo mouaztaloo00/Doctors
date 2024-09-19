@@ -2,23 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, CardContent, Grid, CircularProgress } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
+import axios from 'axios';
+
+// جلب التوكن من localStorage
+const token = `Bearer ${localStorage.getItem('token')}`;
+
+// إعداد التوكن في جميع طلبات axios
+axios.defaults.headers.common['Authorization'] = token;
 
 const ShowTestCategory = () => {
   const { t, i18n } = useTranslation();
-  const [testData, setTestData] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [testData, setTestData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const url = `${process.env.REACT_APP_API_BASE_URL}/api/test-categories`;
 
   useEffect(() => {
     const fetchTestCategories = async () => {
+      setLoading(true);
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch test categories. Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTestData(data);
+        const response = await axios.get(url);
+        setTestData(response.data);
       } catch (error) {
         setError(error.message);
       } finally {

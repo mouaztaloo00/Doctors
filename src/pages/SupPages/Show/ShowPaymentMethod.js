@@ -15,6 +15,12 @@ import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 
+// جلب التوكن من localStorage
+const token = `Bearer ${localStorage.getItem('token')}`;
+
+// إعداد التوكن في جميع طلبات axios
+axios.defaults.headers.common['Authorization'] = token;
+
 const ShowPaymentMethod = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const paymentMethodsUrl = `${apiBaseUrl}/api/payment-methods`;
@@ -27,6 +33,7 @@ const ShowPaymentMethod = () => {
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(paymentMethodsUrl);
         setPaymentMethods(response.data);
@@ -89,25 +96,25 @@ const ShowPaymentMethod = () => {
                   </Typography>
                 </CardContent>
                 <IconButton
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    backgroundColor: method.status === 'فعالة' ? 'success.main' : 'error.main',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: 40,
-                    height: 40,
-                    boxShadow: 3,
-                    '&:hover': {
-                      backgroundColor: method.status === 'فعالة' ? 'success.dark' : 'error.dark',
-                      boxShadow: 6,
-                    },
-                    transition: 'background-color 0.3s, box-shadow 0.3s',
-                  }}
-                >
-                  {method.status === 'فعالة' ? <CheckIcon /> : <CancelIcon />}
-                </IconButton>
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.main' : 'error.main',
+                      color: 'white',
+                      borderRadius: '50%',
+                      width: 40,
+                      height: 40,
+                      boxShadow: 3,
+                      '&:hover': {
+                        backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.dark' : 'error.dark',
+                        boxShadow: 6,
+                      },
+                      transition: 'background-color 0.3s, box-shadow 0.3s',
+                    }}
+                    >
+                    {method.status === 'فعالة' || method.status === 'Active' ? <CheckIcon /> : <CancelIcon />}
+                    </IconButton>
               </Card>
             </Grid>
           ))}

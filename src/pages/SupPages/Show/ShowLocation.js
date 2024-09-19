@@ -10,13 +10,20 @@ const ShowLocation = () => {
   const [loading, setLoading] = useState(true);
 
   const { t, i18n } = useTranslation();
-  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr'; 
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const theme = useTheme();
+
+  // جلب التوكن من localStorage
+  const token = `Bearer ${localStorage.getItem('token')}`;
 
   const fetchData = async (url) => {
     setLoading(true);
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: token,
+        },
+      });
       const result = await response.json();
       setData(result.data);
       setPagination({
@@ -52,11 +59,11 @@ const ShowLocation = () => {
       <ShowMiniNavbar />
       <Divider sx={{ mb: 2 }} />
 
-      <Box sx={{ 
-        maxWidth: '100%', 
+      <Box sx={{
+        maxWidth: '100%',
         overflowX: 'auto',
-        p: 4, 
-        mt: 6, 
+        p: 4,
+        mt: 6,
         bgcolor: theme.palette.background.paper,
         borderRadius: 2,
         boxShadow: theme.shadows[3]
@@ -65,33 +72,33 @@ const ShowLocation = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ 
-                  textAlign: 'center', 
-                  fontWeight: 'bold', 
+                <TableCell sx={{
+                  textAlign: 'center',
+                  fontWeight: 'bold',
                   borderBottom: `2px solid`,
                   bgcolor: theme.palette.primary.light
                 }}>
                   <Typography variant="h6">{t('table.governorate')}</Typography>
                 </TableCell>
-                <TableCell sx={{ 
-                  textAlign: 'center', 
-                  fontWeight: 'bold', 
+                <TableCell sx={{
+                  textAlign: 'center',
+                  fontWeight: 'bold',
                   borderBottom: `2px solid`,
                   bgcolor: theme.palette.primary.light
                 }}>
                   <Typography variant="h6">{t('table.district')}</Typography>
                 </TableCell>
-                <TableCell sx={{ 
-                 textAlign: 'center', 
-                 fontWeight: 'bold', 
-                 borderBottom: `2px solid`,
-                 bgcolor: theme.palette.primary.light
+                <TableCell sx={{
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  borderBottom: `2px solid`,
+                  bgcolor: theme.palette.primary.light
                 }}>
                   <Typography variant="h6">{t('table.city')}</Typography>
                 </TableCell>
-                <TableCell sx={{ 
-                  textAlign: 'center', 
-                  fontWeight: 'bold', 
+                <TableCell sx={{
+                  textAlign: 'center',
+                  fontWeight: 'bold',
                   borderBottom: `2px solid`,
                   bgcolor: theme.palette.primary.light
                 }}>
@@ -122,24 +129,24 @@ const ShowLocation = () => {
         </TableContainer>
       </Box>
 
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         mt: 3,
-        flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' 
+        flexDirection: direction === 'rtl' ? 'row-reverse' : 'row'
       }}>
         <IconButton
           onClick={() => handlePageChange(pagination.firstPage ? `${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=${pagination.firstPage}` : '')}
           disabled={!pagination.firstPage}
-          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }} 
+          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }}
         >
           <FirstPage />
         </IconButton>
         <IconButton
           onClick={() => handlePageChange(pagination.prevUrl)}
           disabled={!pagination.prevUrl}
-          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }} 
+          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }}
         >
           <ChevronLeft />
         </IconButton>
@@ -147,14 +154,14 @@ const ShowLocation = () => {
         <IconButton
           onClick={() => handlePageChange(pagination.nextUrl)}
           disabled={!pagination.nextUrl}
-          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }} 
+          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }}
         >
           <ChevronRight />
         </IconButton>
         <IconButton
           onClick={() => handlePageChange(pagination.lastPageUrl)}
           disabled={!pagination.lastPageUrl}
-          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }} 
+          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }}
         >
           <LastPage />
         </IconButton>

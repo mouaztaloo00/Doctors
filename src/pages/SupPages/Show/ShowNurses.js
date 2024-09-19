@@ -36,6 +36,12 @@ const ShowNurses = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // جلب التوكن من localStorage
+  const token = `Bearer ${localStorage.getItem('token')}`;
+
+  // إعداد التوكن في جميع طلبات axios
+  axios.defaults.headers.common['Authorization'] = token;
+
   useEffect(() => {
     const fetchNurses = async (page = 1) => {
       setLoading(true);
@@ -170,64 +176,60 @@ const ShowNurses = () => {
           fullWidth
           sx={{ direction: i18n.dir() }}
         >
-          
-          
           <DialogTitle sx={{ 
-  textAlign: 'center', 
-  p: 3, 
-  bgcolor: 'linear-gradient(45deg, #6abf69 30%, #3b8b41 90%)', 
-  color: 'white', 
-  borderBottom: '1px solid #ddd', 
-  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-}}>
-  {selectedNurse.name}
-</DialogTitle>
-<DialogContent>
-  <Box sx={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    mb: 3, 
-    textAlign: 'center'
-  }}>
-    <Avatar
-      src={`${apiBaseUrl}/${selectedNurse.profilePicture}`}
-      alt={selectedNurse.name}
-      sx={{ 
-        width: 130, 
-        height: 130, 
-        mb: 2, 
-        border: '4px solid #ffffff', 
-        boxShadow: '0 6px 12px rgba(0,0,0,0.3)', 
-        borderRadius: '50%' 
-      }}
-    />
-    <Typography variant="h4" sx={{ fontWeight: '700', mb: 1, color: '#333' }}>
-      {selectedNurse.name}
-    </Typography>
-    <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
-      <strong>Email:</strong> {selectedNurse.email}
-    </Typography>
-    <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
-      <strong>Phone:</strong> {selectedNurse.phoneNumber}
-    </Typography>
-    <Typography variant="body1" color="text.primary" sx={{ mb: 2 }}>
-      <strong>Birth Date:</strong> {new Date(selectedNurse.birthDate).toLocaleDateString()}
-    </Typography>
-    <Typography variant="body1" color="text.primary" sx={{ 
-      textAlign: 'center', 
-      backgroundColor: '#f5f5f5', 
-      borderRadius: '8px', 
-      padding: '8px', 
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-    }}>
-      <strong>Address:</strong> <br />
-      {`${selectedNurse.address.street}, ${selectedNurse.address.buildingNumber}, ${selectedNurse.address.apartmentNumber}, ${selectedNurse.address.location.city}, ${selectedNurse.address.location.district}, ${selectedNurse.address.location.governorate}`}
-    </Typography>
-  </Box>
-</DialogContent>
-
-
+            textAlign: 'center', 
+            p: 3, 
+            bgcolor: 'linear-gradient(45deg, #6abf69 30%, #3b8b41 90%)', 
+            color: 'white', 
+            borderBottom: '1px solid #ddd', 
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+          }}>
+            {selectedNurse.name}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              mb: 3, 
+              textAlign: 'center'
+            }}>
+              <Avatar
+                src={`${apiBaseUrl}/${selectedNurse.profilePicture}`}
+                alt={selectedNurse.name}
+                sx={{ 
+                  width: 130, 
+                  height: 130, 
+                  mb: 2, 
+                  border: '4px solid #ffffff', 
+                  boxShadow: '0 6px 12px rgba(0,0,0,0.3)', 
+                  borderRadius: '50%' 
+                }}
+              />
+              <Typography variant="h4" sx={{ fontWeight: '700', mb: 1, color: '#333' }}>
+                {selectedNurse.name}
+              </Typography>
+              <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
+                <strong>Email:</strong> {selectedNurse.email}
+              </Typography>
+              <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
+                <strong>Phone:</strong> {selectedNurse.phoneNumber}
+              </Typography>
+              <Typography variant="body1" color="text.primary" sx={{ mb: 2 }}>
+                <strong>Birth Date:</strong> {new Date(selectedNurse.birthDate).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body1" color="text.primary" sx={{ 
+                textAlign: 'center', 
+                backgroundColor: '#f5f5f5', 
+                borderRadius: '8px', 
+                padding: '8px', 
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+              }}>
+                <strong>Address:</strong> <br />
+                {`${selectedNurse.address.street}, ${selectedNurse.address.buildingNumber}, ${selectedNurse.address.apartmentNumber}, ${selectedNurse.address.location.city}, ${selectedNurse.address.location.district}, ${selectedNurse.address.location.governorate}`}
+              </Typography>
+            </Box>
+          </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} sx={{ color: 'red' }}>
               {t('show.close')}

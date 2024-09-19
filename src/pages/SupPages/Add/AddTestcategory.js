@@ -18,6 +18,12 @@ const AddTestcategory = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
+    // جلب التوكن من localStorage
+    const token = `Bearer ${localStorage.getItem('token')}`;
+
+    // إعداد التوكن في جميع طلبات axios
+    axios.defaults.headers.common['Authorization'] = token;
+
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     if (setSubmitting) {
       setSubmitting(true);
