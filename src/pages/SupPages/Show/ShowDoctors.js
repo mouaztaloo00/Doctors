@@ -41,7 +41,7 @@ const ShowDoctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // حالة نافذة التأكيد
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); 
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -177,6 +177,10 @@ const ShowDoctors = () => {
                   boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                 },
                 overflow: 'hidden',
+                 height: '250px',
+                    display: 'flex',
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
               }}
             >
               <CardActionArea onClick={() => handleClick(doctor)}>
@@ -393,10 +397,10 @@ const ShowDoctors = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseConfirmDialog} color="primary">
-            {t('confirm.cancel')}
+            {t('show.close')}
           </Button>
           <Button onClick={handleDelete} color="secondary">
-            {t('confirm.confirm')}
+            {t('show.delete')}
           </Button>
         </DialogActions>
       </Dialog>

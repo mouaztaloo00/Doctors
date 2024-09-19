@@ -1,8 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, useTheme, Divider, IconButton, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import { 
+   Box,
+   Typography, 
+   Table,
+   TableBody,  
+   TextField,
+   InputAdornment,
+   TableCell, 
+   TableContainer, 
+   TableHead, 
+   TableRow, 
+   Paper, 
+   useTheme, 
+   Divider, 
+   IconButton, 
+   CircularProgress, 
+   Dialog, 
+   DialogActions, 
+   DialogContent, 
+   DialogTitle, 
+   Button 
+} from '@mui/material';
 import { FirstPage, LastPage, ChevronLeft, ChevronRight, Delete } from '@mui/icons-material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
+import SearchIcon from '@mui/icons-material/Search';
 
 const ShowLocation = () => {
   const [data, setData] = useState([]);
@@ -89,7 +111,23 @@ const ShowLocation = () => {
       </Typography>
       <ShowMiniNavbar />
       <Divider sx={{ mb: 2 }} />
-
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
+        <TextField
+          variant="outlined"
+          fullWidth
+          placeholder={t('search.placeholder')}
+          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconButton>
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
       <Box sx={{
         maxWidth: '100%',
         overflowX: 'auto',

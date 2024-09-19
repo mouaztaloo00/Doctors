@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Card, CardContent, CircularProgress, Pagination } from '@mui/material';
+import { Box, Typography, Card,  TextField,IconButton, 
+  InputAdornment,CardContent, CircularProgress, Pagination } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
+import SearchIcon from '@mui/icons-material/Search';
+
 
 // جلب التوكن من localStorage
 const token = `Bearer ${localStorage.getItem('token')}`;
@@ -45,6 +48,26 @@ const ShowTests = () => {
         {t('show.title4')}
       </Typography>
       <ShowMiniNavbar />
+
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
+        <TextField
+          variant="outlined"
+          fullWidth
+          placeholder={t('search.placeholder')}
+          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconButton>
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+     
+
 
       <Box
         sx={{

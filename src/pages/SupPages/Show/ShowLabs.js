@@ -161,6 +161,10 @@ const ShowLabs = () => {
                     boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
                   },
                   overflow: 'hidden',
+                  height: '250px',
+                  display: 'flex',
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
                 }}
               >
                 <CardActionArea onClick={() => handleClick(lab)}>

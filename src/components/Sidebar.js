@@ -64,6 +64,8 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
           />
         </ListItem>
         <Divider />
+                prof
+        <Divider />
         <ListItem button component={Link} to="/">
           <ListItemIcon sx={{ minWidth: 35 }}> 
             <HomeIcon color={darkMode ? 'secondary' : 'primary'} />
