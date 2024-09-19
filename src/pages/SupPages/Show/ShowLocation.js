@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, useTheme, Divider, IconButton, CircularProgress } from '@mui/material';
-import { FirstPage, LastPage, ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, useTheme, Divider, IconButton, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import { FirstPage, LastPage, ChevronLeft, ChevronRight, Delete } from '@mui/icons-material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 
 const ShowLocation = () => {
   const [data, setData] = useState([]);
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1, firstPage: 1, lastPageUrl: '', prevUrl: '', nextUrl: '' });
   const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   const { t, i18n } = useTranslation();
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
@@ -48,6 +50,35 @@ const ShowLocation = () => {
   const handlePageChange = (url) => {
     if (url) {
       fetchData(url);
+    }
+  };
+
+  const handleOpenDialog = (id) => {
+    setSelectedItemId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedItemId(null);
+  };
+
+  const handleDelete = async () => {
+    if (selectedItemId) {
+      try {
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/locations/${selectedItemId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: token,
+          },
+        });
+        // تحديث البيانات بعد الحذف
+        fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=${pagination.currentPage}`);
+      } catch (error) {
+        console.error('Error deleting data:', error);
+      } finally {
+        handleCloseDialog();
+      }
     }
   };
 
@@ -104,12 +135,20 @@ const ShowLocation = () => {
                 }}>
                   <Typography variant="h6">{t('table.area')}</Typography>
                 </TableCell>
+                <TableCell sx={{
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  borderBottom: `2px solid`,
+                  bgcolor: theme.palette.primary.light
+                }}>
+                  <Typography variant="h6">{t('table.delete')}</Typography>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4} sx={{ textAlign: 'center', p: 2 }}>
+                  <TableCell colSpan={5} sx={{ textAlign: 'center', p: 2 }}>
                     <CircularProgress />
                     <Typography variant="h6" sx={{ mt: 2 }}>{t('loading')}</Typography>
                   </TableCell>
@@ -121,6 +160,11 @@ const ShowLocation = () => {
                     <TableCell sx={{ textAlign: 'center' }}>{row.district}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{row.city}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{row.area}</TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      <IconButton onClick={() => handleOpenDialog(row.id)} color="error">
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -166,6 +210,21 @@ const ShowLocation = () => {
           <LastPage />
         </IconButton>
       </Box>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="md" 
+        fullWidth
+      >
+        <DialogTitle>{t('show.delete')}</DialogTitle>
+        <DialogContent>
+          <Typography> {t('show.message')} </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>{t('show.close')}</Button>
+          <Button onClick={handleDelete} color="error">{t('show.delete')}</Button>
+        </DialogActions>
+      </Dialog> 
     </Box>
   );
 };

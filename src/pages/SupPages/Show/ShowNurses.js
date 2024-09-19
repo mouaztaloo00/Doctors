@@ -20,6 +20,7 @@ import {
   Pagination,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import DeleteIcon from '@mui/icons-material/Delete'; // استيراد DeleteIcon
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
@@ -35,6 +36,8 @@ const ShowNurses = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // حالة للحوار التأكيدي للحذف
+  const [selectedNurseForDeletion, setSelectedNurseForDeletion] = useState(null); // حالة للممرضة المحددة للحذف
 
   // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
@@ -88,6 +91,28 @@ const ShowNurses = () => {
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
+  };
+
+  const handleConfirmDelete = () => {
+    setOpenConfirmDialog(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+    setSelectedNurseForDeletion(null);
+  };
+
+  const handleDelete = async () => {
+    if (selectedNurse) {
+      try {
+        await axios.delete(`${apiBaseUrl}/api/nurses/id/${selectedNurse.id}`);
+        setNurses(nurses.filter(nurse => nurse.id !== selectedNurse.id));
+        handleClose();
+        handleCloseConfirmDialog();
+      } catch (error) {
+        console.error('Error deleting nurse:', error);
+      }
+    }
   };
 
   return (
@@ -230,9 +255,43 @@ const ShowNurses = () => {
               </Typography>
             </Box>
           </DialogContent>
-          <DialogActions>
+          <DialogActions
+            sx={{
+              p: 2,
+              bgcolor: 'background.default',
+              borderBottomLeftRadius: 3,
+              borderBottomRightRadius: 3,
+            }}
+            >
+            <Button 
+              onClick={handleConfirmDelete} 
+              sx={{ color: 'red', marginRight: 'auto' }} 
+              startIcon={<DeleteIcon />} 
+            >
+              {t('show.delete')}
+            </Button>
             <Button onClick={handleClose} sx={{ color: 'red' }}>
               {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {selectedNurseForDeletion && (
+        <Dialog
+          open={openConfirmDialog}
+          onClose={handleCloseConfirmDialog}
+        >
+          <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
+          <DialogContent>
+            <Typography>{t('confirm.deleteMessage')}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} color="primary">
+              {t('confirm.cancel')}
+            </Button>
+            <Button onClick={handleDelete} color="secondary">
+              {t('confirm.confirm')}
             </Button>
           </DialogActions>
         </Dialog>

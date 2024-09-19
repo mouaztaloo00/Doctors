@@ -29,6 +29,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import MailIcon from '@mui/icons-material/Mail';
 import PhoneIcon from '@mui/icons-material/Phone';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
@@ -40,17 +41,15 @@ const ShowDoctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // حالة نافذة التأكيد
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-    // جلب التوكن من localStorage
-    const token = `Bearer ${localStorage.getItem('token')}`;
-
-    // إعداد التوكن في جميع طلبات axios
-    axios.defaults.headers.common['Authorization'] = token;
+  const token = `Bearer ${localStorage.getItem('token')}`;
+  axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -78,6 +77,27 @@ const ShowDoctors = () => {
     } catch (error) {
       console.error('Error fetching doctor details:', error);
     }
+  };
+
+  const handleDelete = async () => {
+    if (selectedDoctor) {
+      try {
+        await axios.delete(`${doctorsUrl}/id/${selectedDoctor.id}`);
+        setDoctors(doctors.filter(doctor => doctor.id !== selectedDoctor.id));
+        handleCloseDialog();
+        handleCloseConfirmDialog();
+      } catch (error) {
+        console.error('Error deleting doctor:', error);
+      }
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    setOpenConfirmDialog(true); 
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
   };
 
   const filteredDoctors = doctors.filter((doctor) =>
@@ -203,7 +223,6 @@ const ShowDoctors = () => {
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              {/* Doctor Profile */}
               <Avatar
                 src={`${apiBaseUrl}/${selectedDoctor.profilePicture}`}
                 alt={selectedDoctor.name}
@@ -225,16 +244,16 @@ const ShowDoctors = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  startIcon={<MailIcon sx={{ marginRight: '8px' ,marginLeft:'8px' }}/>} 
+                  startIcon={<MailIcon sx={{ marginRight: '8px' ,marginLeft:'8px' }} />}
                   href={`mailto:${selectedDoctor.email}`}
-                  sx={{ mr: 2, bgcolor: '#004d40', '&:hover': { bgcolor: '#00332c' } }}
+                  sx={{ mr: 2, bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
                 >
                   {t('show.email')}
                 </Button>
                 <Button
                   variant="contained"
                   color="secondary"
-                  startIcon={<PhoneIcon sx={{ marginRight: '8px',marginLeft:'8px' }} />} 
+                  startIcon={<PhoneIcon sx={{ marginRight: '8px',marginLeft:'8px' }} />}
                   href={`tel:${selectedDoctor.phoneNumber}`}
                   sx={{ bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
                 >
@@ -248,7 +267,7 @@ const ShowDoctors = () => {
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                   mb: 3,
                   maxWidth: '600px',
-                  width: '100%', 
+                  width: '100%',
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -267,8 +286,8 @@ const ShowDoctors = () => {
                   borderRadius: 2,
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                   mb: 3,
-                  maxWidth: '600px', 
-                  width: '100%', 
+                  maxWidth: '600px',
+                  width: '100%',
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -288,7 +307,7 @@ const ShowDoctors = () => {
                   borderRadius: 2,
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                   mb: 3,
-                  maxWidth: '600px', 
+                  maxWidth: '600px',
                   width: '100%',
                 }}
               >
@@ -319,8 +338,8 @@ const ShowDoctors = () => {
                   p: 3,
                   borderRadius: 2,
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  maxWidth: '600px', 
-                  width: '100%', 
+                  maxWidth: '600px',
+                  width: '100%',
                   mb: 3,
                 }}
               >
@@ -337,8 +356,8 @@ const ShowDoctors = () => {
                   p: 3,
                   borderRadius: 2,
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  maxWidth: '600px', 
-                  width: '100%', 
+                  maxWidth: '600px',
+                  width: '100%',
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -354,12 +373,33 @@ const ShowDoctors = () => {
             </Box>
           </DialogContent>
           <DialogActions>
+            <Button onClick={handleConfirmDelete} sx={{ color: 'red', marginRight: 'auto' }} startIcon={<DeleteIcon />}>
+              {t('show.delete')}
+            </Button>
             <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
               {t('show.close')}
             </Button>
           </DialogActions>
         </Dialog>
       )}
+
+      <Dialog
+        open={openConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+      >
+        <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
+        <DialogContent>
+          <Typography>{t('confirm.deleteMessage')}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="primary">
+            {t('confirm.cancel')}
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            {t('confirm.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

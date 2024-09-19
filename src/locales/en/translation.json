@@ -48,7 +48,17 @@
     "title5": "Show Test_Category",
     "title6": "Show Payment_Method",
     "title7": "Show Nurses",
-    "close":"close"
+    "close":"close",
+    "delete":"delete",
+    "email":"email",
+    "phone":"phone",
+    "bio":"bio",
+    "clinicInfo":"clinicInfo",
+    "day":"day",
+    "startTime":"startTime",
+    "endTime":"endTime",
+    "address":"address",
+    "message":"Are you sure?"
   },
   "Feedback": {
     "title1": "Feedback Doctors",
@@ -88,6 +98,7 @@
     "governorate":"governorate",
     "district":"district",
     "city":"city",
-    "area":"area"
+    "area":"area",
+    "delete":"delete"
   }
 }

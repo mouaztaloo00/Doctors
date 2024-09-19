@@ -27,8 +27,9 @@ import {
   Paper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import DeleteIcon from '@mui/icons-material/Delete'; // استيراد DeleteIcon
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
-import axios from 'axios';
+import axios from 'axios'; 
 
 const ShowLabs = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
@@ -38,23 +39,18 @@ const ShowLabs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedLab, setSelectedLab] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // جلب التوكن من localStorage وإضافته إلى الـ headers
-  const token = `Bearer ${localStorage.getItem('token')}`;
+  const [selectedLabForDeletion, setSelectedLabForDeletion] = useState(null); // إضافة حالة لتخزين المختبر المحدد للحذف
 
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
       try {
-        const response = await axios.get(`${labsUrl}&page=${page}`, {
-          headers: {
-            Authorization: token,
-          },
-        });
+        const response = await axios.get(`${labsUrl}&page=${page}`);
         setLabs(response.data.data || []);
         setTotalPages(response.data.meta.last_page || 1);
       } catch (error) {
@@ -63,9 +59,9 @@ const ShowLabs = () => {
         setLoading(false);
       }
     };
-
+    
     fetchLabs(currentPage);
-  }, [currentPage, token]);
+  }, [currentPage]);
 
   const filteredLabs = labs.filter((lab) =>
     lab.labName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,14 +71,33 @@ const ShowLabs = () => {
     setSearchTerm(event.target.value);
   };
 
+  const handleConfirmDelete = (lab) => {
+    setSelectedLabForDeletion(lab);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+    setSelectedLabForDeletion(null); // إعادة تعيين المختبر المحدد للحذف
+  };
+
+  const handleDelete = async () => {
+    if (selectedLabForDeletion) {
+      try {
+        await axios.delete(`${labsUrl}/id/${selectedLabForDeletion.id}`);
+        setLabs(labs.filter(lab => lab.id !== selectedLabForDeletion.id));
+        handleClose();
+        handleCloseConfirmDialog();
+      } catch (error) {
+        console.error('Error deleting lab:', error);
+      }
+    }
+  };
+
   const handleClick = async (lab) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${apiBaseUrl}/api/labs/id/${lab.id}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await axios.get(`${apiBaseUrl}/api/labs/id/${lab.id}`);
       setSelectedLab(response.data);
       setOpen(true);
     } catch (error) {
@@ -246,7 +261,7 @@ const ShowLabs = () => {
               <Typography variant="body2" sx={{ mb: 2, textAlign: 'center' }}>
                 {`${selectedLab.address.location.governorate}, ${selectedLab.address.location.district}, ${selectedLab.address.location.city}, ${selectedLab.address.location.area}`}
               </Typography>
-
+    
               <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 2 }}>
                 <Table>
                   <TableHead>
@@ -277,12 +292,33 @@ const ShowLabs = () => {
               borderBottomRightRadius: 3,
             }}
           >
+            <Button onClick={() => handleConfirmDelete(selectedLab)} sx={{ color: 'red', marginRight: 'auto' }} startIcon={<DeleteIcon />}>
+              {t('show.delete')}
+            </Button>
             <Button onClick={handleClose} sx={{ color: 'red' }}>
               {t('show.close')}
             </Button>
           </DialogActions>
         </Dialog>
       )}
+
+      <Dialog
+        open={openConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+      >
+        <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
+        <DialogContent>
+          <Typography>{t('confirm.deleteMessage')}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="primary">
+            {t('confirm.cancel')}
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            {t('confirm.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
