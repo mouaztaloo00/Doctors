@@ -1,43 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-   Box,
-   Typography, 
-   Table,
-   TableBody,  
-   TextField,
-   InputAdornment,
-   TableCell, 
-   TableContainer, 
-   TableHead, 
-   TableRow, 
-   Paper, 
-   useTheme, 
-   Divider, 
-   IconButton, 
-   CircularProgress, 
-   Dialog, 
-   DialogActions, 
-   DialogContent, 
-   DialogTitle, 
-   Button 
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TextField,
+  InputAdornment,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  useTheme,
+  Divider,
+  IconButton,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Grid,
 } from '@mui/material';
-import { FirstPage, LastPage, ChevronLeft, ChevronRight, Delete } from '@mui/icons-material';
+import { Delete } from '@mui/icons-material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import SearchIcon from '@mui/icons-material/Search';
+import debounce from 'lodash.debounce';
 
 const ShowLocation = () => {
   const [data, setData] = useState([]);
-  const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1, firstPage: 1, lastPageUrl: '', prevUrl: '', nextUrl: '' });
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [sortParams, setSortParams] = useState({
+    governorate: '',
+    district: '',
+    city: '',
+    area: ''
+  });
 
   const { t, i18n } = useTranslation();
-  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const theme = useTheme();
-
-  // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
 
   const fetchData = async (url) => {
@@ -49,15 +55,7 @@ const ShowLocation = () => {
         },
       });
       const result = await response.json();
-      setData(result.data);
-      setPagination({
-        currentPage: result.meta.current_page,
-        lastPage: result.meta.last_page,
-        firstPage: result.links.first ? new URL(result.links.first).searchParams.get('page') : 1,
-        lastPageUrl: result.links.last,
-        prevUrl: result.links.prev,
-        nextUrl: result.links.next
-      });
+      setData(Array.isArray(result) ? result : []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -69,10 +67,41 @@ const ShowLocation = () => {
     fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
   }, []);
 
-  const handlePageChange = (url) => {
-    if (url) {
-      fetchData(url);
+  const fetchSearchResults = useCallback(
+    debounce(async (searchTerm) => {
+      if (searchTerm.trim()) {
+        await fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/search?s=${searchTerm}`);
+      } else {
+        fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
+      }
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    fetchSearchResults(term);
+  };
+
+  const handleSort = async () => {
+    const { governorate, district, city, area } = sortParams;
+    const queryParams = {};
+    if (governorate) queryParams.governorate = governorate;
+    if (district) queryParams.district = district;
+    if (city) queryParams.city = city;
+    if (area) queryParams.area = area;
+    const queryString = new URLSearchParams(queryParams).toString();
+    if (queryString) {
+      await fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/sort?${queryString}`);
+    } else {
+      fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSortParams(prev => ({ ...prev, [name]: value }));
   };
 
   const handleOpenDialog = (id) => {
@@ -88,14 +117,17 @@ const ShowLocation = () => {
   const handleDelete = async () => {
     if (selectedItemId) {
       try {
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/locations/${selectedItemId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/locations/id/${selectedItemId}`, {
           method: 'DELETE',
           headers: {
             Authorization: token,
           },
         });
-        // تحديث البيانات بعد الحذف
-        fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=${pagination.currentPage}`);
+        if (response.ok) {
+          fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
+        } else {
+          console.error('Failed to delete');
+        }
       } catch (error) {
         console.error('Error deleting data:', error);
       } finally {
@@ -105,18 +137,20 @@ const ShowLocation = () => {
   };
 
   return (
-    <Box sx={{ p: 3, direction }}>
-      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'}>
         {t('show.title3')}
       </Typography>
       <ShowMiniNavbar />
       <Divider sx={{ mb: 2 }} />
-      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
+      <Box sx={{ mt: 3, mb: 4 }}>
         <TextField
           variant="outlined"
           fullWidth
           placeholder={t('search.placeholder')}
-          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ borderRadius: 1 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -128,58 +162,76 @@ const ShowLocation = () => {
           }}
         />
       </Box>
-      <Box sx={{
-        maxWidth: '100%',
-        overflowX: 'auto',
-        p: 4,
-        mt: 6,
-        bgcolor: theme.palette.background.paper,
-        borderRadius: 2,
-        boxShadow: theme.shadows[3]
-      }}>
+
+      <Box sx={{ mb: 4, p: 2, bgcolor: '#f9f9f9', borderRadius: 2 }}>
+        <Grid container spacing={2}>
+          {['governorate', 'district', 'city', 'area'].map((field) => (
+            <Grid item xs={12} sm={6} md={3} key={field}>
+              <TextField
+                name={field}
+                variant="outlined"
+                placeholder={t(`table.${field}`)}
+                value={sortParams[field]}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{
+                  '& .MuiInputBase-input': { height: '24px' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    '& fieldset': {
+                      borderColor: '#ccc',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#888',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#3f51b5',
+                    },
+                  },
+                }}
+              />
+            </Grid>
+          ))}
+          <Grid item xs={12} sm={6} md={3}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={handleSort} 
+              fullWidth 
+              sx={{
+                height: '35px',
+                borderRadius: '8px',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  transition: 'transform 0.2s',
+                },
+              }}
+            >
+              {t('sort.button')}
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <TableContainer component={Paper} sx={{ width: '100%', borderRadius: 2, boxShadow: theme.shadows[2] }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  borderBottom: `2px solid`,
-                  bgcolor: theme.palette.primary.light
-                }}>
-                  <Typography variant="h6">{t('table.governorate')}</Typography>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                  {t('table.governorate')}
                 </TableCell>
-                <TableCell sx={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  borderBottom: `2px solid`,
-                  bgcolor: theme.palette.primary.light
-                }}>
-                  <Typography variant="h6">{t('table.district')}</Typography>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                  {t('table.district')}
                 </TableCell>
-                <TableCell sx={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  borderBottom: `2px solid`,
-                  bgcolor: theme.palette.primary.light
-                }}>
-                  <Typography variant="h6">{t('table.city')}</Typography>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                  {t('table.city')}
                 </TableCell>
-                <TableCell sx={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  borderBottom: `2px solid`,
-                  bgcolor: theme.palette.primary.light
-                }}>
-                  <Typography variant="h6">{t('table.area')}</Typography>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                  {t('table.area')}
                 </TableCell>
-                <TableCell sx={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  borderBottom: `2px solid`,
-                  bgcolor: theme.palette.primary.light
-                }}>
-                  <Typography variant="h6">{t('table.delete')}</Typography>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                  {t('table.delete')}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -188,7 +240,6 @@ const ShowLocation = () => {
                 <TableRow>
                   <TableCell colSpan={5} sx={{ textAlign: 'center', p: 2 }}>
                     <CircularProgress />
-                    <Typography variant="h6" sx={{ mt: 2 }}>{t('loading')}</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -211,58 +262,16 @@ const ShowLocation = () => {
         </TableContainer>
       </Box>
 
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        mt: 3,
-        flexDirection: direction === 'rtl' ? 'row-reverse' : 'row'
-      }}>
-        <IconButton
-          onClick={() => handlePageChange(pagination.firstPage ? `${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=${pagination.firstPage}` : '')}
-          disabled={!pagination.firstPage}
-          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }}
-        >
-          <FirstPage />
-        </IconButton>
-        <IconButton
-          onClick={() => handlePageChange(pagination.prevUrl)}
-          disabled={!pagination.prevUrl}
-          sx={{ mr: direction === 'rtl' ? 0 : 1, ml: direction === 'rtl' ? 1 : 0 }}
-        >
-          <ChevronLeft />
-        </IconButton>
-        <Typography sx={{ mx: 2, minWidth: 60, textAlign: 'center' }}>{`${pagination.currentPage} / ${pagination.lastPage}`}</Typography>
-        <IconButton
-          onClick={() => handlePageChange(pagination.nextUrl)}
-          disabled={!pagination.nextUrl}
-          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }}
-        >
-          <ChevronRight />
-        </IconButton>
-        <IconButton
-          onClick={() => handlePageChange(pagination.lastPageUrl)}
-          disabled={!pagination.lastPageUrl}
-          sx={{ ml: direction === 'rtl' ? 0 : 1, mr: direction === 'rtl' ? 1 : 0 }}
-        >
-          <LastPage />
-        </IconButton>
-      </Box>
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md" 
-        fullWidth
-      >
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>{t('show.delete')}</DialogTitle>
         <DialogContent>
-          <Typography> {t('show.message')} </Typography>
+          <Typography>{t('show.message')}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>{t('show.close')}</Button>
           <Button onClick={handleDelete} color="error">{t('show.delete')}</Button>
         </DialogActions>
-      </Dialog> 
+      </Dialog>
     </Box>
   );
 };

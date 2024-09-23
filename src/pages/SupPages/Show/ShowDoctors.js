@@ -41,7 +41,7 @@ const ShowDoctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); 
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,31 +51,61 @@ const ShowDoctors = () => {
   const token = `Bearer ${localStorage.getItem('token')}`;
   axios.defaults.headers.common['Authorization'] = token;
 
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${doctorsUrl}?size=9&page=${currentPage}`);
-        setDoctors(response.data.data);
-        setTotalPages(response.data.meta.last_page);
-      } catch (error) {
-        setError('Failed to fetch doctors.');
-        console.error('Error fetching doctors:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async (query = '', page = 1) => {
+    setLoading(true);
+    try {
+      const endpoint = query
+        ? `${apiBaseUrl}/api/doctors/search?s=${query}`
+        : `${apiBaseUrl}/api/doctors?size=8&page=${page}`;
 
-    fetchDoctors();
+      const response = await axios.get(endpoint);
+      if (response.data.message === "") {
+        setDoctors([]); 
+        setTotalPages(1);
+      } else {
+        setDoctors(query ? response.data || [] : response.data.data || []);
+        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setDoctors([]); 
+      setError('Failed to fetch data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData('', currentPage);
   }, [currentPage]);
 
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    fetchData(searchTerm, page);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      setCurrentPage(1); 
+      fetchData(searchTerm);
+    }
+  };
+
   const fetchDoctorDetails = async (id) => {
+    if (!id) return; 
     try {
       const response = await axios.get(`${doctorsUrl}/id/${id}`);
-      setSelectedDoctor(response.data);
-      setOpenDialog(true);
+      if (response.data) {
+        setSelectedDoctor(response.data);
+        setOpenDialog(true);
+      }
     } catch (error) {
       console.error('Error fetching doctor details:', error);
+      setError('Failed to fetch doctor details.');
     }
   };
 
@@ -88,24 +118,17 @@ const ShowDoctors = () => {
         handleCloseConfirmDialog();
       } catch (error) {
         console.error('Error deleting doctor:', error);
+        setError('Failed to delete doctor.');
       }
     }
   };
 
   const handleConfirmDelete = () => {
-    setOpenConfirmDialog(true); 
+    setOpenConfirmDialog(true);
   };
 
   const handleCloseConfirmDialog = () => {
     setOpenConfirmDialog(false);
-  };
-
-  const filteredDoctors = doctors.filter((doctor) =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
   };
 
   const handleClick = (doctor) => {
@@ -115,10 +138,6 @@ const ShowDoctors = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedDoctor(null);
-  };
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
   };
 
   if (loading) {
@@ -151,6 +170,7 @@ const ShowDoctors = () => {
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
+          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -165,44 +185,50 @@ const ShowDoctors = () => {
       </Box>
 
       <Grid container spacing={3} justifyContent="center">
-        {filteredDoctors.map((doctor) => (
-          <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={4}>
-            <Card
-              sx={{
-                borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                },
-                overflow: 'hidden',
-                 height: '250px',
-                    display: 'flex',
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-              }}
-            >
-              <CardActionArea onClick={() => handleClick(doctor)}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                  <Avatar
-                    src={`${apiBaseUrl}/${doctor.profilePicture}`}
-                    alt={doctor.name}
-                    sx={{ width: 100, height: 100, mb: 2 }}
-                  />
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                      {doctor.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {doctor.specialization}
-                    </Typography>
-                  </CardContent>
-                </Box>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
+        {doctors.length > 0 ? (
+          doctors.map((doctor) => (
+            <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={4}>
+              <Card
+                sx={{
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                  },
+                  overflow: 'hidden',
+                  height: '250px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CardActionArea onClick={() => handleClick(doctor)}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                    <Avatar
+                      src={doctor.profilePicture ? `${apiBaseUrl}/${doctor.profilePicture}` : ''}
+                      alt={doctor.name || 'Unknown Doctor'}
+                      sx={{ width: 100, height: 100, mb: 2 }}
+                    />
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        {doctor.name || 'Unknown Doctor'}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {doctor.specialization || 'N/A'}
+                      </Typography>
+                    </CardContent>
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <Typography variant="h6" color="text.secondary" align="center" sx={{ width: '100%' }}>
+            {t('no.results')}
+          </Typography>
+        )}
       </Grid>
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -223,13 +249,13 @@ const ShowDoctors = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedDoctor.name}
+            {selectedDoctor.name || 'Unknown Doctor'}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <Avatar
-                src={`${apiBaseUrl}/${selectedDoctor.profilePicture}`}
-                alt={selectedDoctor.name}
+                src={selectedDoctor.profilePicture ? `${apiBaseUrl}/${selectedDoctor.profilePicture}` : ''}
+                alt={selectedDoctor.name || 'Unknown Doctor'}
                 sx={{
                   width: 120,
                   height: 120,
@@ -239,149 +265,59 @@ const ShowDoctors = () => {
                 }}
               />
               <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#004d40' }}>
-                {selectedDoctor.name}
+                {selectedDoctor.name || 'Unknown Doctor'}
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-                {selectedDoctor.specialization}
+                {selectedDoctor.specialization || 'N/A'}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
                 <Button
                   variant="contained"
                   color="primary"
-                  startIcon={<MailIcon sx={{ marginRight: '8px' ,marginLeft:'8px' }} />}
+                  startIcon={<MailIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
                   href={`mailto:${selectedDoctor.email}`}
                   sx={{ mr: 2, bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
                 >
-                  {t('show.email')}
+                  {selectedDoctor.email || 'N/A'}
                 </Button>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  startIcon={<PhoneIcon sx={{ marginRight: '8px',marginLeft:'8px' }} />}
-                  href={`tel:${selectedDoctor.phoneNumber}`}
+                  color="primary"
+                  startIcon={<PhoneIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
+                  href={`tel:${selectedDoctor.phone}`}
                   sx={{ bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
                 >
-                  {t('show.phone')}
+                  {selectedDoctor.phone || 'N/A'}
                 </Button>
               </Box>
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  mb: 3,
-                  maxWidth: '600px',
-                  width: '100%',
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {t('show.bio')}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                  {selectedDoctor.bio}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {t('show.consultationFee')}: {selectedDoctor.consultationFee} S.P
-                </Typography>
-              </Paper>
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  mb: 3,
-                  maxWidth: '600px',
-                  width: '100%',
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {t('show.clinicInfo')}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                  {t('show.clinicName')}: {selectedDoctor.clinic.name}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                  {t('show.clinicNumber')}: {selectedDoctor.clinic.number}
-                </Typography>
-              </Paper>
-
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  mb: 3,
-                  maxWidth: '600px',
-                  width: '100%',
-                }}
-              >
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>{t('show.day')}</TableCell>
-                        <TableCell>{t('show.startTime')}</TableCell>
-                        <TableCell>{t('show.endTime')}</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
-                        <TableRow key={day}>
-                          <TableCell>{day}</TableCell>
-                          <TableCell>{hours.start || 'Closed'}</TableCell>
-                          <TableCell>{hours.end || 'Closed'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Paper>
-
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  maxWidth: '600px',
-                  width: '100%',
-                  mb: 3,
-                }}
-              >
-                <Typography variant="body1" color="text.secondary">
-                  {t('show.phone')}: {selectedDoctor.phoneNumber}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {t('show.email')}: {selectedDoctor.email}
-                </Typography>
-              </Paper>
-
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                  maxWidth: '600px',
-                  width: '100%',
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {t('show.address')}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                  {selectedDoctor.address.street}, {selectedDoctor.address.buildingNumber} {selectedDoctor.address.apartmentNumber}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {selectedDoctor.address.location.governorate}, {selectedDoctor.address.location.district}, {selectedDoctor.address.location.city}, {selectedDoctor.address.location.area}
-                </Typography>
-              </Paper>
             </Box>
+            <TableContainer component={Paper} sx={{ mt: 4 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('table.day')}</TableCell>
+                    <TableCell>{t('table.start')}</TableCell>
+                    <TableCell>{t('table.end')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedDoctor.clinic?.operatingHours && Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
+                    <TableRow key={day}>
+                      <TableCell>{day}</TableCell>
+                      <TableCell>{hours.start || 'Closed'}</TableCell>
+                      <TableCell>{hours.end || 'Closed'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleConfirmDelete} sx={{ color: 'red', marginRight: 'auto' }} startIcon={<DeleteIcon />}>
-              {t('show.delete')}
+          <DialogActions sx={{ justifyContent: 'space-between', width: '100%' }}>
+            <Button color="error" onClick={handleConfirmDelete} startIcon={<DeleteIcon />}>
+              {t('delete.title')}
             </Button>
-            <Button onClick={handleCloseDialog} sx={{ color: 'red' }}>
-              {t('show.close')}
+            <Button onClick={handleCloseDialog} color="primary">
+              {t('close')}
             </Button>
           </DialogActions>
         </Dialog>
@@ -391,17 +327,11 @@ const ShowDoctors = () => {
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
       >
-        <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
-        <DialogContent>
-          <Typography>{t('confirm.deleteMessage')}</Typography>
-        </DialogContent>
+        <DialogTitle>{t('confirm.title')}</DialogTitle>
+        <DialogContent>{t('confirm.message')}</DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color="primary">
-            {t('show.close')}
-          </Button>
-          <Button onClick={handleDelete} color="secondary">
-            {t('show.delete')}
-          </Button>
+          <Button onClick={handleCloseConfirmDialog} color="primary">{t('cancel')}</Button>
+          <Button onClick={handleDelete} color="error">{t('confirm.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

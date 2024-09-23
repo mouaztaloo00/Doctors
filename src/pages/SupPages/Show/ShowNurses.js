@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -20,16 +20,14 @@ import {
   Pagination,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import DeleteIcon from '@mui/icons-material/Delete'; 
+import DeleteIcon from '@mui/icons-material/Delete';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
-import debounce from 'lodash.debounce'; 
 
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
-  const nursesUrl = `${apiBaseUrl}/api/nurses?size=8`;
-
   const { t, i18n } = useTranslation();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedNurse, setSelectedNurse] = useState(null);
@@ -37,32 +35,11 @@ const ShowNurses = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); 
-  const [selectedNurseForDeletion, setSelectedNurseForDeletion] = useState(null); 
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [selectedNurseForDeletion, setSelectedNurseForDeletion] = useState(null);
 
-  // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
-
-  // إعداد التوكن في جميع طلبات axios
   axios.defaults.headers.common['Authorization'] = token;
-
-  useEffect(() => {
-    fetchNurses(currentPage);
-  }, [currentPage]);
-
-  const fetchNurses = async (page = 1) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${nursesUrl}&page=${page}`);
-      console.log('Fetched Nurses:', response.data); // سجل النتائج
-      setNurses(response.data.data || []);
-      setTotalPages(response.data.meta ? response.data.meta.last_page : 1);
-    } catch (error) {
-      console.error('Error fetching nurses:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchNurseDetails = async (id) => {
     try {
@@ -73,32 +50,48 @@ const ShowNurses = () => {
     }
   };
 
-  const fetchSearchResults = useCallback(
-    debounce(async (searchTerm) => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${apiBaseUrl}/api/nurses/search?s=${searchTerm}`);
-        console.log('Search Results:', response.data); 
-        setNurses(response.data || []); 
-        setTotalPages(1); 
-      } catch (error) {
-        console.error('Error searching nurses:', error);
-      } finally {
-        setLoading(false);
+  const fetchData = async (query = '', page = 1) => {
+    setLoading(true);
+    try {
+      const endpoint = query
+        ? `${apiBaseUrl}/api/nurses/search?s=${query}`
+        : `${apiBaseUrl}/api/nurses?size=10&page=${page}`;
+      
+      const response = await axios.get(endpoint);
+      
+      if (response.data.message === "") {
+        setNurses([]); 
+        setTotalPages(1);
+      } else {
+        const data = query ? response.data || [] : response.data.data || [];
+        setNurses(data);
+        setTotalPages(query ? 1 : response.data.meta?.last_page || 1);
       }
-    }, 500), 
-    []
-  );
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setNurses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData('', currentPage);
+  }, [currentPage]);
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    fetchData(searchTerm, page);
+  };
 
   const handleSearchChange = (event) => {
-    const term = event.target.value;
-    setSearchTerm(term);
-    if (term.trim() !== '') {
-      fetchSearchResults(term); 
+    setSearchTerm(event.target.value);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
       setCurrentPage(1); 
-    } else {
-      fetchNurses(1); 
-      setCurrentPage(1); 
+      fetchData(searchTerm);
     }
   };
 
@@ -112,11 +105,8 @@ const ShowNurses = () => {
     setSelectedNurse(null);
   };
 
-  const handlePageChange = (event, page) => {
-    setCurrentPage(page);
-  };
-
   const handleConfirmDelete = () => {
+    setSelectedNurseForDeletion(selectedNurse?.id);
     setOpenConfirmDialog(true);
   };
 
@@ -126,11 +116,10 @@ const ShowNurses = () => {
   };
 
   const handleDelete = async () => {
-    if (selectedNurse) {
+    if (selectedNurseForDeletion) {
       try {
-        await axios.delete(`${apiBaseUrl}/api/nurses/id/${selectedNurse.id}`);
-        setNurses(nurses.filter((nurse) => nurse.id !== selectedNurse.id));
-        handleClose();
+        await axios.delete(`${apiBaseUrl}/api/nurses/id/${selectedNurseForDeletion}`);
+        setNurses((prevNurses) => prevNurses.filter((nurse) => nurse.id !== selectedNurseForDeletion));
         handleCloseConfirmDialog();
       } catch (error) {
         console.error('Error deleting nurse:', error);
@@ -152,6 +141,7 @@ const ShowNurses = () => {
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
+          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -171,49 +161,49 @@ const ShowNurses = () => {
             <CircularProgress />
           </Box>
         ) : (
-          nurses.length > 0 ? (
-            nurses.map((nurse) => (
-              <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
-                <Card
-                  sx={{
-                    borderRadius: '16px',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                    },
-                    overflow: 'hidden',
-                    height: '250px',
-                    display: 'flex',
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                  }}
-                >
-                  <CardActionArea onClick={() => handleClick(nurse)}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                      <Avatar
-                        src={`${apiBaseUrl}/${nurse.profilePicture}`}
-                        alt={nurse.name}
-                        sx={{ width: 100, height: 100, mb: 2 }}
-                      />
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                          {nurse.name}
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <Box sx={{ textAlign: 'center', width: '100%', mt: 5 }}>
-              <Typography variant="h6" color="textSecondary">
-                {t('search.noResults')}
-              </Typography>
-            </Box>
-          )
+          nurses.map((nurse) => (
+            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
+              <Card
+                sx={{
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                  },
+                  overflow: 'hidden',
+                  height: '250px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CardActionArea onClick={() => handleClick(nurse)}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                    <Avatar
+                      src={nurse.profilePicture ? `${apiBaseUrl}/${nurse.profilePicture}` : ''}
+                      alt={nurse.name || 'Unknown Nurse'}
+                      sx={{ width: 100, height: 100, mb: 2 }}
+                    />
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        {nurse.name || 'Unknown Nurse'}
+                      </Typography>
+                    </CardContent>
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))
+        )}
+        
+        {nurses.length === 0 && !loading && (
+          <Box sx={{ textAlign: 'center', width: '100%', mt: 5 }}>
+            <Typography variant="h6" color="textSecondary">
+              {t('No Results')}
+            </Typography>
+          </Box>
         )}
       </Grid>
 
@@ -242,7 +232,7 @@ const ShowNurses = () => {
               boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
             }}
           >
-            {selectedNurse.name}
+            {selectedNurse.name || 'Unknown Nurse'}
           </DialogTitle>
           <DialogContent>
             <Box
@@ -255,8 +245,8 @@ const ShowNurses = () => {
               }}
             >
               <Avatar
-                src={`${apiBaseUrl}/${selectedNurse.profilePicture}`}
-                alt={selectedNurse.name}
+                src={selectedNurse.profilePicture ? `${apiBaseUrl}/${selectedNurse.profilePicture}` : ''}
+                alt={selectedNurse.name || 'Unknown Nurse'}
                 sx={{
                   width: 130,
                   height: 130,
@@ -267,16 +257,16 @@ const ShowNurses = () => {
                 }}
               />
               <Typography variant="h4" sx={{ fontWeight: '700', mb: 1, color: '#333' }}>
-                {selectedNurse.name}
+                {selectedNurse.name || 'Unknown Nurse'}
               </Typography>
               <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
-                <strong>Email:</strong> {selectedNurse.email}
+                <strong>Email:</strong> {selectedNurse.email || 'N/A'}
               </Typography>
               <Typography variant="body1" color="text.primary" sx={{ mb: 0.5 }}>
-                <strong>Phone:</strong> {selectedNurse.phoneNumber}
+                <strong>Phone:</strong> {selectedNurse.phoneNumber || 'N/A'}
               </Typography>
               <Typography variant="body1" color="text.primary" sx={{ mb: 2 }}>
-                <strong>Birth Date:</strong> {new Date(selectedNurse.birthDate).toLocaleDateString()}
+                <strong>Birth Date:</strong> {selectedNurse.birthDate ? new Date(selectedNurse.birthDate).toLocaleDateString() : 'N/A'}
               </Typography>
               <Typography
                 variant="body1"
@@ -290,7 +280,7 @@ const ShowNurses = () => {
                 }}
               >
                 <strong>Address:</strong> <br />
-                {`${selectedNurse.address.street}, ${selectedNurse.address.buildingNumber}, ${selectedNurse.address.apartmentNumber}, ${selectedNurse.address.location.city}, ${selectedNurse.address.location.district}, ${selectedNurse.address.location.governorate}`}
+                {selectedNurse.address ? `${selectedNurse.address.street || ''}, ${selectedNurse.address.buildingNumber || ''}, ${selectedNurse.address.apartmentNumber || ''}, ${selectedNurse.address.location?.city || ''}, ${selectedNurse.address.location?.district || ''}, ${selectedNurse.address.location?.governorate || ''}` : 'N/A'}
               </Typography>
             </Box>
           </DialogContent>

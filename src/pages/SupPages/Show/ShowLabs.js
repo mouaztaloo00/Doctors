@@ -24,19 +24,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import DeleteIcon from '@mui/icons-material/Delete'; // استيراد DeleteIcon
+import DeleteIcon from '@mui/icons-material/Delete';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
-import axios from 'axios'; 
+import axios from 'axios';
 
 const ShowLabs = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const labsUrl = `${apiBaseUrl}/api/labs?size=9`;
-
   const { t, i18n } = useTranslation();
-  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [searchQuery, setSearchQuery] = useState('');
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -44,7 +44,9 @@ const ShowLabs = () => {
   const [selectedLab, setSelectedLab] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedLabForDeletion, setSelectedLabForDeletion] = useState(null); // إضافة حالة لتخزين المختبر المحدد للحذف
+  const [selectedLabForDeletion, setSelectedLabForDeletion] = useState(null);
+  
+  const getValueOrPlaceholder = (value, placeholder) => (value ? value : placeholder);
 
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
@@ -59,16 +61,47 @@ const ShowLabs = () => {
         setLoading(false);
       }
     };
-    
+
     fetchLabs(currentPage);
   }, [currentPage]);
 
-  const filteredLabs = labs.filter((lab) =>
-    lab.labName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchData = async (query = '', page = 1) => {
+    setLoading(true);
+    try {
+      const endpoint = query
+        ? `${apiBaseUrl}/api/labs/search?s=${query}`
+        : `${apiBaseUrl}/api/labs?size=10&page=${page}`;
+      const response = await axios.get(endpoint);
+
+      if (response.data.message === "") {
+        setLabs([]); 
+        setTotalPages(1);
+      } else {
+        setLabs(query ? response.data || [] : response.data.data || []);
+        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setLabs([]); 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    fetchData(searchQuery, page);
+  };
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+    setSearchQuery(event.target.value);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      setCurrentPage(1);
+      fetchData(searchQuery);
+    }
   };
 
   const handleConfirmDelete = (lab) => {
@@ -78,18 +111,19 @@ const ShowLabs = () => {
 
   const handleCloseConfirmDialog = () => {
     setOpenConfirmDialog(false);
-    setSelectedLabForDeletion(null); // إعادة تعيين المختبر المحدد للحذف
+    setSelectedLabForDeletion(null);
   };
 
   const handleDelete = async () => {
     if (selectedLabForDeletion) {
       try {
-        await axios.delete(`${labsUrl}/id/${selectedLabForDeletion.id}`);
-        setLabs(labs.filter(lab => lab.id !== selectedLabForDeletion.id));
-        handleClose();
+        await axios.delete(`${apiBaseUrl}/api/labs/id/${selectedLabForDeletion.id}`);
+        setLabs(labs.filter((lab) => lab.id !== selectedLabForDeletion.id));
         handleCloseConfirmDialog();
+        window.location.reload();
       } catch (error) {
         console.error('Error deleting lab:', error);
+        alert('Failed to delete lab. Please try again.');
       }
     }
   };
@@ -112,13 +146,14 @@ const ShowLabs = () => {
     setSelectedLab(null);
   };
 
-  const handlePageChange = (event, page) => {
-    setCurrentPage(page);
-  };
-
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
-      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        align={i18n.dir() === 'rtl' ? 'right' : 'left'}
+        sx={{ p: 3 }}
+      >
         {t('show.title2')}
       </Typography>
       <ShowMiniNavbar />
@@ -128,8 +163,9 @@ const ShowLabs = () => {
           variant="outlined"
           fullWidth
           placeholder={t('search.placeholder')}
-          value={searchTerm}
+          value={searchQuery}
           onChange={handleSearchChange}
+          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -149,41 +185,59 @@ const ShowLabs = () => {
         </Box>
       ) : (
         <Grid container spacing={3} justifyContent="center">
-          {filteredLabs.map((lab) => (
-            <Grid item key={lab.id} xs={12} sm={6} md={4} lg={4}>
-              <Card
-                sx={{
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                  },
-                  overflow: 'hidden',
-                  height: '250px',
-                  display: 'flex',
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                }}
-              >
-                <CardActionArea onClick={() => handleClick(lab)}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                    <Avatar
-                      src={`${apiBaseUrl}/${lab.labPicture}`} 
-                      alt={lab.labName}
-                      sx={{ width: 100, height: 100, mb: 2 }}
-                    />
-                    <CardContent sx={{ textAlign: 'center' }}>
-                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                        {lab.labName}
-                      </Typography>
-                    </CardContent>
-                  </Box>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))}
+          {labs.length === 0 ? (
+            <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+              {t('search.noResults')}
+            </Typography>
+          ) : (
+            labs.map((lab) => (
+              <Grid item key={lab.id} xs={12} sm={6} md={4} lg={4}>
+                <Card
+                  sx={{
+                    borderRadius: '16px',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                    },
+                    overflow: 'hidden',
+                    height: '250px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CardActionArea onClick={() => handleClick(lab)}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: 2,
+                      }}
+                    >
+                      <Avatar
+                        src={`${apiBaseUrl}/${lab.labPicture}`}
+                        alt={getValueOrPlaceholder(lab.labName, 'Lab Picture Not Available')}
+                        sx={{ width: 100, height: 100, mb: 2 }}
+                      />
+                      <CardContent sx={{ textAlign: 'center' }}>
+                        <Typography
+                          gutterBottom
+                          variant="h6"
+                          component="div"
+                          sx={{ fontWeight: 'bold' }}
+                        >
+                          {getValueOrPlaceholder(lab.labName, 'Lab Name Not Available')}
+                        </Typography>
+                      </CardContent>
+                    </Box>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ))
+          )}
         </Grid>
       )}
 
@@ -193,6 +247,7 @@ const ShowLabs = () => {
           page={currentPage}
           onChange={handlePageChange}
           color="primary"
+          sx={{ display: searchQuery ? 'none' : 'flex' }}
         />
       </Box>
 
@@ -222,24 +277,27 @@ const ShowLabs = () => {
               fontWeight: 'bold',
             }}
           >
-            {selectedLab.labName}
+            {getValueOrPlaceholder(selectedLab.labName, 'Lab Name Not Available')}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              p: 3,
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                mb: 3,
-                p: 2,
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                boxShadow: 2,
+                textAlign: 'center',
               }}
             >
               <Avatar
-                src={`${apiBaseUrl}/${selectedLab.picture}`}
-                alt={selectedLab.labName}
+                src={`${apiBaseUrl}/${selectedLab.labPicture}`}
+                alt={getValueOrPlaceholder(selectedLab.labName, 'Lab Picture Not Available')}
                 sx={{
                   width: 120,
                   height: 120,
@@ -254,33 +312,52 @@ const ShowLabs = () => {
                 component="div"
                 sx={{ fontWeight: 'bold', mb: 1 }}
               >
-                {selectedLab.managerName}
+                {getValueOrPlaceholder(selectedLab.managerName, 'Manager Name Not Available')}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1, textAlign: 'center' }}>
-                {selectedLab.labContactNumber}
+                {getValueOrPlaceholder(selectedLab.labContactNumber, 'Contact Number Not Available')}
               </Typography>
               <Typography variant="body2" sx={{ mb: 1, textAlign: 'center' }}>
-                {`${selectedLab.address.street}, ${selectedLab.address.buildingNumber}, ${selectedLab.address.apartmentNumber}`}
+                {getValueOrPlaceholder(selectedLab.address?.street, 'Street Not Available')}, {getValueOrPlaceholder(selectedLab.address?.buildingNumber, 'Building Number Not Available')}, {getValueOrPlaceholder(selectedLab.address?.apartmentNumber, 'Apartment Number Not Available')}
               </Typography>
               <Typography variant="body2" sx={{ mb: 2, textAlign: 'center' }}>
-                {`${selectedLab.address.location.governorate}, ${selectedLab.address.location.district}, ${selectedLab.address.location.city}, ${selectedLab.address.location.area}`}
+                {`${getValueOrPlaceholder(selectedLab.address?.location?.governorate, 'Governorate Not Available')}, ${getValueOrPlaceholder(selectedLab.address?.location?.district, 'District Not Available')}, ${getValueOrPlaceholder(selectedLab.address?.location?.city, 'City Not Available')}, ${getValueOrPlaceholder(selectedLab.address?.location?.area, 'Area Not Available')}`}
               </Typography>
-    
-              <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 2 }}>
+
+              <TableContainer
+                component={Paper}
+                sx={{ borderRadius: 2, boxShadow: 2 }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>Day</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>Start</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>End</TableCell>
+                      <TableCell
+                        sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}
+                      >
+                        Day
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}
+                      >
+                        Start
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}
+                      >
+                        End
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {Object.keys(selectedLab.operatingHours).map((day) => (
+                    {selectedLab.operatingHours && Object.keys(selectedLab.operatingHours).map((day) => (
                       <TableRow key={day}>
                         <TableCell>{day}</TableCell>
-                        <TableCell>{selectedLab.operatingHours[day].start || 'Closed'}</TableCell>
-                        <TableCell>{selectedLab.operatingHours[day].end || 'Closed'}</TableCell>
+                        <TableCell>
+                          {getValueOrPlaceholder(selectedLab.operatingHours[day].start, 'Closed')}
+                        </TableCell>
+                        <TableCell>
+                          {getValueOrPlaceholder(selectedLab.operatingHours[day].end, 'Closed')}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -296,7 +373,11 @@ const ShowLabs = () => {
               borderBottomRightRadius: 3,
             }}
           >
-            <Button onClick={() => handleConfirmDelete(selectedLab)} sx={{ color: 'red', marginRight: 'auto' }} startIcon={<DeleteIcon />}>
+            <Button
+              onClick={() => handleConfirmDelete(selectedLab)}
+              sx={{ color: 'red', marginRight: 'auto' }}
+              startIcon={<DeleteIcon />}
+            >
               {t('show.delete')}
             </Button>
             <Button onClick={handleClose} sx={{ color: 'red' }}>
@@ -309,16 +390,16 @@ const ShowLabs = () => {
       <Dialog
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
+        <DialogTitle>{t('confirm.title')}</DialogTitle>
         <DialogContent>
-          <Typography>{t('confirm.deleteMessage')}</Typography>
+          <Typography>{t('confirm.message')}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color="primary">
-            {t('confirm.cancel')}
-          </Button>
-          <Button onClick={handleDelete} color="secondary">
+          <Button onClick={handleCloseConfirmDialog}>{t('confirm.cancel')}</Button>
+          <Button onClick={handleDelete} color="primary">
             {t('confirm.confirm')}
           </Button>
         </DialogActions>
