@@ -56,7 +56,7 @@ const ShowDoctors = () => {
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/doctors/search?s=${query}`
-        : `${apiBaseUrl}/api/doctors?size=8&page=${page}`;
+        : `${apiBaseUrl}/api/doctors?size=6&page=${page}`;
 
       const response = await axios.get(endpoint);
       if (response.data.message === "") {
@@ -90,7 +90,7 @@ const ShowDoctors = () => {
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
-      setCurrentPage(1); 
+      setCurrentPage(1);
       fetchData(searchTerm);
     }
   };
@@ -151,7 +151,7 @@ const ShowDoctors = () => {
   if (error) {
     return (
       <Box sx={{ p: 3, direction: i18n.dir() }}>
-        <Typography variant="h6" color="error">{t('show.error', { error })}</Typography>
+        <Typography variant="h6" color="error">{t('error', { error })}</Typography>
       </Box>
     );
   }

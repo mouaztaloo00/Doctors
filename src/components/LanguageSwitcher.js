@@ -1,18 +1,27 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import { Button } from '@mui/material';
+import axios from 'axios';
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
+  const [language, setLanguage] = useState('en'); 
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
-  const toggleLanguage = () => {
-    const newLanguage = i18n.language === 'ar' ? 'en' : 'ar';
-    i18n.changeLanguage(newLanguage);
+  const toggleLanguage = async () => {
+    const newLanguage = language === 'ar' ? 'en' : 'ar';
+
+    try {
+     
+      await axios.post(`${apiBaseUrl}/api/profile/language`, { language: newLanguage });
+
+      setLanguage(newLanguage);
+    } catch (error) {
+      console.error('Error changing language:', error);
+    }
   };
 
   return (
     <Button onClick={toggleLanguage}>
-      {i18n.language === 'ar' ? 'English' : 'العربية'}
+      {language === 'ar' ? 'English' : 'العربية'}
     </Button>
   );
 };

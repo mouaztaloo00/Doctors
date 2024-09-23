@@ -1,36 +1,49 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography } from '@mui/material';
-import { Brightness4, Brightness7, Language, ExitToApp } from '@mui/icons-material';
+import { Brightness4, Brightness7, Language, Logout } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import LogoutIcon from '@mui/icons-material/Logout';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import axios from 'axios'; 
 
-const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
-
+const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-
-      const token = `Bearer ${localStorage.getItem('token')}`;
-
-      axios.defaults.headers.common['Authorization'] = token;
+  const token = `Bearer ${localStorage.getItem('token')}`;
+  axios.defaults.headers.common['Authorization'] = token;
 
   const { t, i18n } = useTranslation();
-  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const navigate = useNavigate();
+
+  // عند تحميل المكون، تحقق من اللغة المحفوظة في التخزين المحلي
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') || 'en'; // اللغة الافتراضية هي الإنجليزية
+    i18n.changeLanguage(savedLanguage);
+  }, [i18n]);
+
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
   const handleLogout = async () => {
     try {
       await axios.post(`${apiBaseUrl}/api/logout`);
-      
       localStorage.removeItem('token');
-      
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const handleLanguageChange = async () => {
+    const newLanguage = i18n.language === 'ar' ? 'en' : 'ar';
+    try {
+      await axios.post(`${apiBaseUrl}/api/profile/language`, { language: newLanguage });
+      i18n.changeLanguage(newLanguage);
+      localStorage.setItem('language', newLanguage); 
+      window.location.reload();
+    } catch (error) {
+      console.error('Error changing language:', error);
     }
   };
 
@@ -63,8 +76,6 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
             } 
           />
         </ListItem>
-        <Divider />
-                prof
         <Divider />
         <ListItem button component={Link} to="/">
           <ListItemIcon sx={{ minWidth: 35 }}> 
@@ -106,11 +117,11 @@ const Sidebar = ({ open, toggleDarkMode, darkMode, setLanguage }) => {
         <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
           {darkMode ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
-        <IconButton onClick={setLanguage} aria-label="change language">
+        <IconButton onClick={handleLanguageChange} aria-label="change language">
           <Language />
         </IconButton>
         <IconButton onClick={handleLogout} aria-label="log out">
-          <LogoutIcon />
+          <Logout />
         </IconButton>
       </Box>
     </Drawer>

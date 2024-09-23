@@ -108,6 +108,7 @@ const ShowNurses = () => {
   const handleConfirmDelete = () => {
     setSelectedNurseForDeletion(selectedNurse?.id);
     setOpenConfirmDialog(true);
+
   };
 
   const handleCloseConfirmDialog = () => {
@@ -121,6 +122,7 @@ const ShowNurses = () => {
         await axios.delete(`${apiBaseUrl}/api/nurses/id/${selectedNurseForDeletion}`);
         setNurses((prevNurses) => prevNurses.filter((nurse) => nurse.id !== selectedNurseForDeletion));
         handleCloseConfirmDialog();
+        window.location.reload();
       } catch (error) {
         console.error('Error deleting nurse:', error);
       }
