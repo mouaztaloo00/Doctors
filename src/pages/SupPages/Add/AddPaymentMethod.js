@@ -23,10 +23,7 @@ const AddPaymentMethod = () => {
   
   const fileInputRef = useRef(null);
 
-    // جلب التوكن من localStorage
     const token = `Bearer ${localStorage.getItem('token')}`;
-
-    // إعداد التوكن في جميع طلبات axios
     axios.defaults.headers.common['Authorization'] = token;
 
   const handleSubmit = async (values, { resetForm, setFieldValue }) => {

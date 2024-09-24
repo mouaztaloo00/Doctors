@@ -15,10 +15,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 
-// جلب التوكن من localStorage
 const token = `Bearer ${localStorage.getItem('token')}`;
-
-// إعداد التوكن في جميع طلبات axios
 axios.defaults.headers.common['Authorization'] = token;
 
 const ShowPaymentMethod = () => {

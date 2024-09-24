@@ -45,10 +45,7 @@ const FeedbackLabs = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-  // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
-
-  // إعداد التوكن في جميع طلبات axios
   axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {

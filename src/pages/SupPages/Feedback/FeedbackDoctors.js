@@ -42,10 +42,7 @@ const FeedbackDoctors = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
-
-  // إعداد التوكن في جميع طلبات axios
   axios.defaults.headers.common['Authorization'] = token;
 
   const pageSize = 8;

@@ -17,9 +17,8 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
-  // عند تحميل المكون، تحقق من اللغة المحفوظة في التخزين المحلي
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') || 'en'; // اللغة الافتراضية هي الإنجليزية
+    const savedLanguage = localStorage.getItem('language') || 'en'; 
     i18n.changeLanguage(savedLanguage);
   }, [i18n]);
 

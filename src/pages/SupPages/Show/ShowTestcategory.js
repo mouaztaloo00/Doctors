@@ -4,10 +4,7 @@ import { Box, Typography, Card, CardContent, Grid, CircularProgress } from '@mui
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
-// جلب التوكن من localStorage
 const token = `Bearer ${localStorage.getItem('token')}`;
-
-// إعداد التوكن في جميع طلبات axios
 axios.defaults.headers.common['Authorization'] = token;
 
 const ShowTestCategory = () => {

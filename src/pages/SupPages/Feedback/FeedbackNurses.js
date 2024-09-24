@@ -45,10 +45,7 @@ const FeedbackNurses = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-  // جلب التوكن من localStorage
   const token = `Bearer ${localStorage.getItem('token')}`;
-
-  // إعداد التوكن في جميع طلبات axios
   axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {
@@ -189,7 +186,7 @@ const FeedbackNurses = () => {
                           value={nurse.average_rating}
                           readOnly
                           precision={0.1}
-                          sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
+                          sx={{ direction: 'ltr' }} 
                         />
                       </Box>
                     </CardContent>
@@ -242,7 +239,7 @@ const FeedbackNurses = () => {
                   value={selectedNurse?.average_rating}
                   readOnly
                   precision={0.1}
-                  sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
+                  sx={{ direction: 'ltr' }} 
                 />
               </Box>
             </Box>
@@ -269,7 +266,7 @@ const FeedbackNurses = () => {
                             value={parseFloat(review.rate)}
                             readOnly
                             precision={0.1}
-                            sx={{ direction: 'ltr' }} // Ensure the rating direction is LTR
+                            sx={{ direction: 'ltr' }} 
                           />
                         </Box>
                       </>
