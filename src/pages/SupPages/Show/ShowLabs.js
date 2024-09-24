@@ -371,6 +371,8 @@ const ShowLabs = () => {
               bgcolor: 'background.default',
               borderBottomLeftRadius: 3,
               borderBottomRightRadius: 3,
+              justifyContent: 'space-between',
+              width: '100%'
             }}
           >
             <Button
@@ -393,14 +395,14 @@ const ShowLabs = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>{t('confirm.title')}</DialogTitle>
+        <DialogTitle>{t('show.delete')}</DialogTitle>
         <DialogContent>
-          <Typography>{t('confirm.message')}</Typography>
+          <Typography>{t('show.message')}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmDialog}>{t('confirm.cancel')}</Button>
-          <Button onClick={handleDelete} color="primary">
-            {t('confirm.confirm')}
+          <Button onClick={handleCloseConfirmDialog}>{t('show.close')}</Button>
+          <Button onClick={handleDelete} color="error">
+            {t('show.delete')}
           </Button>
         </DialogActions>
       </Dialog>

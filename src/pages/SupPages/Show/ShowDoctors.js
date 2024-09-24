@@ -241,97 +241,104 @@ const ShowDoctors = () => {
       </Box>
 
       {selectedDoctor && (
-        <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          maxWidth="md"
-          fullWidth
-          sx={{ direction: i18n.dir() }}
-        >
-          <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedDoctor.name || 'Unknown Doctor'}
-          </DialogTitle>
-          <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              <Avatar
-                src={selectedDoctor.profilePicture ? `${apiBaseUrl}/${selectedDoctor.profilePicture}` : ''}
-                alt={selectedDoctor.name || 'Unknown Doctor'}
-                sx={{
-                  width: 120,
-                  height: 120,
-                  mb: 2,
-                  border: '5px solid #00695c',
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                }}
-              />
-              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#004d40' }}>
-                {selectedDoctor.name || 'Unknown Doctor'}
-              </Typography>
-              <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-                {selectedDoctor.specialization || 'N/A'}
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<MailIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
-                  href={`mailto:${selectedDoctor.email}`}
-                  sx={{ mr: 2, bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
-                >
-                  {selectedDoctor.email || 'N/A'}
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<PhoneIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
-                  href={`tel:${selectedDoctor.phone}`}
-                  sx={{ bgcolor: '#00796b', '&:hover': { bgcolor: '#004d40' } }}
-                >
-                  {selectedDoctor.phone || 'N/A'}
-                </Button>
-              </Box>
-            </Box>
-            <TableContainer component={Paper} sx={{ mt: 4 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{t('table.day')}</TableCell>
-                    <TableCell>{t('table.start')}</TableCell>
-                    <TableCell>{t('table.end')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {selectedDoctor.clinic?.operatingHours && Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
-                    <TableRow key={day}>
-                      <TableCell>{day}</TableCell>
-                      <TableCell>{hours.start || 'Closed'}</TableCell>
-                      <TableCell>{hours.end || 'Closed'}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </DialogContent>
-          <DialogActions sx={{ justifyContent: 'space-between', width: '100%' }}>
-            <Button color="error" onClick={handleConfirmDelete} startIcon={<DeleteIcon />}>
-              {t('delete.title')}
-            </Button>
-            <Button onClick={handleCloseDialog} color="primary">
-              {t('close')}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+  <Dialog
+    open={openDialog}
+    onClose={handleCloseDialog}
+    maxWidth="md"
+    fullWidth
+    sx={{ direction: i18n.dir() }}
+  >
+    <DialogTitle sx={{ textAlign: 'center' }}>
+      {selectedDoctor.name || 'Unknown Doctor'}
+    </DialogTitle>
+    <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <Avatar
+          src={selectedDoctor.profilePicture ? `${apiBaseUrl}/${selectedDoctor.profilePicture}` : ''}
+          alt={selectedDoctor.name || 'Unknown Doctor'}
+          sx={{
+            width: 120,
+            height: 120,
+            mb: 2,
+            border: '5px solid ',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+          }}
+        />
+        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+          {selectedDoctor.name || 'Unknown Doctor'}
+        </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+          {selectedDoctor.specialization || 'N/A'}
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          {selectedDoctor.bio || 'No biography available.'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <br />
+          Date of Birth: {new Date(selectedDoctor.dateOfBirth).toLocaleDateString() || 'N/A'}
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<MailIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
+            href={`mailto:${selectedDoctor.email}`}
+            sx={{ mr: 2 }}
+          >
+            {selectedDoctor.email || 'N/A'}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PhoneIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
+            href={`tel:${selectedDoctor.phoneNumber}`}
+            sx={{ mr: 2 }}
+          >
+            {selectedDoctor.phoneNumber || 'N/A'}
+          </Button>
+        </Box>
+      </Box>
+      <TableContainer component={Paper} sx={{ mt: 4 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>{t('table.day')}</TableCell>
+              <TableCell>{t('table.start')}</TableCell>
+              <TableCell>{t('table.end')}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedDoctor.clinic?.operatingHours && Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
+              <TableRow key={day}>
+                <TableCell>{day}</TableCell>
+                <TableCell>{hours.start || 'Closed'}</TableCell>
+                <TableCell>{hours.end || 'Closed'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </DialogContent>
+    <DialogActions sx={{ justifyContent: 'space-between', width: '100%' }}>
+      <Button color="error" onClick={handleConfirmDelete} startIcon={<DeleteIcon />}>
+        {t('show.delete')}
+      </Button>
+      <Button onClick={handleCloseDialog} color="primary">
+        {t('show.close')}
+      </Button>
+    </DialogActions>
+  </Dialog>
+)}
 
       <Dialog
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
       >
-        <DialogTitle>{t('confirm.title')}</DialogTitle>
-        <DialogContent>{t('confirm.message')}</DialogContent>
+        <DialogTitle>{t('show.delete')}</DialogTitle>
+        <DialogContent>{t('show.message')}</DialogContent>
         <DialogActions>
           <Button onClick={handleCloseConfirmDialog} color="primary">{t('cancel')}</Button>
-          <Button onClick={handleDelete} color="error">{t('confirm.delete')}</Button>
+          <Button onClick={handleDelete} color="error">{t('show.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

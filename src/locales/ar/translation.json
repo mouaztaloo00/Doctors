@@ -59,7 +59,8 @@
     "startTime":"بدأ",
     "endTime":"انتهاء",
     "address":"عنوان",
-    "message":"هل انت متأكد؟"
+    "message":"هل انت متأكد؟",
+    "button":"ترتيب"
   },
   "Feedback": {
     "title1": "تعليق الأطباء",
@@ -100,7 +101,10 @@
       "district":"منطقة",
       "city":"ناحية",
       "area":"مدينة",
-      "delete":"حذف"
+      "delete":"حذف",
+      "day":"يوم",
+      "start":"فتح",
+      "end":"اغلاق"
     }
   }
   

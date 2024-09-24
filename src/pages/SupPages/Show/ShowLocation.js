@@ -162,8 +162,8 @@ const ShowLocation = () => {
           }}
         />
       </Box>
-
-      <Box sx={{ mb: 4, p: 2, bgcolor: '#f9f9f9', borderRadius: 2 }}>
+  
+      <Box sx={{ mb: 4, p: 2 }}>
         <Grid container spacing={2}>
           {['governorate', 'district', 'city', 'area'].map((field) => (
             <Grid item xs={12} sm={6} md={3} key={field}>
@@ -181,23 +181,16 @@ const ShowLocation = () => {
                     '& fieldset': {
                       borderColor: '#ccc',
                     },
-                    '&:hover fieldset': {
-                      borderColor: '#888',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#3f51b5',
-                    },
                   },
                 }}
               />
             </Grid>
           ))}
           <Grid item xs={12} sm={6} md={3}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleSort} 
-              fullWidth 
+            <Button
+              variant="contained"
+              onClick={handleSort}
+              fullWidth
               sx={{
                 height: '35px',
                 borderRadius: '8px',
@@ -207,30 +200,30 @@ const ShowLocation = () => {
                 },
               }}
             >
-              {t('sort.button')}
+              {t('show.button')}
             </Button>
           </Grid>
         </Grid>
       </Box>
-
+  
       <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <TableContainer component={Paper} sx={{ width: '100%', borderRadius: 2, boxShadow: theme.shadows[2] }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.main }}>
                   {t('table.governorate')}
                 </TableCell>
-                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.main }}>
                   {t('table.district')}
                 </TableCell>
-                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.main }}>
                   {t('table.city')}
                 </TableCell>
-                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.main }}>
                   {t('table.area')}
                 </TableCell>
-                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.light }}>
+                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: theme.palette.primary.main }}>
                   {t('table.delete')}
                 </TableCell>
               </TableRow>
@@ -261,7 +254,7 @@ const ShowLocation = () => {
           </Table>
         </TableContainer>
       </Box>
-
+  
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>{t('show.delete')}</DialogTitle>
         <DialogContent>
@@ -273,7 +266,7 @@ const ShowLocation = () => {
         </DialogActions>
       </Dialog>
     </Box>
-  );
+  );  
 };
 
 export default ShowLocation;

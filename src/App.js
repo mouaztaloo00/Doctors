@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import axios from 'axios';
 import './App.css';
 import { getTheme } from './theme';
 import Sidebar from './components/Sidebar';
@@ -74,6 +75,8 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [themeDirection, setThemeDirection] = useState('ltr');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [expiration, setExpiration] = useState(localStorage.getItem('expiration'));
 
   useEffect(() => {
     setThemeDirection(i18n.language === 'ar' ? 'rtl' : 'ltr');
@@ -83,6 +86,32 @@ const App = () => {
     i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar');
   };
 
+  const refreshToken = async () => {
+    try {
+      const response = await axios.post('/api/refresh', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setToken(response.data.token);
+      localStorage.setItem('token', response.data.token);
+
+      const newExpiration = Date.now() + response.data.expiresIn * 1000; 
+      setExpiration(newExpiration);
+      localStorage.setItem('expiration', newExpiration);
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+    }
+  };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      if (!token || (expiration && Date.now() >= expiration)) {
+        await refreshToken();
+      }
+    };
+    checkToken();
+  }, [token, expiration]);
   return (
     <ThemeProvider theme={getTheme(darkMode ? 'dark' : 'light', themeDirection)}>
       <CssBaseline />

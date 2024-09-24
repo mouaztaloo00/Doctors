@@ -58,7 +58,8 @@
     "startTime":"startTime",
     "endTime":"endTime",
     "address":"address",
-    "message":"Are you sure?"
+    "message":"Are you sure?",
+    "button":"sort"
   },
   "Feedback": {
     "title1": "Feedback Doctors",
@@ -99,6 +100,9 @@
     "district":"district",
     "city":"city",
     "area":"area",
-    "delete":"delete"
+    "delete":"delete",
+    "day":"day",
+    "start":"start",
+    "end":"end"
   }
 }

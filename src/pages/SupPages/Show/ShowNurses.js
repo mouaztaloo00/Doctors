@@ -301,7 +301,7 @@ const ShowNurses = () => {
             >
               {t('show.delete')}
             </Button>
-            <Button onClick={handleClose} sx={{ color: 'red' }}>
+            <Button onClick={handleClose} color="primary">
               {t('show.close')}
             </Button>
           </DialogActions>
@@ -310,16 +310,16 @@ const ShowNurses = () => {
 
       {selectedNurseForDeletion && (
         <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog}>
-          <DialogTitle>{t('confirm.deleteTitle')}</DialogTitle>
+          <DialogTitle>{t('show.delete')}</DialogTitle>
           <DialogContent>
-            <Typography>{t('confirm.deleteMessage')}</Typography>
+            <Typography>{t('show.message')}</Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseConfirmDialog} color="primary">
-              {t('confirm.cancel')}
+              {t('show.close')}
             </Button>
             <Button onClick={handleDelete} color="secondary">
-              {t('confirm.confirm')}
+              {t('show.delete')}
             </Button>
           </DialogActions>
         </Dialog>
