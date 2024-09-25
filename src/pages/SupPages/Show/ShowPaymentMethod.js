@@ -44,78 +44,80 @@ const ShowPaymentMethod = () => {
     fetchPaymentMethods();
   }, [paymentMethodsUrl]);
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
-    <Box sx={{ 
-      p: { xs: 2, sm: 3 }, 
-      display: 'flex', 
-      flexDirection: 'column', 
-      direction: isRtl ? 'rtl' : 'ltr', 
-    }}>
-      <Typography variant="h4" gutterBottom sx={{ p: { xs: 2, sm: 3 } }}>
+    <Box 
+      sx={{ direction: i18n.dir(), p: 3 }}
+    >
+      <Typography variant="h4" gutterBottom sx={{ p: 3 }}>
         {t('show.title6')}
       </Typography>
       <ShowMiniNavbar />
 
-      <Box sx={{ mt: 4 }}>
-        <Grid container spacing={3} justifyContent="center">
-          {paymentMethods.map((method) => (
-            <Grid item xs={12} sm={6} md={4} key={method.id}>
-              <Card
-                sx={{
-                  position: 'relative',
-                  boxShadow: 3,
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': {
-                    transform: 'scale(1.03)',
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={`${apiBaseUrl}/${method.logo}`}
-                  alt={`${method.methodName} Logo`}
-                />
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h6" component="div">
-                    {method.methodName}
-                  </Typography>
-                </CardContent>
-                <IconButton
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
+
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3} justifyContent="center">
+            {paymentMethods.length === 0 ? (
+              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+                {t('search.noResults')}
+              </Typography>
+            ) : (
+              paymentMethods.map((method) => (
+                <Grid item xs={12} sm={6} md={4} key={method.id}>
+                  <Card
                     sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.main' : 'error.main',
-                      color: 'white',
-                      borderRadius: '50%',
-                      width: 40,
-                      height: 40,
+                      position: 'relative',
                       boxShadow: 3,
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      transition: 'transform 0.3s, box-shadow 0.3s',
                       '&:hover': {
-                        backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.dark' : 'error.dark',
+                        transform: 'scale(1.03)',
                         boxShadow: 6,
                       },
-                      transition: 'background-color 0.3s, box-shadow 0.3s',
                     }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={`${apiBaseUrl}/${method.logo}`}
+                      alt={`${method.methodName} Logo`}
+                    />
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography variant="h6" component="div">
+                        {method.methodName}
+                      </Typography>
+                    </CardContent>
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.main' : 'error.main',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: 40,
+                        height: 40,
+                        boxShadow: 3,
+                        '&:hover': {
+                          backgroundColor: method.status === 'فعالة' || method.status === 'Active' ? 'success.dark' : 'error.dark',
+                          boxShadow: 6,
+                        },
+                        transition: 'background-color 0.3s, box-shadow 0.3s',
+                      }}
                     >
-                    {method.status === 'فعالة' || method.status === 'Active' ? <CheckIcon /> : <CancelIcon />}
+                      {method.status === 'فعالة' || method.status === 'Active' ? <CheckIcon /> : <CancelIcon />}
                     </IconButton>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                  </Card>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        )}
       </Box>
     </Box>
   );

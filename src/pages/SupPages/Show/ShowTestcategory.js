@@ -30,52 +30,50 @@ const ShowTestCategory = () => {
     fetchTestCategories();
   }, [url]);
 
-  if (loading) {
-    return (
-      <Box sx={{ direction: i18n.dir(), p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ direction: i18n.dir(), p: 3 }}>
-        <Typography variant="h6" color="error">{t('show.error', { error })}</Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
         {t('show.title5')}
       </Typography>
       <ShowMiniNavbar />
-      <Grid container spacing={2} mt={5}>
-        {testData.map((test, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-            <Card sx={{
-                   borderRadius:'10px',
-                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                   transition: 'transform 0.3s, box-shadow 0.3s',
-                   '&:hover': {
-                     transform: 'scale(1.05)',
-                     boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                   },
-                   overflow: 'hidden',
-                   height: '100px',
-                   display: 'flex',
-                   alignItems: 'center', 
-                   justifyContent: 'center',  
-                }}>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Typography variant="h6" color="text.primary">{test.category}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={3} justifyContent="center">
+          {testData.length === 0 ? ( 
+            <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+              {t('search.noResults')}
+            </Typography>
+          ) : (
+            <Grid container spacing={2} mt={5}>
+              {testData.map((test, index) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                  <Card sx={{
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                    },
+                    overflow: 'hidden',
+                    height: '100px',
+                    display: 'flex',
+                    alignItems: 'center', 
+                    justifyContent: 'center',  
+                  }}>
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography variant="h6" color="text.primary">{test.category}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Grid>
+      )}
     </Box>
   );
 };

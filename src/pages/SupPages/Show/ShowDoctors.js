@@ -138,23 +138,7 @@ const ShowDoctors = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedDoctor(null);
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, direction: i18n.dir(), display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3, direction: i18n.dir() }}>
-        <Typography variant="h6" color="error">{t('error', { error })}</Typography>
-      </Box>
-    );
-  }
+  }; 
 
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
@@ -162,75 +146,80 @@ const ShowDoctors = () => {
         {t('show.title1')}
       </Typography>
       <ShowMiniNavbar />
-
       <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
-        <TextField
-          variant="outlined"
-          fullWidth
-          placeholder={t('search.placeholder')}
-          value={searchTerm}
-          onChange={handleSearchChange}
-          onKeyPress={handleKeyPress}
-          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton>
-                  <SearchIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      <Grid container spacing={3} justifyContent="center">
-        {doctors.length > 0 ? (
-          doctors.map((doctor) => (
-            <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={4}>
-              <Card
-                sx={{
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
-                  },
-                  overflow: 'hidden',
-                  height: '250px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <CardActionArea onClick={() => handleClick(doctor)}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                    <Avatar
-                      src={doctor.profilePicture ? `${apiBaseUrl}/${doctor.profilePicture}` : ''}
-                      alt={doctor.name || 'Unknown Doctor'}
-                      sx={{ width: 100, height: 100, mb: 2 }}
-                    />
-                    <CardContent sx={{ textAlign: 'center' }}>
-                      <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                        {doctor.name || 'Unknown Doctor'}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {doctor.specialization || 'N/A'}
-                      </Typography>
-                    </CardContent>
-                  </Box>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))
-        ) : (
-          <Typography variant="h6" color="text.secondary" align="center" sx={{ width: '100%' }}>
-            {t('no.results')}
-          </Typography>
-        )}
-      </Grid>
-
+            <TextField
+              variant="outlined"
+              fullWidth
+              placeholder={t('search.placeholder')}
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyPress={handleKeyPress}
+              sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <Grid container spacing={3} justifyContent="center">
+            {doctors.length > 0 ? (
+              doctors.map((doctor) => (
+                <Grid item key={doctor.id} xs={12} sm={6} md={4} lg={4}>
+                  <Card
+                    sx={{
+                      borderRadius: '16px',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                      transition: 'transform 0.3s, box-shadow 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 6px 30px rgba(0, 0, 0, 0.15)',
+                      },
+                      overflow: 'hidden',
+                      height: '250px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CardActionArea onClick={() => handleClick(doctor)}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                        <Avatar
+                          src={doctor.profilePicture ? `${apiBaseUrl}/${doctor.profilePicture}` : ''}
+                          alt={doctor.name || 'Unknown Doctor'}
+                          sx={{ width: 100, height: 100, mb: 2 }}
+                        />
+                        <CardContent sx={{ textAlign: 'center' }}>
+                          <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                            {doctor.name || 'Unknown Doctor'}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {doctor.specialization || 'N/A'}
+                          </Typography>
+                        </CardContent>
+                      </Box>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              <Typography variant="h6" color="text.secondary" align="center" sx={{ width: '100%' }}>
+                {t('no.results')}
+              </Typography>
+            )}
+          </Grid>
+        </>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Pagination
           count={totalPages}
@@ -241,94 +230,94 @@ const ShowDoctors = () => {
       </Box>
 
       {selectedDoctor && (
-  <Dialog
-    open={openDialog}
-    onClose={handleCloseDialog}
-    maxWidth="md"
-    fullWidth
-    sx={{ direction: i18n.dir() }}
-  >
-    <DialogTitle sx={{ textAlign: 'center' }}>
-      {selectedDoctor.name || 'Unknown Doctor'}
-    </DialogTitle>
-    <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <Avatar
-          src={selectedDoctor.profilePicture ? `${apiBaseUrl}/${selectedDoctor.profilePicture}` : ''}
-          alt={selectedDoctor.name || 'Unknown Doctor'}
-          sx={{
-            width: 120,
-            height: 120,
-            mb: 2,
-            border: '5px solid ',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-          }}
-        />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-          {selectedDoctor.name || 'Unknown Doctor'}
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-          {selectedDoctor.specialization || 'N/A'}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          {selectedDoctor.bio || 'No biography available.'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <br />
-          Date of Birth: {new Date(selectedDoctor.dateOfBirth).toLocaleDateString() || 'N/A'}
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<MailIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
-            href={`mailto:${selectedDoctor.email}`}
-            sx={{ mr: 2 }}
-          >
-            {selectedDoctor.email || 'N/A'}
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<PhoneIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
-            href={`tel:${selectedDoctor.phoneNumber}`}
-            sx={{ mr: 2 }}
-          >
-            {selectedDoctor.phoneNumber || 'N/A'}
-          </Button>
-        </Box>
-      </Box>
-      <TableContainer component={Paper} sx={{ mt: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('table.day')}</TableCell>
-              <TableCell>{t('table.start')}</TableCell>
-              <TableCell>{t('table.end')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {selectedDoctor.clinic?.operatingHours && Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
-              <TableRow key={day}>
-                <TableCell>{day}</TableCell>
-                <TableCell>{hours.start || 'Closed'}</TableCell>
-                <TableCell>{hours.end || 'Closed'}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </DialogContent>
-    <DialogActions sx={{ justifyContent: 'space-between', width: '100%' }}>
-      <Button color="error" onClick={handleConfirmDelete} startIcon={<DeleteIcon />}>
-        {t('show.delete')}
-      </Button>
-      <Button onClick={handleCloseDialog} color="primary">
-        {t('show.close')}
-      </Button>
-    </DialogActions>
-  </Dialog>
-)}
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="md"
+          fullWidth
+          sx={{ direction: i18n.dir() }}
+        >
+          <DialogTitle sx={{ textAlign: 'center' }}>
+            {selectedDoctor.name || 'Unknown Doctor'}
+          </DialogTitle>
+          <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <Avatar
+                src={selectedDoctor.profilePicture ? `${apiBaseUrl}/${selectedDoctor.profilePicture}` : ''}
+                alt={selectedDoctor.name || 'Unknown Doctor'}
+                sx={{
+                  width: 120,
+                  height: 120,
+                  mb: 2,
+                  border: '5px solid ',
+                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                }}
+              />
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                {selectedDoctor.name || 'Unknown Doctor'}
+              </Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                {selectedDoctor.specialization || 'N/A'}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {selectedDoctor.bio || 'No biography available.'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <br />
+                Date of Birth: {new Date(selectedDoctor.dateOfBirth).toLocaleDateString() || 'N/A'}
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<MailIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
+                  href={`mailto:${selectedDoctor.email}`}
+                  sx={{ mr: 2 }}
+                >
+                  {selectedDoctor.email || 'N/A'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<PhoneIcon sx={{ marginRight: '8px', marginLeft: '8px' }} />}
+                  href={`tel:${selectedDoctor.phoneNumber}`}
+                  sx={{ mr: 2 }}
+                >
+                  {selectedDoctor.phoneNumber || 'N/A'}
+                </Button>
+              </Box>
+            </Box>
+            <TableContainer component={Paper} sx={{ mt: 4 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('table.day')}</TableCell>
+                    <TableCell>{t('table.start')}</TableCell>
+                    <TableCell>{t('table.end')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedDoctor.clinic?.operatingHours && Object.entries(selectedDoctor.clinic.operatingHours).map(([day, hours]) => (
+                    <TableRow key={day}>
+                      <TableCell>{day}</TableCell>
+                      <TableCell>{hours.start || 'Closed'}</TableCell>
+                      <TableCell>{hours.end || 'Closed'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'space-between', width: '100%' }}>
+            <Button color="error" onClick={handleConfirmDelete} startIcon={<DeleteIcon />}>
+              {t('show.delete')}
+            </Button>
+            <Button onClick={handleCloseDialog} color="primary">
+              {t('show.close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
 
       <Dialog
         open={openConfirmDialog}
