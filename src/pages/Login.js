@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Snackbar, TextField, Button, Alert, Container, Typography, Box } from '@mui/material';
+import { Snackbar, TextField, Button, Alert, Container, Typography, Box, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { messaging, getToken } from '../firebase';
 
@@ -8,6 +9,13 @@ const Login = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
   const [fcmToken, setFcmToken] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const navigate = useNavigate();
 
   useEffect(() => {
     getToken(messaging, { vapidKey: 'BPSaMt94J9JyYBN7nby_r0sEkZoPPodtQDh0629OFjJnqXPeVfKSuAl0MuE4MwuR54ecXEvHGWBUcabXHPsiEHE' })
@@ -23,13 +31,6 @@ const Login = () => {
         console.log('An error occurred while retrieving token. ', err);
       });
   }, []);
-
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     if (!fcmToken) {
@@ -70,6 +71,10 @@ const Login = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -98,10 +103,23 @@ const Login = () => {
             required
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}  
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={handleKeyDown} // Added this
+            onKeyDown={handleKeyDown}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={togglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
           />
           <Button
             type="submit"
@@ -125,7 +143,6 @@ const Login = () => {
           left: '50%',
           transform: 'translate(-50%, -50%)',
         }}
-      
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
