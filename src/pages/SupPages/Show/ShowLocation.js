@@ -137,8 +137,13 @@ const ShowLocation = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'}>
+    <Box sx={{ direction: i18n.dir(), p: 3 }}>
+      <Typography 
+      variant="h4"
+       gutterBottom 
+       align={i18n.dir() === 'rtl' ? 'right' : 'left'}
+       sx={{ p: 3 }}
+       >
         {t('show.title3')}
       </Typography>
       <ShowMiniNavbar />

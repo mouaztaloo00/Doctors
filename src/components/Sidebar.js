@@ -26,14 +26,22 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${apiBaseUrl}/api/logout`);
+      const token = localStorage.getItem('token'); 
+  
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      };
+  
+      await axios.post(`${apiBaseUrl}/api/logout`, {}, config);
       localStorage.removeItem('token');
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
-
+  
   const handleLanguageChange = async () => {
     const newLanguage = i18n.language === 'ar' ? 'en' : 'ar';
     try {
@@ -116,10 +124,10 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
         <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
           {darkMode ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
-        <IconButton onClick={handleLanguageChange} aria-label="change language">
+        <IconButton onClick={handleLanguageChange} aria-label="change language" title="Logout">
           <Language />
         </IconButton>
-        <IconButton onClick={handleLogout} aria-label="log out">
+        <IconButton onClick={handleLogout} aria-label="log out"  title="Logout">
           <Logout />
         </IconButton>
       </Box>
