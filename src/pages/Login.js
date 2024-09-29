@@ -15,6 +15,7 @@ const Login = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,11 +33,17 @@ const Login = () => {
       });
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    event.preventDefault(); 
+
+    if (isSubmitting) return; 
+    setIsSubmitting(true); 
+
     if (!fcmToken) {
       setSnackbarMessage('FCM token is not available. Please try again later.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
+      setIsSubmitting(false); 
       return;
     }
 
@@ -62,12 +69,13 @@ const Login = () => {
       setSnackbarSeverity('error');
     } finally {
       setSnackbarOpen(true);
+      setIsSubmitting(false); 
     }
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      handleLogin();
+    if (event.key === 'Enter' && !isSubmitting) {
+      handleLogin(event); 
     }
   };
 
@@ -88,7 +96,7 @@ const Login = () => {
         <Typography component="h1" variant="h5">
           Login
         </Typography>
-        <Box sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -126,7 +134,7 @@ const Login = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            onClick={handleLogin}
+            disabled={isSubmitting}
           >
             Login
           </Button>

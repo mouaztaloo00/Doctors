@@ -121,10 +121,10 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
           textAlign: direction === 'rtl' ? 'right' : 'left', 
         }}
       >
-        <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode">
+        <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode"  title="mode">
           {darkMode ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
-        <IconButton onClick={handleLanguageChange} aria-label="change language" title="Logout">
+        <IconButton onClick={handleLanguageChange} aria-label="change language" title="change language">
           <Language />
         </IconButton>
         <IconButton onClick={handleLogout} aria-label="log out"  title="Logout">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import axios from 'axios';
 import './App.css';
@@ -27,10 +27,24 @@ import FeedbackNurses from './pages/SupPages/Feedback/FeedbackNurses';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
-const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, handleLanguageChange }) => {
+const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, handleLanguageChange, token, expiration, refreshToken }) => {
   const { i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate(); 
   const isLoginPage = location.pathname === '/login';
+
+  useEffect(() => {
+    const checkToken = async () => {
+      if (!token || !expiration || Date.now() >= expiration) {
+        try {
+          await refreshToken();
+        } catch (error) {
+          navigate('/login'); 
+        }
+      }
+    };
+    checkToken();
+  }, [token, expiration, navigate, refreshToken]);
 
   return (
     <div className={`app-container ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
@@ -78,6 +92,8 @@ const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [expiration, setExpiration] = useState(localStorage.getItem('expiration'));
 
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     setThemeDirection(i18n.language === 'ar' ? 'rtl' : 'ltr');
   }, [i18n.language]);
@@ -88,7 +104,7 @@ const App = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.post('/api/refresh', {}, {
+      const response = await axios.post(`${apiBaseUrl}/api/refresh`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -100,18 +116,42 @@ const App = () => {
       setExpiration(newExpiration);
       localStorage.setItem('expiration', newExpiration);
     } catch (error) {
-      console.error('Error refreshing token:', error);
+      console.error('Error refreshing token:', error.response ? error.response.data : error.message);
+      throw error;
     }
   };
 
   useEffect(() => {
-    const checkToken = async () => {
-      if (!token || (expiration && Date.now() >= expiration)) {
-        await refreshToken();
+    if (expiration) {
+      const timeRemaining = expiration - Date.now() - (1 * 60 * 1000); 
+      if (timeRemaining > 0) {
+        const timeoutId = setTimeout(refreshToken, timeRemaining);
+        return () => clearTimeout(timeoutId); 
       }
-    };
-    checkToken();
-  }, [token, expiration]);
+    }
+  }, [expiration]);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (error.response && error.response.status === 401) {
+          try {
+            await refreshToken();
+            error.config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+            return axios(error.config); 
+          } catch (refreshError) {
+            console.error('Error refreshing token:', refreshError);
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axios.interceptors.response.eject(interceptor); 
+  }, [token]);
+
   return (
     <ThemeProvider theme={getTheme(darkMode ? 'dark' : 'light', themeDirection)}>
       <CssBaseline />
@@ -123,6 +163,9 @@ const App = () => {
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
             handleLanguageChange={handleLanguageChange}
+            token={token}
+            expiration={expiration}
+            refreshToken={refreshToken}
           />
         </Router>
       </div>
