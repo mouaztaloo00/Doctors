@@ -60,7 +60,7 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
           <Route path="/show/show_labs" element={<ProtectedRoute element={<ShowLabs />} allowedProfiles={['Doctor']} />}  />
           <Route path="/show/show_location" element={<ProtectedRoute element={<ShowLocation />} allowedProfiles={['Patient']} />}  />
           <Route path="/show/show_tests" element={<ProtectedRoute element={<ShowTests />} allowedProfiles={['Patient']} />}  />
-          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />} allowedProfiles={['LabEmployee']} />}  />
+          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />} allowedProfiles={['Nurse']} />}  />
           <Route path="/show/show_paymentMethod" element={<ProtectedRoute element={<ShowPaymentMethod />} allowedProfiles={['LabEmployee']} />}  />
           <Route path="/show/show_nurses" element={<ProtectedRoute element={<ShowNurses />} allowedProfiles={['Nurse']} />}  />
           <Route path="/feedback/feedback_doctors" element={<ProtectedRoute element={<FeedbackDoctors />} allowedProfiles={['Patient']} />} />

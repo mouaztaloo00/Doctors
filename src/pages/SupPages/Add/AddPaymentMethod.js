@@ -6,6 +6,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+
 const validationSchema = Yup.object({
   method_name: Yup.string().required('Method name is required'),
   logo: Yup.mixed().required('Logo is required')
@@ -136,7 +137,7 @@ const AddPaymentMethod = () => {
               <Button
                 variant="contained"
                 component="label"
-                startIcon={<UploadFileIcon />} // افترض أنك ستستخدم أيقونة مثل UploadIcon
+                startIcon={<UploadFileIcon />}
                 sx={{
                   backgroundColor: 'primary',
                   color: 'primary',

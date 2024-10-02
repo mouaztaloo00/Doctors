@@ -44,10 +44,10 @@ const ShowTestCategory = () => {
         <Grid container spacing={3} justifyContent="center">
           {testData.length === 0 ? ( 
             <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-              {t('search.noResults')}
+              {t('No results')}
             </Typography>
           ) : (
-            <Grid container spacing={2} mt={5}>
+            <Grid container spacing={3} mt={5} maxWidth={'90%'}>
               {testData.map((test, index) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
                   <Card sx={{

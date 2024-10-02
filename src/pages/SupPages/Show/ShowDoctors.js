@@ -214,7 +214,7 @@ const ShowDoctors = () => {
               ))
             ) : (
               <Typography variant="h6" color="text.secondary" align="center" sx={{ width: '100%' }}>
-                {t('no.results')}
+                {t('No results')}
               </Typography>
             )}
           </Grid>

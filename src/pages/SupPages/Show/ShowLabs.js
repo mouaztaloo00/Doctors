@@ -147,7 +147,7 @@ const ShowLabs = () => {
   };
 
   return (
-    <Box sx={{ direction: i18n.dir(), p: 3 }}>
+    <Box sx={{ direction: i18n.dir(), p: 3}}>
       <Typography
         variant="h4"
         gutterBottom
@@ -181,13 +181,13 @@ const ShowLabs = () => {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+          <CircularProgress/>
         </Box>
       ) : (
         <Grid container spacing={3} justifyContent="center">
           {labs.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-              {t('search.noResults')}
+              {t('No results')}
             </Typography>
           ) : (
             labs.map((lab) => (

@@ -164,7 +164,7 @@ const ShowNurses = () => {
           </Box>
         ) : (
           nurses.map((nurse) => (
-            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
+            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3} >
               <Card
                 sx={{
                   borderRadius: '16px',
@@ -203,7 +203,7 @@ const ShowNurses = () => {
         {nurses.length === 0 && !loading && (
           <Box sx={{ textAlign: 'center', width: '100%', mt: 5 }}>
             <Typography variant="h6" color="textSecondary">
-              {t('No Results')}
+              {t('No results')}
             </Typography>
           </Box>
         )}

@@ -74,7 +74,7 @@ const ShowTests = () => {
           placeholder={t('search.placeholder')}
           value={searchQuery}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress} // إضافة مستمع الحدث لزر الإدخال
+          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -134,11 +134,11 @@ const ShowTests = () => {
           ))
         ) : searchQuery ? (
           <Typography variant="body1" color="text.primary">
-            {t('No Results')}
+            {t('No results')}
           </Typography>
         ) : (
           <Typography variant="body1" color="text.primary">
-           {t('No Results')}
+           {t('No results')}
           </Typography>
         )}
       </Box>

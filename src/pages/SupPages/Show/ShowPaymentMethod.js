@@ -60,10 +60,10 @@ const ShowPaymentMethod = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3} justifyContent="center">
+          <Grid container spacing={3}  justifyContent="center">
             {paymentMethods.length === 0 ? (
               <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-                {t('search.noResults')}
+                {t('No results')}
               </Typography>
             ) : (
               paymentMethods.map((method) => (

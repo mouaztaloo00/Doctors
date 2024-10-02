@@ -16,7 +16,7 @@ const AddMiniNavbar = () => {
           alignItems: 'center', 
           scrollbarWidth: 'thin', 
           '&::-webkit-scrollbar': {
-            height: 8,
+            height: 6,
           },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: '#888',
