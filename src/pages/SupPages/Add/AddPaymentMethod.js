@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import AddMiniNavbar from '../../../components/minBar/AddMiniNavbar';
-
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 const validationSchema = Yup.object({
   method_name: Yup.string().required('Method name is required'),
   logo: Yup.mixed().required('Logo is required')
@@ -87,107 +87,129 @@ const AddPaymentMethod = () => {
   };
 
   return (
-    <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom sx={{ p: 3 }}>
-        {t('add.title6')}
-      </Typography>
-      <AddMiniNavbar />
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        mt: 4,
-      }}>
-        <Box sx={{
-          width: '100%',
-          maxWidth: '800px',
-          bgcolor: 'background.paper',
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 1,
-        }}>
-          <Formik
-            initialValues={{
-              method_name: '',
-              logo: null,
-              isActive: false
-            }}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, errors, touched, values }) => (
-              <Form>
-                <Box sx={{ mb: 2 }}>
-                  <Field
-                    as={TextField}
-                    name="method_name"
-                    label={t('add.name')}
-                    variant="outlined"
-                    fullWidth
-                    error={touched.method_name && Boolean(errors.method_name)}
-                    helperText={touched.method_name && errors.method_name}
-                  />
-                </Box><br/>
-                <Box sx={{ mb: 2, display:'block' , alignItems: 'center' }}>
-                  <FormLabel sx={{ mr: 2 }}>{t('add.logo')}</FormLabel>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFieldValue('logo', e.currentTarget.files[0])}
-                    ref={fileInputRef} 
-                    style={{ display: 'block', marginTop:'5px'}}
-                  />
-                  {touched.logo && errors.logo && (
-                    <div style={{ color: 'red' }}>{errors.logo}</div>
-                  )}
-                </Box>
-                <Box sx={{ mb: 2 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={values.isActive}
-                        onChange={(e) => setFieldValue('isActive', e.target.checked)}
-                      />
-                    }
-                    label={t('add.activate')}
-                  />
-                </Box>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  style={{ width: '150px' }}
-                  disabled={isSubmitting}
-                >
-                  {t('add.submit')}
-                </Button>
-              </Form>
-            )}
-          </Formik>
-        </Box>
-      </Box>
-
-      <Snackbar 
-      open={openSnackbar} 
-      autoHideDuration={6000}
-       onClose={handleCloseSnackbar}
-       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+<Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
+  <Typography variant="h4" gutterBottom sx={{ p: 3 }}>
+    {t('add.title6')}
+  </Typography>
+  <AddMiniNavbar />
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      mt: 4,
+    }}
+  >
+    <Box
+      sx={{
+        width: '50%',
+        maxWidth: '500px',
+        bgcolor: 'background.paper',
+        p: 3,
+        borderRadius: 2,
+        boxShadow: 1,
       }}
-       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbarSeverity} 
-          sx={{ width: '100%'}}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+    >
+      <Formik
+        initialValues={{
+          method_name: '',
+          logo: null,
+          isActive: false,
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ setFieldValue, errors, touched, values }) => (
+          <Form>
+            <Box sx={{ mb: 2 }}>
+              <Field
+                as={TextField}
+                name="method_name"
+                label={t('add.name')}
+                variant="outlined"
+                fullWidth
+                error={touched.method_name && Boolean(errors.method_name)}
+                helperText={touched.method_name && errors.method_name}
+              />
+            </Box>
+            <br />
+            <Box sx={{ mb: 2, display: 'block', alignItems: 'center' }}>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<UploadFileIcon />} // افترض أنك ستستخدم أيقونة مثل UploadIcon
+                sx={{
+                  backgroundColor: 'primary',
+                  color: 'primary',
+                  '&:hover': {
+                    backgroundColor: 'primary',
+                  },
+                  mt: 2,
+                  mb: 2,
+                }}
+              >
+                {t('add.chooseLogo')}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => setFieldValue('logo', e.currentTarget.files[0])}
+                  ref={fileInputRef}
+                />
+              </Button>
+              {touched.logo && errors.logo && (
+                <div style={{ color: 'red' }}>{errors.logo}</div>
+              )}
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={values.isActive}
+                    onChange={(e) => setFieldValue('isActive', e.target.checked)}
+                  />
+                }
+                label={t('add.activate')}
+              />
+            </Box>
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                style={{
+                  width: '40%',
+                  maxWidth: '400px',
+                  padding: '12px',
+                  fontSize: '13px',
+                }}
+                disabled={isSubmitting}
+              >
+                {t('add.submit')}
+              </Button>
+            </Box>
+          </Form>
+        )}
+      </Formik>
     </Box>
+  </Box>
+
+  <Snackbar
+    open={openSnackbar}
+    autoHideDuration={6000}
+    onClose={handleCloseSnackbar}
+    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    sx={{
+      position: 'fixed',
+      top: '80%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+    }}
+  >
+    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      {snackbarMessage}
+    </Alert>
+  </Snackbar>
+</Box>  
   );
 };
 

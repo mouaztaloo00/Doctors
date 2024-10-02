@@ -38,7 +38,8 @@
     "latitude_y":"latitude_y",
     "longitude_x":"longitude_x",
     "category":"Category",
-    "description":"description"
+    "description":"description",
+    "chooseLogo" : "choose Logo"
   },
   "show": {
     "title1": "Show Doctors",

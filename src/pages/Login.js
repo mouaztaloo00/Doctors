@@ -3,7 +3,13 @@ import axios from 'axios';
 import { Snackbar, TextField, Button, Alert, Container, Typography, Box, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 import { messaging, getToken } from '../firebase';
+
+const validationSchema = Yup.object({
+  phone_number: Yup.string().required('Phone number is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 const Login = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;

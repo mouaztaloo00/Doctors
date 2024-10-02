@@ -245,7 +245,12 @@ const AddLocation = () => {
                   </Box>
                 </Box>
                 <Box sx={{ mt: 4, textAlign: 'center' }}>
-                  <Button type="submit" variant="contained" color="primary" style={{ width: '200px' }} disabled={isSubmitting}>
+                  <Button type="submit" variant="contained" color="primary" 
+                  style={{  
+                      width: '50%',
+                      maxWidth: '400px',
+                      padding: '14px',
+                      fontSize: '14px'}} disabled={isSubmitting}>
                     {t('add.submit')}
                   </Button>
                 </Box>

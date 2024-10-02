@@ -47,8 +47,9 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
       )}
       <main className={`main-content ${!isLoginPage && sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />}/>
           <Route path="/" element={<ProtectedRoute element={<Dashboard />} allowedProfiles={['Patient', 'Nurse', 'LabEmployee', 'Doctor', 'LabManager']} />} />
+          {/* Admin pages */}
           <Route path="/add/add_doctors" element={<ProtectedRoute element={<AddDoctors />} allowedProfiles={['LabManager']} />}  />
           <Route path="/add/add_labs" element={<ProtectedRoute element={<AddLabs />} allowedProfiles={['LabManager']} />} />
           <Route path="/add/add_location" element={<ProtectedRoute element={<AddLocation />} allowedProfiles={['LabManager']} />}  />

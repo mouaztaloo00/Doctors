@@ -7,7 +7,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FeedbackIcon from '@mui/icons-material/Feedback';
-import axios from 'axios'; 
+import axios from 'axios';
+import ChairIcon from '@mui/icons-material/Chair';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -78,7 +80,17 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
           <ListItemText 
             primary={
               <Typography variant="h6" sx={{ width: '100%', textAlign: 'center' }}>
-                {t('sidebar.title')}
+               < ChairIcon  color="primary"  sx={{ fontSize: 55 }} />
+              </Typography>
+            } 
+          />
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <ListItemText 
+            primary={
+              <Typography variant="h6" sx={{ width: '100%', textAlign: 'center' }}>
+               < AccountCircleIcon  sx={{ fontSize: 35 }} />
               </Typography>
             } 
           />

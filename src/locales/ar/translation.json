@@ -37,8 +37,8 @@
     "logo":"الأيقونة",
     "activate":"فعال",
     "category":"الصنف",
-    "description":"الوصف"
-  
+    "description":"الوصف",
+    "chooseLogo":"اختيار الأيقونة"
 
   },
   "show": {

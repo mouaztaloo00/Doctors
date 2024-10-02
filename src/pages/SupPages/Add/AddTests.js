@@ -135,9 +135,18 @@ const AddTests = () => {
                   error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
                 />
-                <Button type="submit" variant="contained" color="primary" style={{ width: '200px' }} disabled={isSubmitting}>
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Button type="submit" variant="contained" color="primary"
+                 style={{  
+                 width: '50%',
+                 maxWidth: '400px',
+                 padding: '14px',
+                 fontSize: '14px'
+                  }} 
+                  disabled={isSubmitting}>
                   {t('add.submit')}
                 </Button>
+                </Box>
               </Form>
             )}
           </Formik>

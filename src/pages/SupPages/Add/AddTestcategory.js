@@ -76,8 +76,8 @@ const AddTestcategory = () => {
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Box
           sx={{
-            width: '100%',
-            maxWidth: '800px',
+            width: '50%',
+            maxWidth: '500px',
             bgcolor: 'background.paper',
             p: 3,
             borderRadius: 2,
@@ -101,16 +101,17 @@ const AddTestcategory = () => {
                   error={touched.category && Boolean(errors.category)}
                   helperText={touched.category && errors.category}
                 />
-                <Box sx={{ mt: 4, textAlign: 'center' }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    style={{ width: '200px' }}
-                    disabled={isSubmitting} 
-                  >
-                    {t('add.submit')}
-                  </Button>
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Button type="submit" variant="contained" color="primary"
+                 style={{  
+                 width: '50%',
+                 maxWidth: '400px',
+                 padding: '14px',
+                 fontSize: '14px'
+                  }} 
+                  disabled={isSubmitting}>
+                  {t('add.submit')}
+                </Button>
                 </Box>
               </Form>
             )}
