@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -46,7 +46,7 @@ const ShowLocation = () => {
   const theme = useTheme();
   const token = `Bearer ${localStorage.getItem('token')}`;
 
-  const fetchData = async (url) => {
+  const fetchData = useCallback(async (url) => {
     setLoading(true);
     try {
       const response = await fetch(url, {
@@ -61,27 +61,37 @@ const ShowLocation = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
-  }, []);
+  }, [fetchData]);
 
-  const fetchSearchResults = useCallback(
-    debounce(async (searchTerm) => {
+  // Memoizing the debounced search function
+  const debouncedFetchSearchResults = useMemo(
+    () => debounce(async (searchTerm) => {
       if (searchTerm.trim()) {
         await fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/search?s=${searchTerm}`);
       } else {
         fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
       }
     }, 500),
-    []
+    [fetchData]
   );
+
+  useEffect(() => {
+    // Call the debounced function whenever searchTerm changes
+    debouncedFetchSearchResults(searchTerm);
+
+    // Cleanup the debounce effect when the component unmounts
+    return () => {
+      debouncedFetchSearchResults.cancel();
+    };
+  }, [searchTerm, debouncedFetchSearchResults]);
 
   const handleSearchChange = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
-    fetchSearchResults(term);
   };
 
   const handleSort = async () => {
@@ -148,14 +158,14 @@ const ShowLocation = () => {
       </Typography>
       <ShowMiniNavbar />
       <Divider sx={{ mb: 2 }} />
-      <Box sx={{ mt: 3, mb: 4 }}>
+      <Box sx={{ mt: 3, mb: 4, px: '16px', maxWidth: '100%' }}>
         <TextField
           variant="outlined"
           fullWidth
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
-          sx={{ borderRadius: 1 }}
+          sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

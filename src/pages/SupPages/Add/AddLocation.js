@@ -28,8 +28,6 @@ const AddLocation = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isSubmitting) {

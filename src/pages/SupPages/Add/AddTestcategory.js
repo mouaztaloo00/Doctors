@@ -18,8 +18,6 @@ const AddTestcategory = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     if (setSubmitting) {

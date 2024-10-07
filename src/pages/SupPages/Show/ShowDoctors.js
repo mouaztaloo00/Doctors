@@ -48,8 +48,6 @@ const ShowDoctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   const fetchData = async (query = '', page = 1) => {
     setLoading(true);

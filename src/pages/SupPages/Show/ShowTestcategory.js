@@ -4,8 +4,7 @@ import { Box, Typography, Card, CardContent, Grid, CircularProgress } from '@mui
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowTestCategory = () => {
   const { t, i18n } = useTranslation();
@@ -40,9 +39,13 @@ const ShowTestCategory = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
+      ) : error ? ( 
+        <Typography variant="h6" color="error" align="center" sx={{ mt: 4 }}>
+          {t('Error occurred')}: {error}
+        </Typography>
       ) : (
         <Grid container spacing={3} justifyContent="center">
-          {testData.length === 0 ? ( 
+          {testData.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ mt: 4 }}>
               {t('No results')}
             </Typography>

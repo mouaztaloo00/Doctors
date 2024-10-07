@@ -15,15 +15,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowPaymentMethod = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const paymentMethodsUrl = `${apiBaseUrl}/api/payment-methods`;
 
   const { t, i18n } = useTranslation();
-  const isRtl = i18n.dir() === 'rtl';
 
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -11,7 +11,7 @@ h1, h2, h3, h4, h5, h6, p, div, span, a {
   font-weight: inherit;
 }
 
-.app-container {
+.app-container {  
   display: flex;
   height: 100vh;
 }
@@ -26,5 +26,6 @@ h1, h2, h3, h4, h5, h6, p, div, span, a {
   padding: 20px; 
   transition: margin 0.3s ease;
   overflow-y: auto; 
+  margin-top: -37px;
 
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -27,7 +27,7 @@ import axios from 'axios';
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const { t, i18n } = useTranslation();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedNurse, setSelectedNurse] = useState(null);
@@ -38,8 +38,6 @@ const ShowNurses = () => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [selectedNurseForDeletion, setSelectedNurseForDeletion] = useState(null);
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   const fetchNurseDetails = async (id) => {
     try {
@@ -50,17 +48,17 @@ const ShowNurses = () => {
     }
   };
 
-  const fetchData = async (query = '', page = 1) => {
+  const fetchData = useCallback(async (query = '', page = 1) => {
     setLoading(true);
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/nurses/search?s=${query}`
         : `${apiBaseUrl}/api/nurses?size=10&page=${page}`;
-      
+
       const response = await axios.get(endpoint);
-      
+
       if (response.data.message === "") {
-        setNurses([]); 
+        setNurses([]);
         setTotalPages(1);
       } else {
         const data = query ? response.data || [] : response.data.data || [];
@@ -73,11 +71,12 @@ const ShowNurses = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBaseUrl]);
 
+  // Add fetchData to the dependency array
   useEffect(() => {
     fetchData('', currentPage);
-  }, [currentPage]);
+  }, [currentPage, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
@@ -90,7 +89,7 @@ const ShowNurses = () => {
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
-      setCurrentPage(1); 
+      setCurrentPage(1);
       fetchData(searchTerm);
     }
   };
@@ -108,7 +107,6 @@ const ShowNurses = () => {
   const handleConfirmDelete = () => {
     setSelectedNurseForDeletion(selectedNurse?.id);
     setOpenConfirmDialog(true);
-
   };
 
   const handleCloseConfirmDialog = () => {
@@ -164,7 +162,7 @@ const ShowNurses = () => {
           </Box>
         ) : (
           nurses.map((nurse) => (
-            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3} >
+            <Grid item key={nurse.id} xs={12} sm={6} md={4} lg={3}>
               <Card
                 sx={{
                   borderRadius: '16px',
@@ -199,7 +197,7 @@ const ShowNurses = () => {
             </Grid>
           ))
         )}
-        
+
         {nurses.length === 0 && !loading && (
           <Box sx={{ textAlign: 'center', width: '100%', mt: 5 }}>
             <Typography variant="h6" color="textSecondary">

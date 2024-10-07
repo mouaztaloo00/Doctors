@@ -29,9 +29,7 @@ const AddDoctors = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
-
+    
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {

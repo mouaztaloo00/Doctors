@@ -32,6 +32,9 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
   const { i18n } = useTranslation();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  
+  const token = `Bearer ${localStorage.getItem('token')}`;
+  axios.defaults.headers.common['Authorization'] = token;
 
   return (
     <div className={`app-container ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
@@ -48,24 +51,24 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
       <main className={`main-content ${!isLoginPage && sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Routes>
           <Route path="/login" element={<Login />}/>
-          <Route path="/" element={<ProtectedRoute element={<Dashboard />} allowedProfiles={['Patient', 'Nurse', 'LabEmployee', 'Doctor', 'LabManager']} />} />
+          <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
           {/* Admin pages */}
-          <Route path="/add/add_doctors" element={<ProtectedRoute element={<AddDoctors />} allowedProfiles={['LabManager']} />}  />
-          <Route path="/add/add_labs" element={<ProtectedRoute element={<AddLabs />} allowedProfiles={['LabManager']} />} />
-          <Route path="/add/add_location" element={<ProtectedRoute element={<AddLocation />} allowedProfiles={['LabManager']} />}  />
-          <Route path="/add/add_tests" element={<ProtectedRoute element={<AddTests />} allowedProfiles={['LabManager']} />}  />
-          <Route path="/add/add_testcategory" element={<ProtectedRoute element={<AddTestcategory />} allowedProfiles={['LabManager']} />}  />
-          <Route path="/add/add_paymentMethod" element={<ProtectedRoute element={<AddPaymentMethod />} allowedProfiles={['LabManager']} />} />
-          <Route path="/show/show_doctors" element={<ProtectedRoute element={<ShowDoctors />} allowedProfiles={['Doctor']} />} />
-          <Route path="/show/show_labs" element={<ProtectedRoute element={<ShowLabs />} allowedProfiles={['Doctor']} />}  />
-          <Route path="/show/show_location" element={<ProtectedRoute element={<ShowLocation />} allowedProfiles={['Patient']} />}  />
-          <Route path="/show/show_tests" element={<ProtectedRoute element={<ShowTests />} allowedProfiles={['Patient']} />}  />
-          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />} allowedProfiles={['Nurse']} />}  />
-          <Route path="/show/show_paymentMethod" element={<ProtectedRoute element={<ShowPaymentMethod />} allowedProfiles={['LabEmployee']} />}  />
-          <Route path="/show/show_nurses" element={<ProtectedRoute element={<ShowNurses />} allowedProfiles={['Nurse']} />}  />
-          <Route path="/feedback/feedback_doctors" element={<ProtectedRoute element={<FeedbackDoctors />} allowedProfiles={['Patient']} />} />
-          <Route path="/feedback/feedback_labs" element={<ProtectedRoute element={<FeedbackLabs />} allowedProfiles={['Patient']} />}  />
-          <Route path="/feedback/feedback_nurses" element={<ProtectedRoute element={<FeedbackNurses />} allowedProfiles={['Patient']} />}  />
+          <Route path="/add/add_doctors" element={<ProtectedRoute element={<AddDoctors />} />}  />
+          <Route path="/add/add_labs" element={<ProtectedRoute element={<AddLabs />} />} />
+          <Route path="/add/add_location" element={<ProtectedRoute element={<AddLocation />}  />}  />
+          <Route path="/add/add_tests" element={<ProtectedRoute element={<AddTests />}  />}  />
+          <Route path="/add/add_testcategory" element={<ProtectedRoute element={<AddTestcategory />}  />}  />
+          <Route path="/add/add_paymentMethod" element={<ProtectedRoute element={<AddPaymentMethod />}  />} />
+          <Route path="/show/show_doctors" element={<ProtectedRoute element={<ShowDoctors />}  />} />
+          <Route path="/show/show_labs" element={<ProtectedRoute element={<ShowLabs />}  />}  />
+          <Route path="/show/show_location" element={<ProtectedRoute element={<ShowLocation />}  />}  />
+          <Route path="/show/show_tests" element={<ProtectedRoute element={<ShowTests />}  />}  />
+          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />}  />}  />
+          <Route path="/show/show_paymentMethod" element={<ProtectedRoute element={<ShowPaymentMethod />}  />}  />
+          <Route path="/show/show_nurses" element={<ProtectedRoute element={<ShowNurses />}  />}  />
+          <Route path="/feedback/feedback_doctors" element={<ProtectedRoute element={<FeedbackDoctors />}  />} />
+          <Route path="/feedback/feedback_labs" element={<ProtectedRoute element={<FeedbackLabs />}  />}  />
+          <Route path="/feedback/feedback_nurses" element={<ProtectedRoute element={<FeedbackNurses />}  />}  />
         </Routes>
       </main>
     </div>

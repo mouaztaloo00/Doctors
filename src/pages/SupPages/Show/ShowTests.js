@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, TextField, IconButton, InputAdornment, CardContent, CircularProgress, Pagination } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowTests = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
@@ -17,7 +16,7 @@ const ShowTests = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { t, i18n } = useTranslation();
 
-  const fetchData = async (query = '', page = 1) => {
+  const fetchData = useCallback(async (query = '', page = 1) => {
     setLoading(true);
     try {
       const endpoint = query
@@ -38,11 +37,11 @@ const ShowTests = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     fetchData('', currentPage);
-  }, [currentPage, apiBaseUrl]);
+  }, [currentPage, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);

@@ -1,10 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
-import { Snackbar, Alert } from '@mui/material';
 
-
-const ProtectedRoute = ({ element, allowedProfiles }) => {
+const ProtectedRoute = ({ element }) => {
   const token = localStorage.getItem('token');
 
   if (!token) {
@@ -12,27 +9,7 @@ const ProtectedRoute = ({ element, allowedProfiles }) => {
   }
 
   try {
-    const decodedToken = jwtDecode(token);
-    console.log("Decoded Token:", decodedToken.profileType); 
-
-    const { profileType, isAdmin } = decodedToken; 
-
-    
-    if (isAdmin) {
-      return element;
-    }
-
-    if (allowedProfiles && allowedProfiles.includes(profileType)) {
-      return element;
-    }
-
-    return(
-     <div>
-      <Alert severity="error" sx={{ width: '100%' }}>
-          401 Unauthorized: Access Denied
-      </Alert>
-    </div>
-    )
+    return element;
   } catch (error) {
     console.error('Invalid token:', error);
     localStorage.removeItem('token');

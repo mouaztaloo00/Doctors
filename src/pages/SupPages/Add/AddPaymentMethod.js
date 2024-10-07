@@ -24,9 +24,6 @@ const AddPaymentMethod = () => {
   
   const fileInputRef = useRef(null);
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
-
   const handleSubmit = async (values, { resetForm, setFieldValue }) => {
     if (isSubmitting) return;
 

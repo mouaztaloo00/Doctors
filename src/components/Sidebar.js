@@ -11,10 +11,26 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import axios from 'axios';
 import BloodtypeOutlinedIcon from '@mui/icons-material/BloodtypeOutlined';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import {jwtDecode} from 'jwt-decode';
+
 const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
+
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
+
+  const token = localStorage.getItem('token');
+  let isAdmin = false;
+  let profileType = null;
+
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken)
+      isAdmin = decodedToken.isAdmin;
+      profileType = decodedToken.profileType;
+    } catch (error) {
+      console.error('Invalid token:', error);
+    }
+  }
 
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -44,8 +60,6 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
     }
   };
 
-  
-
   const handleLanguageChange = async () => {
     const newLanguage = i18n.language === 'ar' ? 'en' : 'ar';
     try {
@@ -55,6 +69,69 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
       window.location.reload();
     } catch (error) {
       console.error('Error changing language:', error);
+    }
+  };
+
+  const getPath1 = () => {
+    if (isAdmin && profileType === null) {
+      return "/add/add_doctors";
+    }
+    if (!isAdmin && profileType === null) {
+      return "/add/add_doctors";
+    }
+    switch (!isAdmin && profileType) {
+      case 'Doctor':
+        return "/add";
+      case 'Nurse':
+        return "/add";
+      case 'LabEmployee':
+        return "/add";
+      case 'LabManager':
+        return "/add";
+      default :
+      return "/";
+    }
+  };
+  const getPath2 = () => {
+    if (isAdmin && profileType ===null) {
+      return "/show/show_doctors";
+    }
+
+    if (!isAdmin && profileType ===null) {
+      return "/show/show_doctors";
+    }
+    switch (!isAdmin && profileType) {
+      case 'Doctor':
+        return "/show";
+      case 'Nurse':
+        return "/show";
+      case 'LabEmployee':
+        return "/show";
+      case 'LabManager':
+          return "/show";
+      default :
+      return "/";
+    }
+  };
+
+ const getPath3 = () => {
+    if (isAdmin && profileType ===null) {
+      return "/feedback/feedback_doctors";
+    }
+    if (!isAdmin && profileType ===null) {
+      return "/feedback/feedback_doctors";
+    }
+    switch (!isAdmin && profileType) {
+      case 'Doctor':
+        return "/feedback";
+      case 'Nurse':
+        return "/feedback";
+      case 'LabEmployee':
+        return "/feedback";
+      case 'LabManager':
+          return "/feedback";
+      default :
+      return "/";
     }
   };
 
@@ -78,7 +155,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
       }}
     >
       <Box sx={{ textAlign: 'center', mb: 2 }}>
-        <BloodtypeOutlinedIcon color={darkMode ? 'secondary' : 'primary'} sx={{ fontSize: 80 }} />
+        <BloodtypeOutlinedIcon color={darkMode ? 'secondary' : 'primary'} sx={{ fontSize: 70 }} />
         <Typography variant="h6" sx={{ color: darkMode ? '#fff' : '#2C3E50' }}>
           {t('sidebar.logo')}
         </Typography>
@@ -94,21 +171,30 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
           <ListItemText primary={t('sidebar.dashboard')} />
         </ListItem>
 
-        <ListItem button component={Link} to="/add/add_doctors" sx={{ mb: 1, borderRadius: '10px' }}>
+        <ListItem button 
+        component={Link}
+        to= {getPath1()}
+        sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <AddBoxIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
           <ListItemText primary={t('sidebar.add')} />
         </ListItem>
 
-        <ListItem button component={Link} to="/show/show_doctors" sx={{ mb: 1, borderRadius: '10px' }}>
+        <ListItem button 
+        component={Link} 
+        to= {getPath2()}
+        sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
           <ListItemText primary={t('sidebar.show')} />
         </ListItem>
 
-        <ListItem button component={Link} to="/feedback/feedback_doctors" sx={{ mb: 1, borderRadius: '10px' }}>
+        <ListItem button 
+        component={Link} 
+        to= {getPath3()}
+        sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
