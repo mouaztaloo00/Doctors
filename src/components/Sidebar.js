@@ -72,14 +72,12 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
     }
   };
 
-  const getPath1 = () => {
+  const getPathAdd = () => {
     if (isAdmin && profileType === null) {
       return "/add/add_doctors";
     }
-    if (!isAdmin && profileType === null) {
-      return "/add/add_doctors";
-    }
-    switch (!isAdmin && profileType) {
+
+    switch (profileType) {
       case 'Doctor':
         return "/add";
       case 'Nurse':
@@ -92,15 +90,12 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
       return "/";
     }
   };
-  const getPath2 = () => {
-    if (isAdmin && profileType ===null) {
+  const getPathShow = () => {
+    if (isAdmin && profileType === null) {
       return "/show/show_doctors";
     }
 
-    if (!isAdmin && profileType ===null) {
-      return "/show/show_doctors";
-    }
-    switch (!isAdmin && profileType) {
+    switch (profileType) {
       case 'Doctor':
         return "/show";
       case 'Nurse':
@@ -114,14 +109,12 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
     }
   };
 
- const getPath3 = () => {
-    if (isAdmin && profileType ===null) {
+ const getPathFeedback = () => {
+    if (isAdmin && profileType === null) {
       return "/feedback/feedback_doctors";
     }
-    if (!isAdmin && profileType ===null) {
-      return "/feedback/feedback_doctors";
-    }
-    switch (!isAdmin && profileType) {
+    
+    switch (profileType) {
       case 'Doctor':
         return "/feedback";
       case 'Nurse':
@@ -173,7 +166,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
         <ListItem button 
         component={Link}
-        to= {getPath1()}
+        to= {getPathAdd()}
         sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <AddBoxIcon color={darkMode ? 'secondary' : 'primary'} />
@@ -183,7 +176,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
         <ListItem button 
         component={Link} 
-        to= {getPath2()}
+        to= {getPathShow()}
         sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
@@ -193,7 +186,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
         <ListItem button 
         component={Link} 
-        to= {getPath3()}
+        to= {getPathFeedback()}
         sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
