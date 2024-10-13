@@ -29,7 +29,7 @@ const AddTests = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(categoriesUrl);
-        setCategories(response.data);
+        setCategories(response.data.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }

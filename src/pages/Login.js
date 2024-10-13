@@ -42,10 +42,10 @@ const Login = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
+  
     if (isSubmitting) return;
     setIsSubmitting(true);
-
+  
     if (!fcmToken) {
       setSnackbarMessage('FCM token is not available. Please try again later.');
       setSnackbarSeverity('error');
@@ -53,7 +53,7 @@ const Login = () => {
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `${apiBaseUrl}/api/login`,
@@ -68,11 +68,14 @@ const Login = () => {
           },
         }
       );
-
-      const { message, data } = response.data;
-
-      if (response.status === 200) {
-        localStorage.setItem('token', data);
+  
+      const { success, message, data } = response.data;
+  
+      if (success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role); 
+        localStorage.setItem('userId', data.id); 
+        localStorage.setItem('picture', data.picture);  
         setSnackbarMessage(`Login successful: ${message}`);
         setSnackbarSeverity('success');
         navigate('/');
@@ -87,6 +90,7 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !isSubmitting) {

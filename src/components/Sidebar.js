@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography, Tooltip
 } from '@mui/material';
-import { Brightness4, Brightness7, Language, Logout } from '@mui/icons-material';
+import { Brightness4, Brightness7, Language } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -11,26 +11,16 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import axios from 'axios';
 import BloodtypeOutlinedIcon from '@mui/icons-material/BloodtypeOutlined';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import {jwtDecode} from 'jwt-decode';
+import Profile from './Profile';
+
 
 const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
-  const token = localStorage.getItem('token');
-  let isAdmin = false;
-  let profileType = null;
-
-  if (token) {
-    try {
-      const decodedToken = jwtDecode(token);
-      console.log(decodedToken)
-      isAdmin = decodedToken.isAdmin;
-      profileType = decodedToken.profileType;
-    } catch (error) {
-      console.error('Invalid token:', error);
-    }
-  }
+  const role = localStorage.getItem('role');
+  
+  let userName = 'User';
 
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -45,21 +35,28 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-
+    
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       };
-
-      await axios.post(`${apiBaseUrl}/api/logout`, {}, config);
-      localStorage.removeItem('token');
-      navigate('/login');
+  
+      const response = await axios.post(`${apiBaseUrl}/api/logout`, {}, config);
+      
+      if (response.data.success) {
+        console.log(response.data.message); 
+        localStorage.clear(); 
+        navigate('/login');
+        window.location.reload();
+      } else {
+        console.error('Logout failed:', response.data.message); 
+      }
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed:', error); 
     }
   };
-
+  
   const handleLanguageChange = async () => {
     const newLanguage = i18n.language === 'ar' ? 'en' : 'ar';
     try {
@@ -72,61 +69,27 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
     }
   };
 
-  const getPathAdd = () => {
-    if (isAdmin && profileType === null) {
-      return "/add/add_doctors";
-    }
-
-    switch (profileType) {
-      case 'Doctor':
-        return "/add";
-      case 'Nurse':
-        return "/add";
-      case 'LabEmployee':
-        return "/add";
-      case 'LabManager':
-        return "/add";
-      default :
-      return "/";
-    }
-  };
-  const getPathShow = () => {
-    if (isAdmin && profileType === null) {
-      return "/show/show_doctors";
-    }
-
-    switch (profileType) {
-      case 'Doctor':
-        return "/show";
-      case 'Nurse':
-        return "/show";
-      case 'LabEmployee':
-        return "/show";
-      case 'LabManager':
-          return "/show";
-      default :
-      return "/";
+  const getPaths = () => {
+    if (role === 'Admin') {
+      return {
+        dashboard: '/',
+        add: '/add/add_doctors',
+        show: '/show/show_doctors',
+        feedback: '/feedback/feedback_doctors',
+      };
+    } else if (role === 'doctor' || role === 'LabManager') {
+      return {
+        dashboard: '/',
+        add: '/',
+        show: '/',
+        feedback: '/',
+      };
+    } else {
+      return {};
     }
   };
 
- const getPathFeedback = () => {
-    if (isAdmin && profileType === null) {
-      return "/feedback/feedback_doctors";
-    }
-    
-    switch (profileType) {
-      case 'Doctor':
-        return "/feedback";
-      case 'Nurse':
-        return "/feedback";
-      case 'LabEmployee':
-        return "/feedback";
-      case 'LabManager':
-          return "/feedback";
-      default :
-      return "/";
-    }
-  };
+  const paths = getPaths();
 
   return (
     <Drawer
@@ -147,6 +110,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
         },
       }}
     >
+
       <Box sx={{ textAlign: 'center', mb: 2 }}>
         <BloodtypeOutlinedIcon color={darkMode ? 'secondary' : 'primary'} sx={{ fontSize: 70 }} />
         <Typography variant="h6" sx={{ color: darkMode ? '#fff' : '#2C3E50' }}>
@@ -157,7 +121,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
       <Divider sx={{ mb: 2 }} />
 
       <List>
-        <ListItem button component={Link} to="/" sx={{ mb: 1, borderRadius: '10px' }}>
+        <ListItem button component={Link} to={paths.dashboard} sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <HomeIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
@@ -165,9 +129,9 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
         </ListItem>
 
         <ListItem button 
-        component={Link}
-        to= {getPathAdd()}
-        sx={{ mb: 1, borderRadius: '10px' }}>
+          component={Link}
+          to={paths.add}
+          sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <AddBoxIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
@@ -175,9 +139,9 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
         </ListItem>
 
         <ListItem button 
-        component={Link} 
-        to= {getPathShow()}
-        sx={{ mb: 1, borderRadius: '10px' }}>
+          component={Link} 
+          to={paths.show}
+          sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
@@ -185,9 +149,9 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
         </ListItem>
 
         <ListItem button 
-        component={Link} 
-        to= {getPathFeedback()}
-        sx={{ mb: 1, borderRadius: '10px' }}>
+          component={Link} 
+          to={paths.feedback}
+          sx={{ mb: 1, borderRadius: '10px' }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
@@ -205,6 +169,12 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
           textAlign: 'center',
         }}
       >
+        <Tooltip>
+          <IconButton>
+            <Profile userName={userName} onLogout={handleLogout} />
+          </IconButton>
+        </Tooltip> 
+
         <Tooltip title={t('mode')}>
           <IconButton onClick={toggleDarkMode}>
             {darkMode ? <Brightness7 /> : <Brightness4 />}
@@ -215,13 +185,7 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
           <IconButton onClick={handleLanguageChange}>
             <Language />
           </IconButton>
-        </Tooltip>
-
-        <Tooltip title={t('logout')}>
-          <IconButton onClick={handleLogout}>
-            <Logout />
-          </IconButton>
-        </Tooltip>
+        </Tooltip> 
       </Box>
     </Drawer>
   );

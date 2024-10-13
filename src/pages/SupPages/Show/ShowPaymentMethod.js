@@ -31,7 +31,7 @@ const ShowPaymentMethod = () => {
       setLoading(true);
       try {
         const response = await axios.get(paymentMethodsUrl);
-        setPaymentMethods(response.data);
+        setPaymentMethods(response.data.data);
       } catch (error) {
         console.error('Error fetching payment methods:', error);
       } finally {
@@ -65,7 +65,7 @@ const ShowPaymentMethod = () => {
               </Typography>
             ) : (
               paymentMethods.map((method) => (
-                <Grid item xs={12} sm={6} md={4} key={method.id}>
+                <Grid item xs={12} sm={6} md={5} key={method.id}>
                   <Card
                     sx={{
                       position: 'relative',

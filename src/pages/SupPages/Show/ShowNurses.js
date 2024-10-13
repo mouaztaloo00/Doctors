@@ -42,7 +42,7 @@ const ShowNurses = () => {
   const fetchNurseDetails = async (id) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/nurses/id/${id}`);
-      setSelectedNurse(response.data);
+      setSelectedNurse(response.data.data);
     } catch (error) {
       console.error('Error fetching nurse details:', error);
     }
@@ -53,17 +53,17 @@ const ShowNurses = () => {
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/nurses/search?s=${query}`
-        : `${apiBaseUrl}/api/nurses?size=10&page=${page}`;
+        : `${apiBaseUrl}/api/nurses?size=8&page=${page}`;
 
       const response = await axios.get(endpoint);
 
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setNurses([]);
         setTotalPages(1);
       } else {
-        const data = query ? response.data || [] : response.data.data || [];
+        const data = query ? response.data.data || [] : response.data.data.data || [];
         setNurses(data);
-        setTotalPages(query ? 1 : response.data.meta?.last_page || 1);
+        setTotalPages(query ? 1 : response.data.data.meta?.last_page || 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);

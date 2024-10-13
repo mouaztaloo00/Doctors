@@ -2,25 +2,10 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {jwtDecode} from 'jwt-decode'; 
 
 const AddMiniNavbar = () => {
-  const { t } = useTranslation();
-
-  const token = localStorage.getItem('token');
-  let isAdmin = false;
-  let profileType = null;
-
-  if (token) {
-    try {
-      const decodedToken = jwtDecode(token);
-      isAdmin = decodedToken.isAdmin;
-      profileType = decodedToken.profileType;
-    } catch (error) {
-      console.error('Invalid token:', error);
-    }
-  }
-
+  const { t } = useTranslation(); 
+  const role = localStorage.getItem('role'); 
   return (
     <AppBar position="static" color="primary" sx={{ maxWidth: '1200px', margin: 'auto', borderRadius: 2 }}>
       <Toolbar
@@ -44,8 +29,7 @@ const AddMiniNavbar = () => {
         }}
       >
         <Box sx={{ display: 'flex', gap: 9, justifyContent: 'center', flexGrow: 1 }}>
-          {/*(Admin) */}
-          {isAdmin && profileType === null && (
+        {role === 'Admin' && (
             <>
               <Button
                 component={Link}
@@ -96,22 +80,9 @@ const AddMiniNavbar = () => {
                 {t('navbar.paymentMethod')}
               </Button>
             </>
-          )}
-          
-          {/*(not Admin)*/}
-          {(!isAdmin || profileType !== null) && (
-            <>
-             <Button
-                component={Link}
-                to="/add/add_paymentMethod"
-                color="inherit"
-                sx={{ fontSize: '1rem', textTransform: 'capitalize', py: 1, px: 2 }}
-              >
-                {t('navbar.paymentMethod')}
-              </Button>
-            </>
-          )}
+            )}
         </Box>
+        
       </Toolbar>
     </AppBar>
   );

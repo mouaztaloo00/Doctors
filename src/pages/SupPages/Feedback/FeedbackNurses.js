@@ -45,18 +45,16 @@ const FeedbackNurses = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
-
+ 
   useEffect(() => {
     const fetchNurses = async (page = 1) => {
       setLoading(true);
       try {
         const response = await axios.get(`${nursesUrl}&?page=${page}`);
-        setNurses(response.data.data || []);
-        setTotalPages(response.data.meta.last_page || 1);
+        setNurses(response.data.data.data || []);
+        setTotalPages(response.data.data.meta.last_page || 1);
       } catch (error) {
-        console.error('Error fetching nurses:', error.response ? error.response.data : error.message);
+        console.error('Error fetching nurses:', error);
       } finally {
         setLoading(false);
       }
@@ -68,14 +66,14 @@ const FeedbackNurses = () => {
   const fetchNurseReviews = async (nurseId) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/feedbacks/nurses/id/${nurseId}/?size=100`); 
-      setSelectedNurseReviews(response.data.data || []);
+      setSelectedNurseReviews(response.data.data.data || []);
     } catch (error) {
-      console.error('Error fetching nurse reviews:', error.response ? error.response.data : error.message);
+      console.error('Error fetching nurse reviews:', error);
     }
   };
 
   const filteredNurses = nurses.filter((nurse) =>
-    nurse.name.toLowerCase().includes(searchTerm.toLowerCase())
+    nurse.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearchChange = (event) => {

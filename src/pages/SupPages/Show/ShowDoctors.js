@@ -54,15 +54,15 @@ const ShowDoctors = () => {
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/doctors/search?s=${query}`
-        : `${apiBaseUrl}/api/doctors?size=6&page=${page}`;
+        : `${apiBaseUrl}/api/doctors?size=9&page=${page}`;
 
       const response = await axios.get(endpoint);
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setDoctors([]); 
         setTotalPages(1);
       } else {
-        setDoctors(query ? response.data || [] : response.data.data || []);
-        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+        setDoctors(query ? response.data.data || [] : response.data.data.data || []);
+        setTotalPages(query ? 1 : response.data.data.meta ? response.data.data.meta.last_page : 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -98,7 +98,7 @@ const ShowDoctors = () => {
     try {
       const response = await axios.get(`${doctorsUrl}/id/${id}`);
       if (response.data) {
-        setSelectedDoctor(response.data);
+        setSelectedDoctor(response.data.data);
         setOpenDialog(true);
       }
     } catch (error) {
@@ -236,7 +236,7 @@ const ShowDoctors = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedDoctor.name || 'Unknown Doctor'}
+          {t('show.details')}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>

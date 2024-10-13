@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode'; 
 import './App.css';
 import { getTheme } from './theme';
 import Sidebar from './components/Sidebar';
@@ -32,7 +32,7 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
   const { i18n } = useTranslation();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
-  
+
   const token = `Bearer ${localStorage.getItem('token')}`;
   axios.defaults.headers.common['Authorization'] = token;
 
@@ -53,22 +53,22 @@ const MainContent = ({ darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, ha
           <Route path="/login" element={<Login />}/>
           <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
           {/* Admin pages */}
-          <Route path="/add/add_doctors" element={<ProtectedRoute element={<AddDoctors />} />}  />
+          <Route path="/add/add_doctors" element={<ProtectedRoute element={<AddDoctors />} />} />
           <Route path="/add/add_labs" element={<ProtectedRoute element={<AddLabs />} />} />
-          <Route path="/add/add_location" element={<ProtectedRoute element={<AddLocation />}  />}  />
-          <Route path="/add/add_tests" element={<ProtectedRoute element={<AddTests />}  />}  />
-          <Route path="/add/add_testcategory" element={<ProtectedRoute element={<AddTestcategory />}  />}  />
-          <Route path="/add/add_paymentMethod" element={<ProtectedRoute element={<AddPaymentMethod />}  />} />
-          <Route path="/show/show_doctors" element={<ProtectedRoute element={<ShowDoctors />}  />} />
-          <Route path="/show/show_labs" element={<ProtectedRoute element={<ShowLabs />}  />}  />
-          <Route path="/show/show_location" element={<ProtectedRoute element={<ShowLocation />}  />}  />
-          <Route path="/show/show_tests" element={<ProtectedRoute element={<ShowTests />}  />}  />
-          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />}  />}  />
-          <Route path="/show/show_paymentMethod" element={<ProtectedRoute element={<ShowPaymentMethod />}  />}  />
-          <Route path="/show/show_nurses" element={<ProtectedRoute element={<ShowNurses />}  />}  />
-          <Route path="/feedback/feedback_doctors" element={<ProtectedRoute element={<FeedbackDoctors />}  />} />
-          <Route path="/feedback/feedback_labs" element={<ProtectedRoute element={<FeedbackLabs />}  />}  />
-          <Route path="/feedback/feedback_nurses" element={<ProtectedRoute element={<FeedbackNurses />}  />}  />
+          <Route path="/add/add_location" element={<ProtectedRoute element={<AddLocation />} />} />
+          <Route path="/add/add_tests" element={<ProtectedRoute element={<AddTests />} />} />
+          <Route path="/add/add_testcategory" element={<ProtectedRoute element={<AddTestcategory />} />} />
+          <Route path="/add/add_paymentMethod" element={<ProtectedRoute element={<AddPaymentMethod />} />} />
+          <Route path="/show/show_doctors" element={<ProtectedRoute element={<ShowDoctors />} />} />
+          <Route path="/show/show_labs" element={<ProtectedRoute element={<ShowLabs />} />} />
+          <Route path="/show/show_location" element={<ProtectedRoute element={<ShowLocation />} />} />
+          <Route path="/show/show_tests" element={<ProtectedRoute element={<ShowTests />} />} />
+          <Route path="/show/show_testcategory" element={<ProtectedRoute element={<ShowTestcategory />} />} />
+          <Route path="/show/show_paymentMethod" element={<ProtectedRoute element={<ShowPaymentMethod />} />} />
+          <Route path="/show/show_nurses" element={<ProtectedRoute element={<ShowNurses />} />} />
+          <Route path="/feedback/feedback_doctors" element={<ProtectedRoute element={<FeedbackDoctors />} />} />
+          <Route path="/feedback/feedback_labs" element={<ProtectedRoute element={<FeedbackLabs />} />} />
+          <Route path="/feedback/feedback_nurses" element={<ProtectedRoute element={<FeedbackNurses />} />} />
         </Routes>
       </main>
     </div>
@@ -99,7 +99,7 @@ const App = () => {
         },
       });
 
-      const newToken = response.data.data;
+      const newToken = response.data.data.token; 
       localStorage.setItem('token', newToken);
       return newToken;
     } catch (error) {
@@ -124,7 +124,7 @@ const App = () => {
       const timeRemaining = tokenExpirationTime - currentTime;
 
       if (timeRemaining < 60) {
-        refreshToken();
+        refreshToken(); 
       }
     } catch (error) {
       console.error('Error decoding token:', error.message);
@@ -133,6 +133,8 @@ const App = () => {
   };
 
   useEffect(() => {
+    checkTokenExpiration();
+    
     const tokenCheckInterval = setInterval(checkTokenExpiration, 30000);
 
     return () => {

@@ -60,7 +60,8 @@
     "endTime":"endTime",
     "address":"address",
     "message":"Are you sure?",
-    "button":"sort"
+    "button":"sort",
+    "details":"Details"
   },
   "Feedback": {
     "title1": "Feedback Doctors",
@@ -72,7 +73,9 @@
     "dashboard": "Dashboard",
     "add": "Add",
     "show": "Show",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "Settings":"Settings",
+    "Logout":"Logout"
   },
   "navbar": {
     "title": "My App",

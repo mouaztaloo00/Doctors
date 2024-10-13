@@ -18,7 +18,7 @@ const ShowTestCategory = () => {
       setLoading(true);
       try {
         const response = await axios.get(url);
-        setTestData(response.data);
+        setTestData(response.data.data);
       } catch (error) {
         setError(error.message);
       } finally {

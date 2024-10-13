@@ -60,7 +60,8 @@
     "endTime":"انتهاء",
     "address":"عنوان",
     "message":"هل انت متأكد؟",
-    "button":"ترتيب"
+    "button":"ترتيب",
+    "details":"التفاصيل"
   },
   "Feedback": {
     "title1": "تعليق الأطباء",
@@ -72,7 +73,10 @@
       "dashboard": "لوحة التحكم",
       "add": "إضافة",
       "show": "عرض",
-      "feedback": "التعليقات"
+      "feedback": "التعليقات",
+      "Settings":"الاعدادات",
+      "Logout":"تسجيل خروج"
+
     }, 
       "navbar": {
       "title": "تطبيقي",

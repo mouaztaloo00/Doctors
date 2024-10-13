@@ -53,14 +53,15 @@ const ShowLabs = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${labsUrl}&page=${page}`);
-        setLabs(response.data.data || []);
-        setTotalPages(response.data.meta.last_page || 1);
+        setLabs(response.data.data.data || []); 
+        setTotalPages(response.data.data.meta.last_page || 1);
       } catch (error) {
         console.error('Failed to fetch labs:', error);
       } finally {
         setLoading(false);
       }
     };
+    
 
     fetchLabs(currentPage);
   }, [currentPage]);
@@ -70,16 +71,16 @@ const ShowLabs = () => {
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/labs/search?s=${query}`
-        : `${apiBaseUrl}/api/labs?size=10&page=${page}`;
+        : `${apiBaseUrl}/api/labs?size=9&page=${page}`;
       const response = await axios.get(endpoint);
 
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setLabs([]); 
         setTotalPages(1);
       } else {
-        setLabs(query ? response.data || [] : response.data.data || []);
-        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
-      }
+        setLabs(query ? response.data.data || [] : response.data.data.data || []);
+        setTotalPages(query ? 1 : response.data.data.meta ? response.data.data.meta.last_page : 1); 
+     }
     } catch (error) {
       console.error('Failed to fetch data:', error);
       setLabs([]); 
@@ -132,14 +133,18 @@ const ShowLabs = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${apiBaseUrl}/api/labs/id/${lab.id}`);
-      setSelectedLab(response.data);
-      setOpen(true);
+      if (response.data && response.data.success) { 
+        setSelectedLab(response.data.data); 
+        setOpen(true);
+      }
     } catch (error) {
       console.error('Failed to fetch lab details:', error);
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleClose = () => {
     setOpen(false);
@@ -382,7 +387,7 @@ const ShowLabs = () => {
             >
               {t('show.delete')}
             </Button>
-            <Button onClick={handleClose} sx={{ color: 'red' }}>
+            <Button onClick={handleClose} >
               {t('show.close')}
             </Button>
           </DialogActions>

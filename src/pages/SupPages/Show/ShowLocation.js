@@ -34,7 +34,7 @@ const ShowLocation = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [sortParams, setSortParams] = useState({
     governorate: '',
     district: '',
@@ -55,9 +55,16 @@ const ShowLocation = () => {
         },
       });
       const result = await response.json();
-      setData(Array.isArray(result) ? result : []);
+
+      // التأكد من أن هيكل البيانات صحيح
+      if (result && result.success && Array.isArray(result.data)) {
+        setData(result.data);
+      } else {
+        setData([]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -67,7 +74,7 @@ const ShowLocation = () => {
     fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
   }, [fetchData]);
 
-  // Memoizing the debounced search function
+  // وظيفة البحث باستخدام debounce
   const debouncedFetchSearchResults = useMemo(
     () => debounce(async (searchTerm) => {
       if (searchTerm.trim()) {
@@ -80,10 +87,7 @@ const ShowLocation = () => {
   );
 
   useEffect(() => {
-    // Call the debounced function whenever searchTerm changes
     debouncedFetchSearchResults(searchTerm);
-
-    // Cleanup the debounce effect when the component unmounts
     return () => {
       debouncedFetchSearchResults.cancel();
     };
@@ -101,12 +105,10 @@ const ShowLocation = () => {
     if (district) queryParams.district = district;
     if (city) queryParams.city = city;
     if (area) queryParams.area = area;
+
+    // بناء رابط الطلب
     const queryString = new URLSearchParams(queryParams).toString();
-    if (queryString) {
-      await fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/sort?${queryString}`);
-    } else {
-      fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations?size=10&page=1`);
-    }
+    await fetchData(`${process.env.REACT_APP_API_BASE_URL}/api/locations/sort?${queryString}`);
   };
 
   const handleInputChange = (e) => {
@@ -149,11 +151,11 @@ const ShowLocation = () => {
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography 
-      variant="h4"
-       gutterBottom 
-       align={i18n.dir() === 'rtl' ? 'right' : 'left'}
-       sx={{ p: 3 }}
-       >
+        variant="h4"
+        gutterBottom 
+        align={i18n.dir() === 'rtl' ? 'right' : 'left'}
+        sx={{ p: 3 }}
+      >
         {t('show.title3')}
       </Typography>
       <ShowMiniNavbar />
@@ -177,7 +179,7 @@ const ShowLocation = () => {
           }}
         />
       </Box>
-  
+
       <Box sx={{ mb: 4, p: 2 }}>
         <Grid container spacing={2}>
           {['governorate', 'district', 'city', 'area'].map((field) => (
@@ -220,7 +222,7 @@ const ShowLocation = () => {
           </Grid>
         </Grid>
       </Box>
-  
+
       <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <TableContainer component={Paper} sx={{ width: '100%', borderRadius: 2, boxShadow: theme.shadows[2] }}>
           <Table>
@@ -252,13 +254,13 @@ const ShowLocation = () => {
                 </TableRow>
               ) : (
                 data.map((row) => (
-                  <TableRow key={row.id} sx={{ '&:nth-of-type(odd)': { bgcolor: theme.palette.action.hover } }}>
+                  <TableRow key={row.id}>
                     <TableCell sx={{ textAlign: 'center' }}>{row.governorate}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{row.district}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{row.city}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{row.area}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>
-                      <IconButton onClick={() => handleOpenDialog(row.id)} color="error">
+                      <IconButton onClick={() => handleOpenDialog(row.id)} sx={{ color: 'red' }}>
                         <Delete />
                       </IconButton>
                     </TableCell>
@@ -269,19 +271,19 @@ const ShowLocation = () => {
           </Table>
         </TableContainer>
       </Box>
-  
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{t('show.delete')}</DialogTitle>
         <DialogContent>
           <Typography>{t('show.message')}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>{t('show.close')}</Button>
-          <Button onClick={handleDelete} color="error">{t('show.delete')}</Button>
+          <Button onClick={handleCloseDialog} color="primary">{t('show.close')}</Button>
+          <Button onClick={handleDelete} color="secondary">{t('show.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>
-  );  
+  );
 };
 
 export default ShowLocation;

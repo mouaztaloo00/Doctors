@@ -24,12 +24,12 @@ const ShowTests = () => {
         : `${apiBaseUrl}/api/tests?size=10&page=${page}`;
       const response = await axios.get(endpoint);
 
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setTestData([]); 
         setTotalPages(1);
       } else {
-        setTestData(query ? response.data || [] : response.data.data || []);
-        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+        setTestData(query ? response.data.data || [] : response.data.data.data || []);
+        setTotalPages(query ? 1 : response.data.data.meta ? response.data.data.meta.last_page : 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
