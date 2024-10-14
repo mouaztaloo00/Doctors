@@ -1,17 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Menu, MenuItem, IconButton, Typography, Divider, ListItemIcon, Box } from '@mui/material';
+import {
+  Avatar,
+  Menu,
+  MenuItem,
+  IconButton,
+  Typography,
+  Divider,
+  ListItemIcon,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+} from '@mui/material';
 import { Settings, Logout } from '@mui/icons-material';
 
 const Profile = ({ onLogout }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [iconColor, setIconColor] = useState('primary.main'); 
+  const [iconColor, setIconColor] = useState('primary.main');
   const [profilePicture, setProfilePicture] = useState(null);
-  const [userName, setUserName] = useState(''); 
+  const [userName, setUserName] = useState('');
+  const [openSettings, setOpenSettings] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
   const open = Boolean(anchorEl);
   const { t, i18n } = useTranslation();
 
-  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const direction = 'ltr';
 
   useEffect(() => {
     const picturePath = localStorage.getItem('picture');
@@ -24,11 +41,17 @@ const Profile = ({ onLogout }) => {
     if (role) {
       setUserName(role);
     }
+
+    const language = localStorage.getItem('language');
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    setUserInfo({ language, picturePath, role, token, userId });
   }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    setIconColor('primary.dark'); 
+    setIconColor('primary.dark');
   };
 
   const handleClose = () => {
@@ -36,8 +59,17 @@ const Profile = ({ onLogout }) => {
     setIconColor('primary.main');
   };
 
+  const handleOpenSettings = () => {
+    handleClose();
+    setOpenSettings(true);
+  };
+
+  const handleCloseSettings = () => {
+    setOpenSettings(false);
+  };
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }} anchor={direction === 'rtl' ? 'right' : 'left'}>
+    <Box sx={{ display: 'flex', alignItems: 'center', direction }}>
       <IconButton onClick={handleClick} size="small" edge="end" aria-label="profile" sx={{ p: 0 }}>
         <Avatar 
           sx={{ bgcolor: iconColor, width: 32, height: 32, fontSize: 14 }} 
@@ -49,7 +81,7 @@ const Profile = ({ onLogout }) => {
 
       <Menu
         anchorEl={anchorEl}
-        open={open}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
         PaperProps={{
           elevation: 3,
@@ -59,6 +91,7 @@ const Profile = ({ onLogout }) => {
             borderRadius: 4,
             width: 160,
             padding: 0,
+            display: 'flex',
             flexDirection: 'column',
             filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3))',
             '& .MuiAvatar-root': {
@@ -66,43 +99,64 @@ const Profile = ({ onLogout }) => {
               height: 24,
               ml: -0.5,
               mr: 1,
-            },
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              left: 15,
-              width: 8,
-              height: 8,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
+            }
           }
         }}
         transformOrigin={{ horizontal: 'left', vertical: 'bottom' }}
         anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
       >
         <Box sx={{ px: 1, py: 0.5 }}>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="body2" sx={{ fontWeight: 'bold', textAlign: 'left' }}>
             {userName} 
           </Typography>
         </Box>
         <Divider />
-        <MenuItem sx={{ fontSize: 12 }}>
-          <ListItemIcon >
+        <MenuItem onClick={handleOpenSettings} sx={{ fontSize: 12, textAlign: 'left' }}>
+          <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
           {t('sidebar.Settings')}
         </MenuItem>
-        <MenuItem onClick={onLogout} sx={{ fontSize: 12 }}>
+        <MenuItem onClick={onLogout} sx={{ fontSize: 12, textAlign: 'left' }}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
           {t('sidebar.Logout')}
         </MenuItem>
       </Menu>
+
+      <Dialog open={openSettings} onClose={handleCloseSettings} sx={{ "& .MuiDialog-paper": { borderRadius: "8px", padding: "16px", direction } }}>
+      <DialogTitle 
+  sx={{ 
+    bgcolor: 'primary.main', 
+    color: 'white', 
+    borderRadius: '8px 8px 0 0', 
+    textAlign: i18n.language === 'ar' ? 'right' : 'left' 
+  }}
+>
+  {t('sidebar.Settings')}
+</DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2} sx={{ direction }}>
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar src={profilePicture} alt="Profile Picture" sx={{ width: 56, height: 56, mr: 2 }} />
+                <Typography variant="h6" sx={{ textAlign: 'left' }}>{userName}</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2" sx={{ textAlign: 'left' }}><strong>{t('userId')}:</strong> {userInfo.userId}</Typography>
+              <Typography variant="body2" sx={{ textAlign: 'left' }}><strong>{t('role')}:</strong> {userInfo.role}</Typography>             
+              <Typography variant="body2" sx={{ textAlign: 'left' }}><strong>{t('language')}:</strong> {userInfo.language}</Typography>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSettings} color="primary">
+            {t('close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

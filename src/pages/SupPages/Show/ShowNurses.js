@@ -73,10 +73,15 @@ const ShowNurses = () => {
     }
   }, [apiBaseUrl]);
 
-  // Add fetchData to the dependency array
   useEffect(() => {
     fetchData('', currentPage);
   }, [currentPage, fetchData]);
+
+  // New effect to handle search changes
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page on new search
+    fetchData(searchTerm); // Fetch data whenever searchTerm changes
+  }, [searchTerm, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
@@ -85,13 +90,6 @@ const ShowNurses = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1);
-      fetchData(searchTerm);
-    }
   };
 
   const handleClick = (nurse) => {
@@ -141,7 +139,6 @@ const ShowNurses = () => {
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (

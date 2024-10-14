@@ -14,57 +14,64 @@ const AddTestcategory = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
   const testCategoryUrl = `${apiBaseUrl}/api/register/test-categories`;
   const { t } = useTranslation();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
-
-  const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+  
+  const handleSubmit = async (values, { resetForm, setSubmitting, setErrors }) => {
     if (setSubmitting) {
       setSubmitting(true);
     }
-
+  
     try {
       const response = await axios.post(testCategoryUrl, values);
-
+  
       if (response.status === 201 && response.data.message) {
-        setSnackbarMessage(response.data.message || t('add.success'));
-        setSnackbarSeverity('success');
         resetForm();
+        
+        setSnackbarMessage(response.data.message || t('add.success'));
+        setSnackbarOpen(true);
       } else {
         throw new Error(t('add.incomplete_data'));
       }
     } catch (error) {
       let errorMessage = t('add.error');
-
+  
       if (error.response) {
-        if (error.response.data) {
-          if (typeof error.response.data === 'string') {
-            errorMessage = error.response.data;
-          } else if (error.response.data.message) {
-            errorMessage = error.response.data.message;
+        const { data } = error.response;
+  
+        if (data && data.data) {
+          const validationErrors = data.data;
+          const formErrors = {};
+  
+          for (const key in validationErrors) {
+            if (validationErrors.hasOwnProperty(key)) {
+              formErrors[key] = validationErrors[key][0]; 
+            }
           }
+  
+          setErrors(formErrors);
+  
+          errorMessage = data.message || t('add.error');
+        } else if (typeof data === 'string') {
+          errorMessage = data;
         } else if (error.response.statusText) {
           errorMessage = error.response.statusText;
         }
       } else if (error.request) {
         errorMessage = t('add.no_response');
       }
-
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
-    } finally {
+      } finally {
       if (setSubmitting) {
         setSubmitting(false);
       }
-      setOpenSnackbar(true);
     }
   };
-
+  
   const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
+    setSnackbarOpen(false);
   };
-
+  
   return (
     <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
       <Typography variant="h4" gutterBottom sx={{ p: 3 }}>
@@ -116,25 +123,13 @@ const AddTestcategory = () => {
           </Formik>
         </Box>
       </Box>
-
-      <Snackbar 
-      open={openSnackbar}
-       autoHideDuration={6000}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

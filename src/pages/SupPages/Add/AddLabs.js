@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, TextField, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button , Snackbar, Alert} from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -21,37 +21,63 @@ const AddLabs = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
   const labsUrl = `${apiBaseUrl}/api/register/lab`;
   const { t } = useTranslation();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');  
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
-  const handleSubmit = async (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm, setErrors }) => {
     if (isSubmitting) return;
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const response = await axios.post(labsUrl, values);
-      
-      console.log('Successful response:', response);
-
+  
+  
       if (response.status === 201) {  
         const successMessage = response.data.message || t('add.success');
-        setSnackbarMessage(successMessage);
-        setSnackbarSeverity('success');
         resetForm();
+        setSnackbarMessage(successMessage);  
+        setOpenSnackbar(true);
       }
     } catch (error) {
       let errorMessage = t('add.error');
-      console.log('Error response:', error);
-
+  
       if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data && typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
+        const { data } = error.response;
+  
+        if (data && data.data) {
+          const validationErrors = data.data;
+  
+          const formErrors = {};
+          if (validationErrors.user_name) {
+            formErrors.user_name = validationErrors.user_name[0];
+          }
+          if (validationErrors.phone_number) {
+            formErrors.phone_number = validationErrors.phone_number[0];
+          }
+          if (validationErrors.password) {
+            formErrors.password = validationErrors.password[0];
+          }
+          if (validationErrors.password_confirmation) {
+            formErrors.password_confirmation = validationErrors.password_confirmation[0];
+          }
+          if (validationErrors.lab_name) {
+            formErrors.lab_name = validationErrors.lab_name[0];
+          }
+          if (validationErrors.contact_number) {
+            formErrors.contact_number = validationErrors.contact_number[0];
+          }
+  
+          setErrors(formErrors);
+  
+          errorMessage = data.message || t('add.error');
+        } else if (data && typeof data === 'string') {
+          errorMessage = data;
         } else if (error.response.statusText) {
           errorMessage = error.response.statusText;
         }
@@ -60,17 +86,10 @@ const AddLabs = () => {
       } else {
         errorMessage = t('add.error');
       }
-
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
+  
     } finally {
-      setOpenSnackbar(true);
       setIsSubmitting(false);
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   return (
@@ -204,24 +223,13 @@ const AddLabs = () => {
           </Formik>
         </Box>
       </Box>
-
-      <Snackbar open={openSnackbar}
-       autoHideDuration={6000} 
-       onClose={handleCloseSnackbar}
-       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbarSeverity} 
-          sx={{ width: '100%'}}
-        >
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

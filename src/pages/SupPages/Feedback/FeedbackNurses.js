@@ -216,7 +216,7 @@ const FeedbackNurses = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedNurse?.name}
+            {t('show.details')}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir() }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>

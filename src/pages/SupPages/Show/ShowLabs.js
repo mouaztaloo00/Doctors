@@ -48,6 +48,7 @@ const ShowLabs = () => {
   
   const getValueOrPlaceholder = (value, placeholder) => (value ? value : placeholder);
 
+ 
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
@@ -62,7 +63,6 @@ const ShowLabs = () => {
       }
     };
     
-
     fetchLabs(currentPage);
   }, [currentPage]);
 
@@ -89,20 +89,16 @@ const ShowLabs = () => {
     }
   };
 
+  useEffect(() => {
+    fetchData(searchQuery, currentPage);
+  }, [searchQuery, currentPage]);
+
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    fetchData(searchQuery, page);
   };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1);
-      fetchData(searchQuery);
-    }
   };
 
   const handleConfirmDelete = (lab) => {
@@ -143,8 +139,6 @@ const ShowLabs = () => {
       setLoading(false);
     }
   };
-  
-  
 
   const handleClose = () => {
     setOpen(false);
@@ -170,7 +164,6 @@ const ShowLabs = () => {
           placeholder={t('search.placeholder')}
           value={searchQuery}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (

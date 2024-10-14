@@ -16,6 +16,7 @@ const ShowTests = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { t, i18n } = useTranslation();
 
+  
   const fetchData = useCallback(async (query = '', page = 1) => {
     setLoading(true);
     try {
@@ -40,25 +41,24 @@ const ShowTests = () => {
   }, [apiBaseUrl]);
 
   useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData(searchQuery, 1); 
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, fetchData]);
+
+  useEffect(() => {
     fetchData('', currentPage);
   }, [currentPage, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    fetchData(searchQuery, page);
   };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1); 
-      fetchData(searchQuery);
-    }
-  };
-
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
@@ -73,7 +73,6 @@ const ShowTests = () => {
           placeholder={t('search.placeholder')}
           value={searchQuery}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -86,7 +85,6 @@ const ShowTests = () => {
           }}
         />
       </Box>
-
       <Box
         sx={{
           display: 'grid',

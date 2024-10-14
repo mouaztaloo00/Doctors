@@ -77,6 +77,16 @@ const ShowDoctors = () => {
     fetchData('', currentPage);
   }, [currentPage]);
 
+  // استخدام useEffect لمراقبة التغيير في searchTerm
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setCurrentPage(1); // إعادة ضبط الصفحة إلى الأولى عند البحث
+      fetchData(searchTerm);
+    }, 300); // انتظار 300 ميلي ثانية قبل استدعاء API لمنع الاستدعاء المتكرر
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
     fetchData(searchTerm, page);
@@ -84,13 +94,6 @@ const ShowDoctors = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1);
-      fetchData(searchTerm);
-    }
   };
 
   const fetchDoctorDetails = async (id) => {
@@ -151,7 +154,6 @@ const ShowDoctors = () => {
               placeholder={t('search.placeholder')}
               value={searchTerm}
               onChange={handleSearchChange}
-              onKeyPress={handleKeyPress}
               sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
               InputProps={{
                 startAdornment: (
@@ -261,7 +263,7 @@ const ShowDoctors = () => {
                 {selectedDoctor.bio || 'No biography available.'}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <br />
+                Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <strong>S.P</strong><br />
                 Date of Birth: {new Date(selectedDoctor.dateOfBirth).toLocaleDateString() || 'N/A'}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
