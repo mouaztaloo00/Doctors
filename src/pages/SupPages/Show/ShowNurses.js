@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -27,7 +27,7 @@ import axios from 'axios';
 const ShowNurses = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const { t, i18n } = useTranslation();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedNurse, setSelectedNurse] = useState(null);
@@ -38,34 +38,32 @@ const ShowNurses = () => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [selectedNurseForDeletion, setSelectedNurseForDeletion] = useState(null);
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   const fetchNurseDetails = async (id) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/nurses/id/${id}`);
-      setSelectedNurse(response.data);
+      setSelectedNurse(response.data.data);
     } catch (error) {
       console.error('Error fetching nurse details:', error);
     }
   };
 
-  const fetchData = async (query = '', page = 1) => {
+  const fetchData = useCallback(async (query = '', page = 1) => {
     setLoading(true);
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/nurses/search?s=${query}`
-        : `${apiBaseUrl}/api/nurses?size=10&page=${page}`;
-      
+        : `${apiBaseUrl}/api/nurses?size=8&page=${page}`;
+
       const response = await axios.get(endpoint);
-      
-      if (response.data.message === "") {
-        setNurses([]); 
+
+      if (response.data.data === "") {
+        setNurses([]);
         setTotalPages(1);
       } else {
-        const data = query ? response.data || [] : response.data.data || [];
+        const data = query ? response.data.data || [] : response.data.data.data || [];
         setNurses(data);
-        setTotalPages(query ? 1 : response.data.meta?.last_page || 1);
+        setTotalPages(query ? 1 : response.data.data.meta?.last_page || 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -73,11 +71,17 @@ const ShowNurses = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     fetchData('', currentPage);
-  }, [currentPage]);
+  }, [currentPage, fetchData]);
+
+  // New effect to handle search changes
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page on new search
+    fetchData(searchTerm); // Fetch data whenever searchTerm changes
+  }, [searchTerm, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
@@ -86,13 +90,6 @@ const ShowNurses = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1); 
-      fetchData(searchTerm);
-    }
   };
 
   const handleClick = (nurse) => {
@@ -108,7 +105,6 @@ const ShowNurses = () => {
   const handleConfirmDelete = () => {
     setSelectedNurseForDeletion(selectedNurse?.id);
     setOpenConfirmDialog(true);
-
   };
 
   const handleCloseConfirmDialog = () => {
@@ -143,7 +139,6 @@ const ShowNurses = () => {
           placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress}
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -199,11 +194,11 @@ const ShowNurses = () => {
             </Grid>
           ))
         )}
-        
+
         {nurses.length === 0 && !loading && (
           <Box sx={{ textAlign: 'center', width: '100%', mt: 5 }}>
             <Typography variant="h6" color="textSecondary">
-              {t('No Results')}
+              {t('No results')}
             </Typography>
           </Box>
         )}

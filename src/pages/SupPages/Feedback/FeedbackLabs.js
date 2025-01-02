@@ -45,16 +45,14 @@ const FeedbackLabs = () => {
   const reviewsPageSize = 2; 
   const [reviewsPage, setReviewsPage] = useState(1); 
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   useEffect(() => {
     const fetchLabs = async (page = 1) => {
       setLoading(true);
       try {
         const response = await axios.get(`${initialLabsUrl}&?page=${page}`);
-        setLabs(response.data.data || []);
-        setTotalPages(response.data.meta.last_page || 1);
+        setLabs(response.data.data.data || []);
+        setTotalPages(response.data.data.meta.last_page || 1);
       } catch (error) {
         console.error('Error fetching labs:', error);
       } finally {
@@ -68,14 +66,14 @@ const FeedbackLabs = () => {
   const fetchLabReviews = async (labId) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/feedbacks/labs/id/${labId}/?size=100`);
-      setSelectedLabReviews(response.data.data || []);
+      setSelectedLabReviews(response.data.data.data || []);
     } catch (error) {
       console.error('Error fetching lab reviews:', error);
     }
   };
 
   const filteredLabs = labs.filter((lab) =>
-    lab.name.toLowerCase().includes(searchTerm.toLowerCase())
+    lab.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearchChange = (event) => {
@@ -218,7 +216,7 @@ const FeedbackLabs = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedLab?.name}
+          {t('show.details')}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir() }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>

@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, TextField, IconButton, InputAdornment, CardContent, CircularProgress, Pagination } from '@mui/material';
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowTests = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
@@ -17,7 +16,8 @@ const ShowTests = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { t, i18n } = useTranslation();
 
-  const fetchData = async (query = '', page = 1) => {
+  
+  const fetchData = useCallback(async (query = '', page = 1) => {
     setLoading(true);
     try {
       const endpoint = query
@@ -25,12 +25,12 @@ const ShowTests = () => {
         : `${apiBaseUrl}/api/tests?size=10&page=${page}`;
       const response = await axios.get(endpoint);
 
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setTestData([]); 
         setTotalPages(1);
       } else {
-        setTestData(query ? response.data || [] : response.data.data || []);
-        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+        setTestData(query ? response.data.data || [] : response.data.data.data || []);
+        setTotalPages(query ? 1 : response.data.data.meta ? response.data.data.meta.last_page : 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -38,28 +38,27 @@ const ShowTests = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBaseUrl]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData(searchQuery, 1); 
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, fetchData]);
 
   useEffect(() => {
     fetchData('', currentPage);
-  }, [currentPage, apiBaseUrl]);
+  }, [currentPage, fetchData]);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    fetchData(searchQuery, page);
   };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1); 
-      fetchData(searchQuery);
-    }
-  };
-
   return (
     <Box sx={{ direction: i18n.dir(), p: 3 }}>
       <Typography variant="h4" gutterBottom align={i18n.dir() === 'rtl' ? 'right' : 'left'} sx={{ p: 3 }}>
@@ -74,7 +73,6 @@ const ShowTests = () => {
           placeholder={t('search.placeholder')}
           value={searchQuery}
           onChange={handleSearchChange}
-          onKeyPress={handleKeyPress} // إضافة مستمع الحدث لزر الإدخال
           sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
           InputProps={{
             startAdornment: (
@@ -87,7 +85,6 @@ const ShowTests = () => {
           }}
         />
       </Box>
-
       <Box
         sx={{
           display: 'grid',
@@ -134,11 +131,11 @@ const ShowTests = () => {
           ))
         ) : searchQuery ? (
           <Typography variant="body1" color="text.primary">
-            {t('No Results')}
+            {t('No results')}
           </Typography>
         ) : (
           <Typography variant="body1" color="text.primary">
-           {t('No Results')}
+           {t('No results')}
           </Typography>
         )}
       </Box>

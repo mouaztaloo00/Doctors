@@ -42,8 +42,6 @@ const FeedbackDoctors = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   const pageSize = 8;
   const reviewsPageSize = 2;
@@ -53,8 +51,8 @@ const FeedbackDoctors = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${initialDoctorsUrl}&page=${page}`);
-        setDoctors(response.data.data || []);
-        setTotalPages(response.data.meta.last_page || 1);
+        setDoctors(response.data.data.data || []);
+        setTotalPages(response.data.data.meta.last_page || 1);
       } catch (error) {
         console.error('Error fetching doctors:', error);
       } finally {
@@ -68,14 +66,14 @@ const FeedbackDoctors = () => {
   const fetchDoctorReviews = async (doctorId) => {
     try {
       const response = await axios.get(`${apiBaseUrl}/api/feedbacks/doctors/id/${doctorId}/?size=8`);
-      setSelectedDoctorReviews(response.data.data || []);
+      setSelectedDoctorReviews(response.data.data.data || []);
     } catch (error) {
       console.error('Error fetching doctor reviews:', error);
     }
   };
 
   const filteredDoctors = doctors.filter((doctor) =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    doctor.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearchChange = (event) => {
@@ -106,9 +104,8 @@ const FeedbackDoctors = () => {
   };
 
   const filteredTotalPages = Math.ceil(filteredDoctors.length / pageSize);
-
   const reviewsTotalPages = Math.ceil(selectedDoctorReviews.length / reviewsPageSize);
-
+  
   const reviewsToDisplay = selectedDoctorReviews.slice(
     (reviewsPage - 1) * reviewsPageSize,
     reviewsPage * reviewsPageSize
@@ -222,7 +219,7 @@ const FeedbackDoctors = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedDoctor?.name}
+          {t('show.details')}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir() }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 2 }}>

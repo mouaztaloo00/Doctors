@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Snackbar, TextField, Button, Alert, Container, Typography, Box, IconButton, InputAdornment } from '@mui/material';
+import { Snackbar, TextField, Button, Alert, Container, Typography, Box, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 import { messaging, getToken } from '../firebase';
+
+const validationSchema = Yup.object({
+  phone_number: Yup.string().required('Phone number is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 const Login = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -16,6 +22,7 @@ const Login = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,30 +41,41 @@ const Login = () => {
   }, []);
 
   const handleLogin = async (event) => {
-    event.preventDefault(); 
-
-    if (isSubmitting) return; 
-    setIsSubmitting(true); 
-
+    event.preventDefault();
+  
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+  
     if (!fcmToken) {
       setSnackbarMessage('FCM token is not available. Please try again later.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
       return;
     }
-
+  
     try {
-      const response = await axios.post(`${apiBaseUrl}/api/login`, {
-        phone_number: phoneNumber,
-        password: password,
-        fcm_token: fcmToken,
-      });
-
-      const { message, data } = response.data;
-
-      if (response.status === 200) {
-        localStorage.setItem('token', data);
+      const response = await axios.post(
+        `${apiBaseUrl}/api/login`,
+        {
+          phone_number: phoneNumber,
+          password: password,
+          fcm_token: fcmToken,
+        },
+        {
+          headers: {
+            Authorization: null,
+          },
+        }
+      );
+  
+      const { success, message, data } = response.data;
+  
+      if (success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role); 
+        localStorage.setItem('userId', data.id); 
+        localStorage.setItem('picture', data.picture);  
         setSnackbarMessage(`Login successful: ${message}`);
         setSnackbarSeverity('success');
         navigate('/');
@@ -69,13 +87,14 @@ const Login = () => {
       setSnackbarSeverity('error');
     } finally {
       setSnackbarOpen(true);
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
+  
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !isSubmitting) {
-      handleLogin(event); 
+      handleLogin(event);
     }
   };
 
@@ -104,14 +123,14 @@ const Login = () => {
             label="Phone Number"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            onKeyDown={handleKeyDown} 
+            onKeyDown={handleKeyDown}
           />
           <TextField
             margin="normal"
             required
             fullWidth
             label="Password"
-            type={showPassword ? 'text' : 'password'}  
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -138,6 +157,11 @@ const Login = () => {
           >
             Login
           </Button>
+          {isSubmitting && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <CircularProgress />
+            </Box>
+          )}
         </Box>
       </Box>
       <Snackbar

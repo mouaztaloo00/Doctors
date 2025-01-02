@@ -4,8 +4,7 @@ import { Box, Typography, Card, CardContent, Grid, CircularProgress } from '@mui
 import ShowMiniNavbar from '../../../components/minBar/ShowMiniNavbar';
 import axios from 'axios';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowTestCategory = () => {
   const { t, i18n } = useTranslation();
@@ -19,7 +18,7 @@ const ShowTestCategory = () => {
       setLoading(true);
       try {
         const response = await axios.get(url);
-        setTestData(response.data);
+        setTestData(response.data.data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -40,14 +39,18 @@ const ShowTestCategory = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
+      ) : error ? ( 
+        <Typography variant="h6" color="error" align="center" sx={{ mt: 4 }}>
+          {t('Error occurred')}: {error}
+        </Typography>
       ) : (
         <Grid container spacing={3} justifyContent="center">
-          {testData.length === 0 ? ( 
+          {testData.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-              {t('search.noResults')}
+              {t('No results')}
             </Typography>
           ) : (
-            <Grid container spacing={2} mt={5}>
+            <Grid container spacing={3} mt={5} maxWidth={'90%'}>
               {testData.map((test, index) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
                   <Card sx={{

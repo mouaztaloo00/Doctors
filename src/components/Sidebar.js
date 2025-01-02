@@ -1,24 +1,32 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography } from '@mui/material';
-import { Brightness4, Brightness7, Language, Logout } from '@mui/icons-material';
+import {
+  Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Divider, Box, Typography, Tooltip
+} from '@mui/material';
+import { Brightness4, Brightness7, Language } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FeedbackIcon from '@mui/icons-material/Feedback';
-import axios from 'axios'; 
+import axios from 'axios';
+import BloodtypeOutlinedIcon from '@mui/icons-material/BloodtypeOutlined';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import Profile from './Profile';
+
 
 const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
+
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
+
+  const role = localStorage.getItem('role');
+  
+  let userName = 'User';
 
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') || 'en'; 
+    const savedLanguage = localStorage.getItem('language') || 'en';
     i18n.changeLanguage(savedLanguage);
   }, [i18n]);
 
@@ -26,19 +34,26 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('token'); 
-  
+      const token = localStorage.getItem('token');
+    
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       };
   
-      await axios.post(`${apiBaseUrl}/api/logout`, {}, config);
-      localStorage.removeItem('token');
-      navigate('/login');
+      const response = await axios.post(`${apiBaseUrl}/api/logout`, {}, config);
+      
+      if (response.data.success) {
+        console.log(response.data.message); 
+        localStorage.clear(); 
+        navigate('/login');
+        window.location.reload();
+      } else {
+        console.error('Logout failed:', response.data.message); 
+      }
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed:', error); 
     }
   };
   
@@ -47,12 +62,34 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
     try {
       await axios.post(`${apiBaseUrl}/api/profile/language`, { language: newLanguage });
       i18n.changeLanguage(newLanguage);
-      localStorage.setItem('language', newLanguage); 
+      localStorage.setItem('language', newLanguage);
       window.location.reload();
     } catch (error) {
       console.error('Error changing language:', error);
     }
   };
+
+  const getPaths = () => {
+    if (role === 'Admin') {
+      return {
+        dashboard: '/',
+        add: '/add/add_doctors',
+        show: '/show/show_doctors',
+        feedback: '/feedback/feedback_doctors',
+      };
+    } else if (role === 'doctor' || role === 'LabManager') {
+      return {
+        dashboard: '/',
+        add: '/',
+        show: '/',
+        feedback: '/',
+      };
+    } else {
+      return {};
+    }
+  };
+
+  const paths = getPaths();
 
   return (
     <Drawer
@@ -60,76 +97,95 @@ const Sidebar = ({ open, toggleDarkMode, darkMode }) => {
       anchor={direction === 'rtl' ? 'right' : 'left'}
       open={open}
       sx={{
-        width: 240,
+        width: 280,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width: 240,
+          width: 280,
           boxSizing: 'border-box',
-          background: darkMode ? '#333' : '#ffff',
-          color: darkMode ? '#fff' : '#000',
+          background: darkMode ? '#333' : '#FFFFFF',
+          color: darkMode ? '#fff' : '#2C3E50', 
           display: 'flex',
-          justifyItems: 'center',
           flexDirection: 'column',
+          padding: '20px 10px',
         },
       }}
     >
-      <List sx={{ flex: 1, display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-        <ListItem>
-          <ListItemText 
-            primary={
-              <Typography variant="h6" sx={{ width: '100%', textAlign: 'center' }}>
-                {t('sidebar.title')}
-              </Typography>
-            } 
-          />
-        </ListItem>
-        <Divider />
-        <ListItem button component={Link} to="/">
-          <ListItemIcon sx={{ minWidth: 35 }}> 
+
+      <Box sx={{ textAlign: 'center', mb: 2 }}>
+        <BloodtypeOutlinedIcon color={darkMode ? 'secondary' : 'primary'} sx={{ fontSize: 70 }} />
+        <Typography variant="h6" sx={{ color: darkMode ? '#fff' : '#2C3E50' }}>
+          {t('sidebar.logo')}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ mb: 2 }} />
+
+      <List>
+        <ListItem button component={Link} to={paths.dashboard} sx={{ mb: 1, borderRadius: '10px' }}>
+          <ListItemIcon sx={{ minWidth: 40 }}>
             <HomeIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.dashboard')} sx={{ textAlign: 'center' }} />
+          <ListItemText primary={t('sidebar.dashboard')} />
         </ListItem>
-        <ListItem button component={Link} to="/add/add_doctors">
-          <ListItemIcon sx={{ minWidth: 35 }}> 
-            <AddCircleIcon color={darkMode ? 'secondary' : 'primary'} />
+
+        <ListItem button 
+          component={Link}
+          to={paths.add}
+          sx={{ mb: 1, borderRadius: '10px' }}>
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <AddBoxIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.add')} sx={{ textAlign: 'center' }} />
+          <ListItemText primary={t('sidebar.add')} />
         </ListItem>
-        <ListItem button component={Link} to="/show/show_doctors">
-          <ListItemIcon sx={{ minWidth: 35 }}> 
+
+        <ListItem button 
+          component={Link} 
+          to={paths.show}
+          sx={{ mb: 1, borderRadius: '10px' }}>
+          <ListItemIcon sx={{ minWidth: 40 }}>
             <VisibilityIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.show')} sx={{ textAlign: 'center' }} />
+          <ListItemText primary={t('sidebar.show')} />
         </ListItem>
-        <ListItem button component={Link} to="/feedback/feedback_doctors">
-          <ListItemIcon sx={{ minWidth: 35 }}> 
+
+        <ListItem button 
+          component={Link} 
+          to={paths.feedback}
+          sx={{ mb: 1, borderRadius: '10px' }}>
+          <ListItemIcon sx={{ minWidth: 40 }}>
             <FeedbackIcon color={darkMode ? 'secondary' : 'primary'} />
           </ListItemIcon>
-          <ListItemText primary={t('sidebar.feedback')} sx={{ textAlign: 'center' }} />
+          <ListItemText primary={t('sidebar.feedback')} />
         </ListItem>
-      </List>   
-      <Box 
-        sx={{ 
-          position: 'absolute', 
-          bottom: 20, 
-          left: '50%', 
-          transform: 'translateX(-50%)', 
-          display: 'flex', 
-          gap: 2, 
-          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
-          textAlign: direction === 'rtl' ? 'right' : 'left', 
+      </List>
+
+      <Divider sx={{ mt: 'auto', mb: 2 }} />
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 2,
+          textAlign: 'center',
         }}
       >
-        <IconButton onClick={toggleDarkMode} aria-label="toggle dark mode"  title="mode">
-          {darkMode ? <Brightness7 /> : <Brightness4 />}
-        </IconButton>
-        <IconButton onClick={handleLanguageChange} aria-label="change language" title="change language">
-          <Language />
-        </IconButton>
-        <IconButton onClick={handleLogout} aria-label="log out"  title="Logout">
-          <Logout />
-        </IconButton>
+        <Tooltip>
+          <IconButton>
+            <Profile userName={userName} onLogout={handleLogout} />
+          </IconButton>
+        </Tooltip> 
+
+        <Tooltip title={t('mode')}>
+          <IconButton onClick={toggleDarkMode}>
+            {darkMode ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title={t('language')}>
+          <IconButton onClick={handleLanguageChange}>
+            <Language />
+          </IconButton>
+        </Tooltip> 
       </Box>
     </Drawer>
   );

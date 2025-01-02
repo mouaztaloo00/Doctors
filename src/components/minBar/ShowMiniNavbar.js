@@ -3,8 +3,10 @@ import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+
 const ShowMiniNavbar = () => {
   const { t } = useTranslation();
+  const role = localStorage.getItem('role');
 
   return (
     <AppBar position="static" color="primary" sx={{ maxWidth: '1200px', margin: 'auto', borderRadius: 2 }}>
@@ -29,6 +31,8 @@ const ShowMiniNavbar = () => {
         }}
       >
         <Box sx={{ display: 'flex', gap: 9, justifyContent: 'center', flexGrow: 1 }}>
+        {role === 'Admin' && (
+            <>
           <Button 
             component={Link} 
             to="/show/show_doctors" 
@@ -85,7 +89,9 @@ const ShowMiniNavbar = () => {
           >
             {t('navbar.nurses')}
           </Button>
-        </Box>
+          </>
+        )}
+        </Box> 
       </Toolbar>
     </AppBar>
   );

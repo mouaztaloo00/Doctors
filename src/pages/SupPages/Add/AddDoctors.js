@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, TextField, Button, Snackbar, Alert, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
+import { Box, Typography, TextField, Button, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -24,19 +24,19 @@ const AddDoctors = () => {
   
   const { t } = useTranslation();
   const [specializations, setSpecializations] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [isSubmitting, setIsSubmitting] = useState(false); 
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {
         const response = await axios.get(specializationsUrl);
-        setSpecializations(response.data);
+        setSpecializations(response.data.data);  
       } catch (error) {
         console.error('Error fetching specializations:', error);
       }
@@ -45,31 +45,55 @@ const AddDoctors = () => {
     fetchSpecializations();
   }, []);
 
-  const handleSubmit = async (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm, setErrors }) => {
     if (isSubmitting) return;
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const response = await axios.post(doctorsUrl, values);
-      
-      console.log('Successful response:', response);
-
+  
+  
       if (response.status === 201) {  
         const successMessage = response.data.message || t('add.success');
-        setSnackbarMessage(successMessage);
-        setSnackbarSeverity('success');
         resetForm();
+        setSnackbarMessage(successMessage);  
+        setOpenSnackbar(true);
       }
     } catch (error) {
       let errorMessage = t('add.error');
-      console.log('Error response:', error);
-
+  
       if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data && typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
+        const { data } = error.response;
+  
+        if (data && data.data) {
+          const validationErrors = data.data;
+  
+          const errorFields = {};
+          if (validationErrors.name) {
+            errorFields.name = validationErrors.name[0];
+          }
+          if (validationErrors.phone_number) {
+            errorFields.phone_number = validationErrors.phone_number[0];
+          }
+          if (validationErrors.password) {
+            errorFields.password = validationErrors.password[0];
+          }
+          if (validationErrors.password_confirmation) {
+            errorFields.password_confirmation = validationErrors.password_confirmation[0];
+          }
+          if (validationErrors.consultation_fee) {
+            errorFields.consultation_fee = validationErrors.consultation_fee[0];
+          }
+          if (validationErrors.specialization) {
+            errorFields.specialization = validationErrors.specialization[0];
+          }
+  
+          setErrors(errorFields);
+  
+          errorMessage = data.message || t('add.error');
+        } else if (data && typeof data === 'string') {
+          errorMessage = data;
         } else if (error.response.statusText) {
           errorMessage = error.response.statusText;
         }
@@ -79,18 +103,10 @@ const AddDoctors = () => {
         errorMessage = t('add.error');
       }
 
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
-    } finally {
-      setOpenSnackbar(true);
+      } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
   return (
     <Box
       sx={{
@@ -204,33 +220,30 @@ const AddDoctors = () => {
                   error={touched.password_confirmation && Boolean(errors.password_confirmation)}
                   helperText={touched.password_confirmation && errors.password_confirmation}
                 />
-                <Button type="submit" variant="contained" color="primary" style={{ width: '200px' }} disabled={isSubmitting}>
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Button type="submit" variant="contained" color="primary"
+                 style={{  
+                 width: '50%',
+                 maxWidth: '400px',
+                 padding: '14px',
+                 fontSize: '14px'
+                  }} 
+                  disabled={isSubmitting}>
                   {t('add.submit')}
                 </Button>
+                </Box>
               </Form>
             )}
           </Formik>
         </Box>
       </Box>
-
-      <Snackbar 
-      open={openSnackbar} 
-      autoHideDuration={6000}
-       onClose={handleCloseSnackbar}
-       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbarSeverity} 
-          sx={{ width: '100%'}}
-        >
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

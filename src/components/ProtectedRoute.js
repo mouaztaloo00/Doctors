@@ -8,7 +8,13 @@ const ProtectedRoute = ({ element }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return element;
+  try {
+    return element;
+  } catch (error) {
+    console.error('Invalid token:', error);
+    localStorage.removeItem('token');
+    return <Navigate to="/login" replace />;
+  }
 };
 
 export default ProtectedRoute;

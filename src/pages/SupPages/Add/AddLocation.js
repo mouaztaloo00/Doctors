@@ -23,18 +23,17 @@ const AddLocation = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
   const locationUrl = `${apiBaseUrl}/api/register/location`;
   const { t } = useTranslation();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);  
+  const [snackbarMessage, setSnackbarMessage] = useState(''); 
 
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
-  const handleSubmit = async (values, { resetForm }) => {
-    if (isSubmitting) {
-      return;
-    }
+  const handleSubmit = async (values, { resetForm, setErrors }) => {
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
 
@@ -42,41 +41,65 @@ const AddLocation = () => {
       const response = await axios.post(locationUrl, values);
 
       if (response.status === 201 && response.data.message) {
-        setSnackbarMessage(response.data.message || t('add.success'));
-        setSnackbarSeverity('success');
         resetForm();
+        setSnackbarMessage(response.data.message || t('add.success'));  
+        setOpenSnackbar(true);
       } else {
         throw new Error(t('add.incomplete_data'));
       }
     } catch (error) {
-
       let errorMessage = t('add.error');
 
       if (error.response) {
+        const { data } = error.response;
 
-        if (error.response.data) {
-          if (typeof error.response.data === 'string') {
-            errorMessage = error.response.data;
-          } else if (error.response.data.message) {
-            errorMessage = error.response.data.message;
+        if (data && data.data) {
+          const validationErrors = data.data;
+          const formErrors = {};
+          if (validationErrors.governorate_en) {
+            formErrors.governorate_en = validationErrors.governorate_en[0];
           }
+          if (validationErrors.district_en) {
+            formErrors.district_en = validationErrors.district_en[0];
+          }
+          if (validationErrors.city_en) {
+            formErrors.city_en = validationErrors.city_en[0];
+          }
+          if (validationErrors.area_en) {
+            formErrors.area_en = validationErrors.area_en[0];
+          }
+          if (validationErrors.latitude_y) {
+            formErrors.latitude_y = validationErrors.latitude_y[0];
+          }
+          if (validationErrors.longitude_x) {
+            formErrors.longitude_x = validationErrors.longitude_x[0];
+          }
+          if (validationErrors.governorate_ar) {
+            formErrors.governorate_ar = validationErrors.governorate_ar[0];
+          }
+          if (validationErrors.district_ar) {
+            formErrors.district_ar = validationErrors.district_ar[0];
+          }
+          if (validationErrors.city_ar) {
+            formErrors.city_ar = validationErrors.city_ar[0];
+          }
+          if (validationErrors.area_ar) {
+            formErrors.area_ar = validationErrors.area_ar[0];
+          }
+
+          setErrors(formErrors);
+          errorMessage = data.message || t('add.error');
+        } else if (data && typeof data === 'string') {
+          errorMessage = data;
         } else if (error.response.statusText) {
           errorMessage = error.response.statusText;
         }
       } else if (error.request) {
         errorMessage = t('add.no_response');
       }
-
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
     } finally {
-      setOpenSnackbar(true);
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   return (
@@ -245,7 +268,12 @@ const AddLocation = () => {
                   </Box>
                 </Box>
                 <Box sx={{ mt: 4, textAlign: 'center' }}>
-                  <Button type="submit" variant="contained" color="primary" style={{ width: '200px' }} disabled={isSubmitting}>
+                  <Button type="submit" variant="contained" color="primary" 
+                  style={{  
+                      width: '50%',
+                      maxWidth: '400px',
+                      padding: '14px',
+                      fontSize: '14px'}} disabled={isSubmitting}>
                     {t('add.submit')}
                   </Button>
                 </Box>
@@ -254,25 +282,13 @@ const AddLocation = () => {
           </Formik>
         </Box>
       </Box>
-
-      <Snackbar 
-      open={openSnackbar}
-       autoHideDuration={6000}
+         <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

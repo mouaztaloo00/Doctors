@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, TextField, Button, Snackbar, Alert, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
+import { Box, Typography, TextField, Button, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -19,19 +19,15 @@ const AddTests = () => {
 
   const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const token = `Bearer ${localStorage.getItem('token')}`;
-    axios.defaults.headers.common['Authorization'] = token;
+  const [snackbarOpen, setSnackbarOpen] = useState(false); 
+  const [snackbarMessage, setSnackbarMessage] = useState(''); 
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(categoriesUrl);
-        setCategories(response.data);
+        setCategories(response.data.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -40,7 +36,7 @@ const AddTests = () => {
     fetchCategories();
   }, []);
 
-  const handleSubmit = async (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm, setErrors }) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -50,36 +46,48 @@ const AddTests = () => {
         test_name: values.test_name,
         description: values.description,
       });
+
       if (response.status === 201) {
         const successMessage = response.data.message || t('add.success');
-        setSnackbarMessage(successMessage);
-        setSnackbarSeverity('success');
         resetForm();
+
+        setSnackbarMessage(successMessage);
+        setSnackbarOpen(true);
       }
     } catch (error) {
       let errorMessage = t('add.error');
+
       if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data && typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
+        const { data } = error.response;
+
+        if (data && data.data) {
+          const validationErrors = data.data;
+          const formErrors = {};
+
+          for (const key in validationErrors) {
+            if (validationErrors.hasOwnProperty(key)) {
+              formErrors[key] = validationErrors[key][0];
+            }
+          }
+
+          setErrors(formErrors);
+
+          errorMessage = data.message || t('add.error');
+        } else if (typeof data === 'string') {
+          errorMessage = data;
         } else if (error.response.statusText) {
           errorMessage = error.response.statusText;
         }
       } else if (error.request) {
         errorMessage = t('add.no_response');
       }
-
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
     } finally {
-      setOpenSnackbar(true);
       setIsSubmitting(false);
     }
   };
 
   const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
+    setSnackbarOpen(false);
   };
 
   return (
@@ -135,28 +143,31 @@ const AddTests = () => {
                   error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
                 />
-                <Button type="submit" variant="contained" color="primary" style={{ width: '200px' }} disabled={isSubmitting}>
-                  {t('add.submit')}
-                </Button>
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                  <Button type="submit" variant="contained" color="primary"
+                    style={{
+                      width: '50%',
+                      maxWidth: '400px',
+                      padding: '14px',
+                      fontSize: '14px'
+                    }}
+                    disabled={isSubmitting}>
+                    {t('add.submit')}
+                  </Button>
+                </Box>
               </Form>
             )}
           </Formik>
         </Box>
       </Box>
-      <Snackbar
-       open={openSnackbar} 
-       autoHideDuration={6000} 
-       onClose={handleCloseSnackbar}
-       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
 
-       sx={{
-        position: 'fixed',
-        top: '80%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -15,15 +15,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 
-const token = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Authorization'] = token;
+
 
 const ShowPaymentMethod = () => {
   const apiBaseUrl = `${process.env.REACT_APP_API_BASE_URL}`;
   const paymentMethodsUrl = `${apiBaseUrl}/api/payment-methods`;
 
   const { t, i18n } = useTranslation();
-  const isRtl = i18n.dir() === 'rtl';
 
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +31,7 @@ const ShowPaymentMethod = () => {
       setLoading(true);
       try {
         const response = await axios.get(paymentMethodsUrl);
-        setPaymentMethods(response.data);
+        setPaymentMethods(response.data.data);
       } catch (error) {
         console.error('Error fetching payment methods:', error);
       } finally {
@@ -60,14 +58,14 @@ const ShowPaymentMethod = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3} justifyContent="center">
+          <Grid container spacing={3}  justifyContent="center">
             {paymentMethods.length === 0 ? (
               <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-                {t('search.noResults')}
+                {t('No results')}
               </Typography>
             ) : (
               paymentMethods.map((method) => (
-                <Grid item xs={12} sm={6} md={4} key={method.id}>
+                <Grid item xs={12} sm={6} md={5} key={method.id}>
                   <Card
                     sx={{
                       position: 'relative',

@@ -48,23 +48,21 @@ const ShowDoctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const token = `Bearer ${localStorage.getItem('token')}`;
-  axios.defaults.headers.common['Authorization'] = token;
 
   const fetchData = async (query = '', page = 1) => {
     setLoading(true);
     try {
       const endpoint = query
         ? `${apiBaseUrl}/api/doctors/search?s=${query}`
-        : `${apiBaseUrl}/api/doctors?size=6&page=${page}`;
+        : `${apiBaseUrl}/api/doctors?size=9&page=${page}`;
 
       const response = await axios.get(endpoint);
-      if (response.data.message === "") {
+      if (response.data.data === "") {
         setDoctors([]); 
         setTotalPages(1);
       } else {
-        setDoctors(query ? response.data || [] : response.data.data || []);
-        setTotalPages(query ? 1 : response.data.meta ? response.data.meta.last_page : 1);
+        setDoctors(query ? response.data.data || [] : response.data.data.data || []);
+        setTotalPages(query ? 1 : response.data.data.meta ? response.data.data.meta.last_page : 1);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -79,6 +77,16 @@ const ShowDoctors = () => {
     fetchData('', currentPage);
   }, [currentPage]);
 
+  // استخدام useEffect لمراقبة التغيير في searchTerm
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setCurrentPage(1); // إعادة ضبط الصفحة إلى الأولى عند البحث
+      fetchData(searchTerm);
+    }, 300); // انتظار 300 ميلي ثانية قبل استدعاء API لمنع الاستدعاء المتكرر
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
     fetchData(searchTerm, page);
@@ -88,19 +96,12 @@ const ShowDoctors = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      setCurrentPage(1);
-      fetchData(searchTerm);
-    }
-  };
-
   const fetchDoctorDetails = async (id) => {
     if (!id) return; 
     try {
       const response = await axios.get(`${doctorsUrl}/id/${id}`);
       if (response.data) {
-        setSelectedDoctor(response.data);
+        setSelectedDoctor(response.data.data);
         setOpenDialog(true);
       }
     } catch (error) {
@@ -153,7 +154,6 @@ const ShowDoctors = () => {
               placeholder={t('search.placeholder')}
               value={searchTerm}
               onChange={handleSearchChange}
-              onKeyPress={handleKeyPress}
               sx={{ borderRadius: 1, '& .MuiInputBase-input': { py: 1.5 } }}
               InputProps={{
                 startAdornment: (
@@ -214,7 +214,7 @@ const ShowDoctors = () => {
               ))
             ) : (
               <Typography variant="h6" color="text.secondary" align="center" sx={{ width: '100%' }}>
-                {t('no.results')}
+                {t('No results')}
               </Typography>
             )}
           </Grid>
@@ -238,7 +238,7 @@ const ShowDoctors = () => {
           sx={{ direction: i18n.dir() }}
         >
           <DialogTitle sx={{ textAlign: 'center' }}>
-            {selectedDoctor.name || 'Unknown Doctor'}
+          {t('show.details')}
           </DialogTitle>
           <DialogContent sx={{ direction: i18n.dir(), p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -263,7 +263,7 @@ const ShowDoctors = () => {
                 {selectedDoctor.bio || 'No biography available.'}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <br />
+                Consultation Fee: {selectedDoctor.consultationFee || 'N/A'} <strong>S.P</strong><br />
                 Date of Birth: {new Date(selectedDoctor.dateOfBirth).toLocaleDateString() || 'N/A'}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>

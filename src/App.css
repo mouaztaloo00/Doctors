@@ -11,14 +11,7 @@ h1, h2, h3, h4, h5, h6, p, div, span, a {
   font-weight: inherit;
 }
 
-body {
-  font-family: 'Arial', sans-serif;
-}
-
-body.ar {
-  font-family: 'Cairo', sans-serif;
-}
-.app-container {
+.app-container {  
   display: flex;
   height: 100vh;
 }
@@ -32,4 +25,7 @@ body.ar {
   flex: 1; 
   padding: 20px; 
   transition: margin 0.3s ease;
+  overflow-y: auto; 
+  margin-top: -37px;
+
 }
